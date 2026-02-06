@@ -70,5 +70,7 @@ Thumbs.db
 !NotToIgnore/**/
 
 #Ignore useless files
+NotToIgnore/FMOD/**/[Ee]xamples/
 NotToIgnore/FMOD/uninstall.exe
 NotToIgnore/FMOD/doc
+
