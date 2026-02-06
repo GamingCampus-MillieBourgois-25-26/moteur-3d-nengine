@@ -61,3 +61,6 @@ Thumbs.db
 .DS_Store
 
 !NotToIgnore/**/
+
+NotToIgnore/FMOD/uninstall.exe
+NotToIgnore/FMOD/doc
