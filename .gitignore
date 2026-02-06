@@ -59,8 +59,16 @@ compile_commands.json
 # ----------------------
 Thumbs.db
 .DS_Store
+# ----------------------
+# Engine includes
+# ----------------------
+!Engine/include/**/
 
+# ----------------------
+# Keep Audio and Graphic and Physic APIs to implement
+# ----------------------
 !NotToIgnore/**/
 
+#Ignore useless files
 NotToIgnore/FMOD/uninstall.exe
 NotToIgnore/FMOD/doc
