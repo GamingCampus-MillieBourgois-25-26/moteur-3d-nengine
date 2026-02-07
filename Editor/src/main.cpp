@@ -3,6 +3,13 @@
 int main()
 {
 	Engine::Application app;
-	app.Run();
+
+	app.Init();
+
+	while (app.getIsRunning() == true) 	{
+		app.Running();
+	}
+
+	app.Shutdown();
 	return 0;
 }

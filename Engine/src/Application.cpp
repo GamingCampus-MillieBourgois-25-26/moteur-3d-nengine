@@ -5,6 +5,7 @@ void Engine::Application::Init()
 	std::cout << "Initializing application...\n";
 	// open 
 	isRunning = true;
+	window.Create(800, 600, "My Application");
 }
 
 void Engine::Application::Running()
@@ -13,12 +14,14 @@ void Engine::Application::Running()
 	while (isRunning) {
 		// Update application state, handle input, render, etc.
 		std::cout << "Running...\n";
+		window.Update();
 	}
 }
 
 void Engine::Application::Shutdown()
 {
 	std::cout << "Shutting down application...\n";
+	window.ShouldClose();
 	isRunning = false;
 }
 
