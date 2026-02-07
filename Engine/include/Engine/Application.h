@@ -10,7 +10,13 @@ namespace Engine {
 
     class Application
     {
+    private:
+        bool isRunning = false;
+
     public:
+        void Init();
+        void Running();
+        void Shutdown();
 
         void Run();
     };

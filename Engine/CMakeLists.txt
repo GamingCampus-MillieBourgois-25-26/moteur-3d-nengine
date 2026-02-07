@@ -11,13 +11,12 @@ target_sources(Engine
         src/Application.cpp
         src/Window.cpp
 )
-
 # --------------------------
 # Include directories
 # --------------------------
 target_include_directories(Engine
     PUBLIC
-        include
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
     	${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
