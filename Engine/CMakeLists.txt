@@ -9,6 +9,7 @@ add_library(Engine STATIC)
 target_sources(Engine
     PRIVATE
         src/Application.cpp
+        src/Window.cpp
 )
 
 # --------------------------
@@ -17,6 +18,7 @@ target_sources(Engine
 target_include_directories(Engine
     PUBLIC
         include
+    	${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
 # --------------------------
@@ -47,7 +49,8 @@ target_link_libraries(Engine
     PRIVATE
         user32   # pour MessageBox et Win32
         kernel32
-    	  d3d11
+	glfw
+    	d3d11
         dxgi
-    	  d3dcompiler
+    	d3dcompiler
 )
