@@ -7,6 +7,8 @@
 #include <d3dcompiler.h>
 
 #include "Window.h"
+#include "AudioSystem.hpp"
+
 
 
 namespace Engine {
