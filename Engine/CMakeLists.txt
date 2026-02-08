@@ -45,9 +45,7 @@ endif()
 # Liens vers Windows libs
 # --------------------------
 target_link_libraries(Engine
-    PRIVATE
-        user32   # pour MessageBox et Win32
-        kernel32
+     PRIVATE
 	    glfw
     	d3d11
         dxgi
