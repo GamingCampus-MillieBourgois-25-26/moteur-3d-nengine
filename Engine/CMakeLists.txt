@@ -10,7 +10,7 @@ target_sources(Engine
     PRIVATE
         src/Application.cpp
         src/Window.cpp
-)
+ "src/Input.cpp" "include/Engine/Input.h")
 # --------------------------
 # Include directories
 # --------------------------
