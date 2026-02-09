@@ -7,7 +7,7 @@
 #include <d3dcompiler.h>
 
 #include "Window.h"
-#include "AudioSystem.hpp"
+#include "AudioSystem.h"
 
 
 
@@ -18,6 +18,7 @@ namespace Engine {
     private:
         bool isRunning = false;
 		Window window;
+        AudioSystem audio;
     public:
         void Init();
         void Running();

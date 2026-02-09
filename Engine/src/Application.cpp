@@ -7,10 +7,11 @@ void Engine::Application::Init()
 	// open 
 	isRunning = true;
 	window.Create(800, 600, "My Application");
-	AudioSystem audio;
 	audio.Init();
 	audio.LoadBanks();
 	audio.PlayEvent("event:/MSC_DS3");
+
+	Running();
 }
 
 void Engine::Application::Running()
@@ -19,10 +20,12 @@ void Engine::Application::Running()
 
 	while (isRunning) {
 		// Update application state, handle input, render, etc.
-		std::cout << "Running...\n";
+		//std::cout << "Running...\n";
 		audio.Update();
 		window.Update();
 	}
+
+	Shutdown();
 }
 
 void Engine::Application::Shutdown()

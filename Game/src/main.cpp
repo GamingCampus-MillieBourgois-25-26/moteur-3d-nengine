@@ -5,7 +5,7 @@ int main()
     Engine::Application app;
 
 
-    app.Run();
+    app.Init(); 
 
     return 0;
 }
