@@ -18,7 +18,6 @@ namespace Engine {
     {
     private:
         bool isRunning = false;
-		Window window;
         AudioSystem audio;
 
         WindowInstance window;

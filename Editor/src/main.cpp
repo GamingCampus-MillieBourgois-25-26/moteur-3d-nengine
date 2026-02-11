@@ -6,10 +6,5 @@ int main()
 
 	app.Init();
 
-	while (app.getIsRunning() == true) 	{
-		app.Running();
-	}
-
-	app.Shutdown();
 	return 0;
 }

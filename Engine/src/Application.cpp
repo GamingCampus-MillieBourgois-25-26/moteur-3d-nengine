@@ -14,7 +14,6 @@ void Engine::Application::Init()
 	audio.LoadBanks();
 	audio.PlayEvent("event:/MSC_DS3");
 
-	Running();
   
 
 	if (!renderer.Initialize(window.GetGLFWwindow()))
@@ -28,6 +27,7 @@ void Engine::Application::Init()
 
 	isRunning = true;
   
+	Running();
 }
 
 void Engine::Application::Running()
