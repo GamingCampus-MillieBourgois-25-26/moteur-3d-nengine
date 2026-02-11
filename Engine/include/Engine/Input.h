@@ -3,58 +3,90 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <algorithm>
 
-struct GLFWwindow;
+// Interface abstraite pour le backend
+class IInputBackend
+{
+public:
+    virtual ~IInputBackend() = default;
 
-// ===== Input =====
+    virtual void PollEvents() = 0;
+    virtual bool IsKeyDown(int key) const = 0;
+    virtual void GetMousePosition(double& x, double& y) const = 0;
+};
+
 class Input
 {
 public:
-    explicit Input(GLFWwindow* window);
+    explicit Input(std::unique_ptr<IInputBackend> backend);
+    ~Input() = default;
 
     void Update();
 
-    // Contexts
+    // ========================
+    // Context / Bindings
+    // ========================
+
+    enum class BindingType
+    {
+        Action,
+        Axis
+    };
+
     struct Binding
     {
         int key;
-        std::string action;
-        float scale;
+        std::string name;
+        BindingType type;
+        float scale = 1.f;
+        bool consume = true;
     };
 
-    struct Context
+    class Context
     {
-        std::vector<Binding> bindings;
-        void Bind(int key, const std::string& action, float scale = 1.f)
-        {
-            bindings.push_back({ key, action, scale });
-        }
+    public:
+        void BindAction(int key, const std::string& name, bool consume = true);
+        void BindAxis(int key, const std::string& name, float scale);
+
+    private:
+        friend class Input;
+        std::vector<Binding> m_bindings;
     };
 
-    void PushContext(Context* ctx);
+    std::shared_ptr<Context> CreateContext();
+    void PushContext(const std::shared_ptr<Context>& ctx);
     void PopContext();
 
+    // ========================
     // Gameplay API
+    // ========================
+
     bool Action(const std::string& name) const;
+    bool ActionPressed(const std::string& name) const;
+    bool ActionReleased(const std::string& name) const;
     float Axis(const std::string& name) const;
 
-    // Mouse
-    float MouseDX() const;
-    float MouseDY() const;
+    float MouseDX() const { return m_mouseDX; }
+    float MouseDY() const { return m_mouseDY; }
 
 private:
     enum class KeyState { Up, Pressed, Down, Released };
 
     void PollKeyboard();
     void PollMouse();
+    void ResolveContexts();
 
-    GLFWwindow* m_window = nullptr;
+    std::unique_ptr<IInputBackend> m_backend;
 
     std::unordered_map<int, KeyState> m_keys;
-    std::unordered_map<std::string, float> m_axes;
-    std::unordered_map<std::string, bool> m_actions;
 
-    std::vector<Context*> m_contexts;
+    std::unordered_map<std::string, bool> m_actionDown;
+    std::unordered_map<std::string, bool> m_actionPressed;
+    std::unordered_map<std::string, bool> m_actionReleased;
+    std::unordered_map<std::string, float> m_axes;
+
+    std::vector<std::shared_ptr<Context>> m_contexts;
 
     double m_lastMouseX = 0.0;
     double m_lastMouseY = 0.0;
