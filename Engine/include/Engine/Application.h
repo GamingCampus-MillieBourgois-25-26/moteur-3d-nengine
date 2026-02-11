@@ -15,7 +15,9 @@ namespace Engine {
     {
     private:
         bool isRunning = false;
-		Window window;
+
+        WindowInstance window;
+
     public:
         void Init();
         void Running();

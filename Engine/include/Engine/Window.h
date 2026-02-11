@@ -4,9 +4,11 @@
 struct GLFWwindow;
 
 namespace Engine {
-	class Window
+	class WindowInstance
 	{
 	public:
+
+
 		void Create(int width, int height, const char* title);
 		void Update();
 		bool ShouldClose() const;

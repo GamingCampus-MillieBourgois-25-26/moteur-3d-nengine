@@ -2,7 +2,7 @@
 #include <GLFW/glfw3.h>
 
 namespace Engine {
-	void Window::Create(int width, int height, const char* title)
+	void WindowInstance::Create(int width, int height, const char* title)
 	{
 		if (!glfwInit()) {
 			std::cerr << "Failed to initialize GLFW\n";
@@ -17,13 +17,13 @@ namespace Engine {
 		glfwMakeContextCurrent(m_window);
 	}
 
-	void Window::Update()
+	void WindowInstance::Update()
 	{
 		glfwSwapBuffers(m_window);
 		glfwPollEvents();
 	}
 
-	bool Window::ShouldClose() const
+	bool WindowInstance::ShouldClose() const
 	{
 		return glfwWindowShouldClose(m_window);
 	}
