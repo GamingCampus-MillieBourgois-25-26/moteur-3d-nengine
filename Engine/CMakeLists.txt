@@ -1,20 +1,15 @@
-# --------------------------
 # Engine library
-# --------------------------
 add_library(Engine STATIC)
 
-# --------------------------
-# Sources
-# --------------------------
+# Sources et headers
 target_sources(Engine
     PRIVATE
         src/Application.cpp
+        src/Renderer.cpp
         src/Window.cpp
 	    src/AudioSystem.cpp
 )
-# --------------------------
-# Include directories
-# --------------------------
+
 target_include_directories(Engine
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -24,34 +19,27 @@ target_include_directories(Engine
         ${CMAKE_CURRENT_SOURCE_DIR}/Audio
 )
 
-# --------------------------
-# Définitions pour Windows
-# --------------------------
+# Windows definitions
 target_compile_definitions(Engine
     PRIVATE
         WIN32_LEAN_AND_MEAN
         NOMINMAX
 )
 
-# --------------------------
-# C++ standard
-# --------------------------
+# C++20
 target_compile_features(Engine PUBLIC cxx_std_20)
 
-# --------------------------
-# Options de compilation MSVC
-# --------------------------
+# Compiler options MSVC
 if(MSVC)
     target_compile_options(Engine PRIVATE /W4 /permissive-)
 endif()
 
-# --------------------------
-# Liens vers Windows libs
-# --------------------------
+# Link libraries
 target_link_libraries(Engine
-     PRIVATE
-	    glfw
-    	d3d11
+    PRIVATE
+        d3d11
         dxgi
-    	d3dcompiler
+        d3dcompiler
+        glfw
+        opengl32
 )

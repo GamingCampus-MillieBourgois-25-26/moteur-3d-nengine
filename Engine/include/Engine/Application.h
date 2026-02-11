@@ -8,6 +8,7 @@
 
 #include "Window.h"
 #include "AudioSystem.h"
+#include "Renderer.h"
 
 
 
@@ -19,6 +20,11 @@ namespace Engine {
         bool isRunning = false;
 		Window window;
         AudioSystem audio;
+
+        WindowInstance window;
+
+
+        Renderer renderer;
     public:
         void Init();
         void Running();
