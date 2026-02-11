@@ -18,7 +18,11 @@ target_include_directories(Engine
     	${CMAKE_CURRENT_SOURCE_DIR}/NotToIgnore/FMOD/api/studio/inc
         ${CMAKE_CURRENT_SOURCE_DIR}/Audio
 )
-
+add_custom_target(copy_assets ALL
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/Game/Audio"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/Audio" "${CMAKE_BINARY_DIR}/Game/Audio"
+    COMMENT "Copy ${CMAKE_CURRENT_SOURCE_DIR}/Audio to ${CMAKE_BINARY_DIR}/Game/Audio"
+)
 # Windows definitions
 target_compile_definitions(Engine
     PRIVATE
@@ -43,3 +47,5 @@ target_link_libraries(Engine
         glfw
         opengl32
 )
+
+add_dependencies(Engine copy_assets)
