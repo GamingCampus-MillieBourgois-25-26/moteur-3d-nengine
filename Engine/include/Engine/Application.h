@@ -7,6 +7,8 @@
 #include <d3dcompiler.h>
 
 #include "Window.h"
+#include "Renderer.h"
+
 
 
 namespace Engine {
@@ -18,6 +20,8 @@ namespace Engine {
 
         WindowInstance window;
 
+
+        Renderer renderer;
     public:
         void Init();
         void Running();
