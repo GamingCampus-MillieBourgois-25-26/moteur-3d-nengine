@@ -68,6 +68,7 @@ Thumbs.db
 # Keep Audio and Graphic and Physic APIs to implement
 # ----------------------
 !Engine/NotToIgnore/**/
+!Engine/NotToIgnore/FMOD/api/core/lib/x64
 
 #Ignore useless files
 Engine/NotToIgnore/FMOD/**/[Ee]xamples/
