@@ -8,6 +8,7 @@ target_sources(Engine
         src/Renderer.cpp
         src/Window.cpp
 	    src/AudioSystem.cpp
+        src/OBJLoader.cpp
 )
 
 target_include_directories(Engine
@@ -17,6 +18,7 @@ target_include_directories(Engine
     	${CMAKE_CURRENT_SOURCE_DIR}/NotToIgnore/FMOD/api/core/inc
     	${CMAKE_CURRENT_SOURCE_DIR}/NotToIgnore/FMOD/api/studio/inc
         ${CMAKE_CURRENT_SOURCE_DIR}/Audio
+        ${CMAKE_CURRENT_SOURCE_DIR}/Assets
 )
 
 # Windows definitions
