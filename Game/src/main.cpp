@@ -7,8 +7,7 @@ int main()
     // Initialize window + renderer
     app.Init();
 
-    // Run main loop
-    app.Running();
+
 
     // Shutdown handled inside Run()
     return 0;

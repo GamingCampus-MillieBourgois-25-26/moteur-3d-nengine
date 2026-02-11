@@ -7,12 +7,16 @@ target_sources(Engine
         src/Application.cpp
         src/Renderer.cpp
         src/Window.cpp
+	    src/AudioSystem.cpp
 )
 
 target_include_directories(Engine
     PUBLIC
-        include
-        src
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+    	${CMAKE_CURRENT_SOURCE_DIR}/src
+    	${CMAKE_CURRENT_SOURCE_DIR}/NotToIgnore/FMOD/api/core/inc
+    	${CMAKE_CURRENT_SOURCE_DIR}/NotToIgnore/FMOD/api/studio/inc
+        ${CMAKE_CURRENT_SOURCE_DIR}/Audio
 )
 
 # Windows definitions
