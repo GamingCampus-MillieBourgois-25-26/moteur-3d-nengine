@@ -21,8 +21,9 @@ target_include_directories(Engine
 add_custom_target(copy_assets ALL
     COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/Game/Audio"
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/Assets/Audio" "${CMAKE_BINARY_DIR}/Game/Audio"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/Editor/Audio"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/Assets/Audio" "${CMAKE_BINARY_DIR}/Editor/Audio"
     COMMENT "Copy ${CMAKE_CURRENT_SOURCE_DIR}/Assets/Audio to ${CMAKE_BINARY_DIR}/Game/Audio"
-)
 # Windows definitions
 target_compile_definitions(Engine
     PRIVATE
@@ -47,5 +48,3 @@ target_link_libraries(Engine
         glfw
         opengl32
 )
-
-add_dependencies(Engine copy_assets)
