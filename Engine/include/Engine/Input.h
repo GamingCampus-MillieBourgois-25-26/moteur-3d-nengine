@@ -4,8 +4,12 @@
 #include <string>
 #include <memory>
 #include <algorithm>
+#include <array>
 
-// Interface abstraite pour le backend
+// ========================
+// Backend Interface
+// ========================
+
 class IInputBackend
 {
 public:
@@ -13,8 +17,16 @@ public:
 
     virtual void PollEvents() = 0;
     virtual bool IsKeyDown(int key) const = 0;
+    virtual bool IsMouseButtonDown(int button) const = 0;
     virtual void GetMousePosition(double& x, double& y) const = 0;
+
+    virtual float ConsumeScrollX() = 0;
+    virtual float ConsumeScrollY() = 0;
 };
+
+// ========================
+// Input System
+// ========================
 
 class Input
 {
@@ -70,16 +82,27 @@ public:
     float MouseDX() const { return m_mouseDX; }
     float MouseDY() const { return m_mouseDY; }
 
+    float ScrollX() const { return m_scrollX; }
+    float ScrollY() const { return m_scrollY; }
+
+    // Pour binder les boutons souris
+    static constexpr int MOUSE_OFFSET = 1000;
+
 private:
     enum class KeyState { Up, Pressed, Down, Released };
 
     void PollKeyboard();
+    void PollMouseButtons();
     void PollMouse();
     void ResolveContexts();
 
     std::unique_ptr<IInputBackend> m_backend;
 
-    std::unordered_map<int, KeyState> m_keys;
+    static constexpr int KEY_COUNT = 349; // GLFW_KEY_LAST + 1
+    static constexpr int MOUSE_BUTTON_COUNT = 8; // GLFW_MOUSE_BUTTON_LAST + 1
+
+    std::array<KeyState, KEY_COUNT> m_keys;
+    std::array<KeyState, MOUSE_BUTTON_COUNT> m_mouseButtons;
 
     std::unordered_map<std::string, bool> m_actionDown;
     std::unordered_map<std::string, bool> m_actionPressed;
@@ -93,4 +116,7 @@ private:
     float m_mouseDX = 0.f;
     float m_mouseDY = 0.f;
     bool m_firstMouse = true;
+
+    float m_scrollX = 0.f;
+    float m_scrollY = 0.f;
 };

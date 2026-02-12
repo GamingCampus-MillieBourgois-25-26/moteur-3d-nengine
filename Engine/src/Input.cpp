@@ -1,9 +1,8 @@
 #include "Engine/Input.h"
 #include <GLFW/glfw3.h>
-#include <iostream>
 
 // ========================
-// Backend GLFW concret
+// GLFW Backend
 // ========================
 
 class GLFWBackend : public IInputBackend
@@ -13,6 +12,16 @@ public:
         : m_window(window)
     {
         glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+        glfwSetWindowUserPointer(m_window, this);
+
+        glfwSetScrollCallback(m_window,
+            [](GLFWwindow* window, double xoffset, double yoffset)
+            {
+                auto backend = static_cast<GLFWBackend*>(glfwGetWindowUserPointer(window));
+                backend->m_scrollX += static_cast<float>(xoffset);
+                backend->m_scrollY += static_cast<float>(yoffset);
+            });
     }
 
     void PollEvents() override { glfwPollEvents(); }
@@ -22,13 +31,34 @@ public:
         return glfwGetKey(m_window, key) == GLFW_PRESS;
     }
 
+    bool IsMouseButtonDown(int button) const override
+    {
+        return glfwGetMouseButton(m_window, button) == GLFW_PRESS;
+    }
+
     void GetMousePosition(double& x, double& y) const override
     {
         glfwGetCursorPos(m_window, &x, &y);
     }
 
+    float ConsumeScrollX() override
+    {
+        float tmp = m_scrollX;
+        m_scrollX = 0.f;
+        return tmp;
+    }
+
+    float ConsumeScrollY() override
+    {
+        float tmp = m_scrollY;
+        m_scrollY = 0.f;
+        return tmp;
+    }
+
 private:
     GLFWwindow* m_window;
+    float m_scrollX = 0.f;
+    float m_scrollY = 0.f;
 };
 
 // ========================
@@ -38,8 +68,8 @@ private:
 Input::Input(std::unique_ptr<IInputBackend> backend)
     : m_backend(std::move(backend))
 {
-    for (int key = 0; key <= 348; ++key) // GLFW_KEY_LAST = 348
-        m_keys[key] = KeyState::Up;
+    m_keys.fill(KeyState::Up);
+    m_mouseButtons.fill(KeyState::Up);
 }
 
 void Input::Update()
@@ -47,7 +77,11 @@ void Input::Update()
     m_backend->PollEvents();
 
     PollKeyboard();
+    PollMouseButtons();
     PollMouse();
+
+    m_scrollX = m_backend->ConsumeScrollX();
+    m_scrollY = m_backend->ConsumeScrollY();
 
     m_actionDown.clear();
     m_actionPressed.clear();
@@ -57,34 +91,53 @@ void Input::Update()
     ResolveContexts();
 }
 
-// ------------------------
-// Keyboard polling
-// ------------------------
+// ========================
+// Keyboard
+// ========================
 
 void Input::PollKeyboard()
 {
-    for (auto& [key, ks] : m_keys)
+    for (int key = 0; key < KEY_COUNT; ++key)
     {
+        auto& ks = m_keys[key];
         bool pressed = m_backend->IsKeyDown(key);
 
         if (pressed)
-        {
             ks = (ks == KeyState::Up || ks == KeyState::Released)
-                ? KeyState::Pressed
-                : KeyState::Down;
-        }
+            ? KeyState::Pressed
+            : KeyState::Down;
         else
-        {
             ks = (ks == KeyState::Down || ks == KeyState::Pressed)
-                ? KeyState::Released
-                : KeyState::Up;
-        }
+            ? KeyState::Released
+            : KeyState::Up;
     }
 }
 
-// ------------------------
-// Mouse polling
-// ------------------------
+// ========================
+// Mouse Buttons
+// ========================
+
+void Input::PollMouseButtons()
+{
+    for (int button = 0; button < MOUSE_BUTTON_COUNT; ++button)
+    {
+        auto& ks = m_mouseButtons[button];
+        bool pressed = m_backend->IsMouseButtonDown(button);
+
+        if (pressed)
+            ks = (ks == KeyState::Up || ks == KeyState::Released)
+            ? KeyState::Pressed
+            : KeyState::Down;
+        else
+            ks = (ks == KeyState::Down || ks == KeyState::Pressed)
+            ? KeyState::Released
+            : KeyState::Up;
+    }
+}
+
+// ========================
+// Mouse Movement
+// ========================
 
 void Input::PollMouse()
 {
@@ -98,16 +151,16 @@ void Input::PollMouse()
         m_firstMouse = false;
     }
 
-    m_mouseDX = float(x - m_lastMouseX);
-    m_mouseDY = float(m_lastMouseY - y); // FPS style
+    m_mouseDX = static_cast<float>(x - m_lastMouseX);
+    m_mouseDY = static_cast<float>(m_lastMouseY - y);
 
     m_lastMouseX = x;
     m_lastMouseY = y;
 }
 
-// ------------------------
-// Context resolution
-// ------------------------
+// ========================
+// Context Resolution
+// ========================
 
 void Input::ResolveContexts()
 {
@@ -120,7 +173,12 @@ void Input::ResolveContexts()
             if (consumed[b.key])
                 continue;
 
-            KeyState ks = m_keys[b.key];
+            KeyState ks;
+
+            if (b.key >= MOUSE_OFFSET)
+                ks = m_mouseButtons[b.key - MOUSE_OFFSET];
+            else
+                ks = m_keys[b.key];
 
             bool isActive = ks == KeyState::Pressed || ks == KeyState::Down;
             bool isReleased = ks == KeyState::Released;
@@ -149,9 +207,9 @@ void Input::ResolveContexts()
         value = std::clamp(value, -1.f, 1.f);
 }
 
-// ------------------------
+// ========================
 // Context API
-// ------------------------
+// ========================
 
 std::shared_ptr<Input::Context> Input::CreateContext()
 {
@@ -179,9 +237,9 @@ void Input::PopContext()
         m_contexts.pop_back();
 }
 
-// ------------------------
+// ========================
 // Gameplay API
-// ------------------------
+// ========================
 
 bool Input::Action(const std::string& name) const
 {
