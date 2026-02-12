@@ -45,13 +45,24 @@ void OBJLoader::loadOBJFile()
 
             std::cout << "Face brute : " << v1 << " " << v2 << " " << v3 << "\n";
 
-            // Prochain Objectif : découper et convertir les “1/2/3” en indices utilisables
-            // attention aux pièges lors du split & convert car le format OBJ commence à 1, mais C++ commence à 0.
-            // donc 4.5.6 deviendra 3.4.5
-            // position 0 en c++ = position 1 en obj etc donc en gros on faut tjrs -1.
+            // Découpe des index positions, UV et normale
+            cutFace(v1);
+            cutFace(v2);
+            cutFace(v3);
 
-            // découper, convertir en int, faire -1, récup les bonnes pos/UV/normales, construire les vertices.
+            // récup les bonnes pos/UV/normales, construire les vertices.
             
+            FaceIndex index1 = cutFace(v1);
+            FaceIndex index2 = cutFace(v2);
+            FaceIndex index3 = cutFace(v3);
+
+            uint32_t a = addVertex(index1); 
+            uint32_t b = addVertex(index2); 
+            uint32_t c = addVertex(index3); 
+            
+            indices.push_back(a); 
+            indices.push_back(b); 
+            indices.push_back(c);
 
             // -> ensuite, créer les buffers DX11, créer l'input layout, charger / compiler les shaders, envoyer les buffers au pipeline, drawIndexed().
         }
@@ -60,4 +71,58 @@ void OBJLoader::loadOBJFile()
     std::cout << "Positions : " << positions.size() << "\n";
     std::cout << "UVs       : " << uvs.size() << "\n";
     std::cout << "Normales  : " << normals.size() << "\n";
+}
+
+OBJLoader::FaceIndex OBJLoader::cutFace(std::string sg) {
+    std::stringstream ssm(sg);
+    std::string a, b, c;
+
+    std::getline(ssm, a, '/'); // -> lis dans le flux jusqu'à rencontrer '/', quand c'est fait, stock tout dans la variable a.
+    std::getline(ssm, b, '/');
+    std::getline(ssm, c, '/');
+
+    FaceIndex fi;
+    fi.pos = std::stoi(a) - 1;
+    fi.uv = std::stoi(b) - 1;
+    fi.norm = std::stoi(c) - 1;
+
+    std::cout << fi.pos << "pos" << " " << fi.uv << "uv" << " " << fi.norm << "norm" << "\n";
+
+    return fi;
+}
+
+uint32_t OBJLoader::addVertex(FaceIndex fix) 
+{
+    VertexKey key{ fix.pos, fix.uv, fix.norm };  
+
+    // Déjà existant ? / Evite les doublons qui vont tout casser
+    auto it = vertexCache.find(key); // cherche si on a déjà créé le vertex pour le triplet (pos, uv, norm)
+    if (it != vertexCache.end()) // si on trouve le vertex dans le vecteur vertices alors 
+        return it->second; // l'index existe déjà donc on return celui deja existant et on sert de la fonction
+
+    // Nouveau vertex 
+    Vertex v;
+    v.position = positions[fix.pos]; 
+    v.normal = normals[fix.norm];
+    v.uv = uvs[fix.uv];
+
+    uint32_t index = vertices.size(); // donne le prochain index libre / taille actuelle du super tabeleau et on stock ce nb dans "index"
+    vertices.push_back(v); // donc on ajoute le vertex qu'on vient de créer a notre tableau de vertices
+    vertexCache[key] = index; // on l'enregistre dans le "cache" de la map pour que si on trouve de nouveau ce vecteur, on en créer pas d'autre
+
+    return index;
+}
+
+void OBJLoader::bufferCreation(Vertex v) {
+    bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+    bufferDesc.ByteWidth = sizeof(v);
+    bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    bufferDesc.CPUAccessFlags = 0;
+    bufferDesc.MiscFlags = 0;
+
+    InitData.pSysMem = vertices.data();
+    InitData.SysMemPitch = 0;
+    InitData.SysMemSlicePitch = 0;
+
+    hr = rend.GetDevice()->CreateBuffer(&bufferDesc, &InitData, &vertexBuffer); // pas sur de ce que je fais ici 
 }
