@@ -36,7 +36,6 @@ void Engine::Application::Running()
 
 	while (isRunning && !window.ShouldClose()) {
 		// Update application state, handle input, render, etc.
-		std::cout << "Running...\n";
 				audio.Update();
 		window.Update();
 		renderer.Render();
@@ -48,8 +47,8 @@ void Engine::Application::Running()
 
 void Engine::Application::Shutdown()
 {
-	audio.Shutdown();
 	std::cout << "Shutting down application...\n";
+	audio.Shutdown();
 	window.ShouldClose();
 	isRunning = false;
 }
