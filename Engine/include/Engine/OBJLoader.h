@@ -48,5 +48,6 @@ public:
 	void loadOBJFile();
 	FaceIndex cutFace(std::string sg);
 	uint32_t addVertex(FaceIndex fix);
-	void bufferCreation(Vertex v);
+	void vertexBufferCreation();
+	void indexBufferCreation();
 };

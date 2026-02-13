@@ -97,12 +97,12 @@ uint32_t OBJLoader::addVertex(FaceIndex fix)
 
     // Déjà existant ? / Evite les doublons qui vont tout casser
     auto it = vertexCache.find(key); // cherche si on a déjà créé le vertex pour le triplet (pos, uv, norm)
-    if (it != vertexCache.end()) // si on trouve le vertex dans le vecteur vertices alors 
+    if (it != vertexCache.end()) // si on trouve le vertex dans le vecteur vertices alors
         return it->second; // l'index existe déjà donc on return celui deja existant et on sert de la fonction
 
     // Nouveau vertex 
     Vertex v;
-    v.position = positions[fix.pos]; 
+    v.position = positions[fix.pos];
     v.normal = normals[fix.norm];
     v.uv = uvs[fix.uv];
 
@@ -113,16 +113,30 @@ uint32_t OBJLoader::addVertex(FaceIndex fix)
     return index;
 }
 
-void OBJLoader::bufferCreation(Vertex v) {
-    bufferDesc.Usage = D3D11_USAGE_DEFAULT;
-    bufferDesc.ByteWidth = sizeof(v);
-    bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-    bufferDesc.CPUAccessFlags = 0;
+void OBJLoader::vertexBufferCreation() {
+    bufferDesc.Usage = D3D11_USAGE_DEFAULT; // ce buffer ne sera pas modifier après création
+    bufferDesc.ByteWidth = sizeof(Vertex) * vertices.size(); // calcul de la taille totale du buffer pour le GPU // -> ce bloc mémoire va dans la VRAM
+    bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER; // ce buffer devient un vertex buffer 
+    bufferDesc.CPUAccessFlags = 0; 
     bufferDesc.MiscFlags = 0;
 
-    InitData.pSysMem = vertices.data();
+    InitData.pSysMem = vertices.data(); // donnes à DirectX l’adresse des données en RAM // C’est ce que DirectX va copier dans le buffer GPU
     InitData.SysMemPitch = 0;
     InitData.SysMemSlicePitch = 0;
 
     hr = rend.GetDevice()->CreateBuffer(&bufferDesc, &InitData, &vertexBuffer); // pas sur de ce que je fais ici 
+}
+
+void OBJLoader::indexBufferCreation() {
+    bufferDesc.Usage = D3D11_USAGE_DEFAULT; // ce buffer ne sera pas modifier après création
+    bufferDesc.ByteWidth = sizeof(uint32_t) * indices.size(); // calcul de la taille totale du buffer pour le GPU // -> ce bloc mémoire va dans la VRAM
+    bufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER; // ce buffer devient un index buffer 
+    bufferDesc.CPUAccessFlags = 0;
+    bufferDesc.MiscFlags = 0;
+
+    InitData.pSysMem = indices.data(); // donnes à DirectX l’adresse des données en RAM // C’est ce que DirectX va copier dans le buffer GPU
+    InitData.SysMemPitch = 0;
+    InitData.SysMemSlicePitch = 0;
+
+    hr = rend.GetDevice()->CreateBuffer(&bufferDesc, &InitData, &indexBuffer);  
 }
