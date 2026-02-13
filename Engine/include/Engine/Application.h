@@ -7,10 +7,8 @@
 #include <d3dcompiler.h>
 
 #include "Window.h"
-#include "AudioSystem.h"
 #include "Renderer.h"
-
-
+#include <chrono>
 
 namespace Engine {
 
@@ -18,9 +16,11 @@ namespace Engine {
     {
     private:
         bool isRunning = false;
-        AudioSystem audio;
 
         WindowInstance window;
+
+        using clock = std::chrono::high_resolution_clock;
+
 
 
         Renderer renderer;
@@ -31,7 +31,7 @@ namespace Engine {
 
         void Run();
 
-		bool getIsRunning() const { return isRunning; }
-		void setIsRunning(bool running) { isRunning = running; }
+        bool getIsRunning() const { return isRunning; }
+        void setIsRunning(bool running) { isRunning = running; }
     };
 }
