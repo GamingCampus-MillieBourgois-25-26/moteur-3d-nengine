@@ -36,15 +36,7 @@ public:
 
     void Update();
 
-    // ========================
-    // Context / Bindings
-    // ========================
-
-    enum class BindingType
-    {
-        Action,
-        Axis
-    };
+    enum class BindingType { Action, Axis };
 
     struct Binding
     {
@@ -60,6 +52,19 @@ public:
     public:
         void BindAction(int key, const std::string& name, bool consume = true);
         void BindAxis(int key, const std::string& name, float scale);
+        void Rebind(const std::string& name, int newKey);
+
+        struct SerializableBinding
+        {
+            std::string name;
+            int key;
+            BindingType type;
+            float scale;
+            bool consume;
+        };
+
+        std::vector<SerializableBinding> Serialize() const;
+        void Deserialize(const std::vector<SerializableBinding>& data);
 
     private:
         friend class Input;
@@ -70,10 +75,6 @@ public:
     void PushContext(const std::shared_ptr<Context>& ctx);
     void PopContext();
 
-    // ========================
-    // Gameplay API
-    // ========================
-
     bool Action(const std::string& name) const;
     bool ActionPressed(const std::string& name) const;
     bool ActionReleased(const std::string& name) const;
@@ -81,12 +82,13 @@ public:
 
     float MouseDX() const { return m_mouseDX; }
     float MouseDY() const { return m_mouseDY; }
-
     float ScrollX() const { return m_scrollX; }
     float ScrollY() const { return m_scrollY; }
 
-    // Pour binder les boutons souris
+    int GetAnyPressedKey() const;
+
     static constexpr int MOUSE_OFFSET = 1000;
+    static constexpr int GAMEPAD_OFFSET = 2000;
 
 private:
     enum class KeyState { Up, Pressed, Down, Released };
@@ -98,8 +100,8 @@ private:
 
     std::unique_ptr<IInputBackend> m_backend;
 
-    static constexpr int KEY_COUNT = 349; // GLFW_KEY_LAST + 1
-    static constexpr int MOUSE_BUTTON_COUNT = 8; // GLFW_MOUSE_BUTTON_LAST + 1
+    static constexpr int KEY_COUNT = 349;
+    static constexpr int MOUSE_BUTTON_COUNT = 8;
 
     std::array<KeyState, KEY_COUNT> m_keys;
     std::array<KeyState, MOUSE_BUTTON_COUNT> m_mouseButtons;

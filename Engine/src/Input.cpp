@@ -1,5 +1,11 @@
 #include "Engine/Input.h"
 #include <GLFW/glfw3.h>
+#include <Xinput.h>
+#include <Engine/json.hpp>
+#include <fstream>
+#include <filesystem>
+
+using json = nlohmann::json;
 
 // ========================
 // GLFW Backend
@@ -8,52 +14,27 @@
 class GLFWBackend : public IInputBackend
 {
 public:
-    explicit GLFWBackend(GLFWwindow* window)
-        : m_window(window)
+    explicit GLFWBackend(GLFWwindow* window) : m_window(window)
     {
         glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
         glfwSetWindowUserPointer(m_window, this);
 
         glfwSetScrollCallback(m_window,
-            [](GLFWwindow* window, double xoffset, double yoffset)
+            [](GLFWwindow* window, double x, double y)
             {
-                auto backend = static_cast<GLFWBackend*>(glfwGetWindowUserPointer(window));
-                backend->m_scrollX += static_cast<float>(xoffset);
-                backend->m_scrollY += static_cast<float>(yoffset);
+                auto b = static_cast<GLFWBackend*>(glfwGetWindowUserPointer(window));
+                b->m_scrollX += (float)x;
+                b->m_scrollY += (float)y;
             });
     }
 
     void PollEvents() override { glfwPollEvents(); }
+    bool IsKeyDown(int key) const override { return glfwGetKey(m_window, key) == GLFW_PRESS; }
+    bool IsMouseButtonDown(int button) const override { return glfwGetMouseButton(m_window, button) == GLFW_PRESS; }
+    void GetMousePosition(double& x, double& y) const override { glfwGetCursorPos(m_window, &x, &y); }
 
-    bool IsKeyDown(int key) const override
-    {
-        return glfwGetKey(m_window, key) == GLFW_PRESS;
-    }
-
-    bool IsMouseButtonDown(int button) const override
-    {
-        return glfwGetMouseButton(m_window, button) == GLFW_PRESS;
-    }
-
-    void GetMousePosition(double& x, double& y) const override
-    {
-        glfwGetCursorPos(m_window, &x, &y);
-    }
-
-    float ConsumeScrollX() override
-    {
-        float tmp = m_scrollX;
-        m_scrollX = 0.f;
-        return tmp;
-    }
-
-    float ConsumeScrollY() override
-    {
-        float tmp = m_scrollY;
-        m_scrollY = 0.f;
-        return tmp;
-    }
+    float ConsumeScrollX() override { float t = m_scrollX; m_scrollX = 0.f; return t; }
+    float ConsumeScrollY() override { float t = m_scrollY; m_scrollY = 0.f; return t; }
 
 private:
     GLFWwindow* m_window;
@@ -75,7 +56,6 @@ Input::Input(std::unique_ptr<IInputBackend> backend)
 void Input::Update()
 {
     m_backend->PollEvents();
-
     PollKeyboard();
     PollMouseButtons();
     PollMouse();
@@ -92,52 +72,36 @@ void Input::Update()
 }
 
 // ========================
-// Keyboard
+// Polling
 // ========================
 
 void Input::PollKeyboard()
 {
-    for (int key = 0; key < KEY_COUNT; ++key)
+    for (int i = 0; i < KEY_COUNT; ++i)
     {
-        auto& ks = m_keys[key];
-        bool pressed = m_backend->IsKeyDown(key);
+        bool down = m_backend->IsKeyDown(i);
+        auto& k = m_keys[i];
 
-        if (pressed)
-            ks = (ks == KeyState::Up || ks == KeyState::Released)
-            ? KeyState::Pressed
-            : KeyState::Down;
+        if (down)
+            k = (k == KeyState::Up || k == KeyState::Released) ? KeyState::Pressed : KeyState::Down;
         else
-            ks = (ks == KeyState::Down || ks == KeyState::Pressed)
-            ? KeyState::Released
-            : KeyState::Up;
+            k = (k == KeyState::Down || k == KeyState::Pressed) ? KeyState::Released : KeyState::Up;
     }
 }
-
-// ========================
-// Mouse Buttons
-// ========================
 
 void Input::PollMouseButtons()
 {
-    for (int button = 0; button < MOUSE_BUTTON_COUNT; ++button)
+    for (int i = 0; i < MOUSE_BUTTON_COUNT; ++i)
     {
-        auto& ks = m_mouseButtons[button];
-        bool pressed = m_backend->IsMouseButtonDown(button);
+        bool down = m_backend->IsMouseButtonDown(i);
+        auto& k = m_mouseButtons[i];
 
-        if (pressed)
-            ks = (ks == KeyState::Up || ks == KeyState::Released)
-            ? KeyState::Pressed
-            : KeyState::Down;
+        if (down)
+            k = (k == KeyState::Up || k == KeyState::Released) ? KeyState::Pressed : KeyState::Down;
         else
-            ks = (ks == KeyState::Down || ks == KeyState::Pressed)
-            ? KeyState::Released
-            : KeyState::Up;
+            k = (k == KeyState::Down || k == KeyState::Pressed) ? KeyState::Released : KeyState::Up;
     }
 }
-
-// ========================
-// Mouse Movement
-// ========================
 
 void Input::PollMouse()
 {
@@ -151,8 +115,8 @@ void Input::PollMouse()
         m_firstMouse = false;
     }
 
-    m_mouseDX = static_cast<float>(x - m_lastMouseX);
-    m_mouseDY = static_cast<float>(m_lastMouseY - y);
+    m_mouseDX = (float)(x - m_lastMouseX);
+    m_mouseDY = (float)(m_lastMouseY - y);
 
     m_lastMouseX = x;
     m_lastMouseY = y;
@@ -168,43 +132,35 @@ void Input::ResolveContexts()
 
     for (auto it = m_contexts.rbegin(); it != m_contexts.rend(); ++it)
     {
-        for (const Binding& b : (*it)->m_bindings)
+        for (const auto& b : (*it)->m_bindings)
         {
-            if (consumed[b.key])
-                continue;
+            if (consumed[b.key]) continue;
 
-            KeyState ks;
+            KeyState ks = KeyState::Up;
 
             if (b.key >= MOUSE_OFFSET)
                 ks = m_mouseButtons[b.key - MOUSE_OFFSET];
             else
                 ks = m_keys[b.key];
 
-            bool isActive = ks == KeyState::Pressed || ks == KeyState::Down;
-            bool isReleased = ks == KeyState::Released;
+            bool active = ks == KeyState::Pressed || ks == KeyState::Down;
 
             if (b.type == BindingType::Action)
             {
-                if (ks == KeyState::Pressed)
-                    m_actionPressed[b.name] = true;
-                if (ks == KeyState::Released)
-                    m_actionReleased[b.name] = true;
-                if (isActive)
-                    m_actionDown[b.name] = true;
+                if (ks == KeyState::Pressed) m_actionPressed[b.name] = true;
+                if (ks == KeyState::Released) m_actionReleased[b.name] = true;
+                if (active) m_actionDown[b.name] = true;
             }
-            else if (b.type == BindingType::Axis)
-            {
-                if (isActive)
-                    m_axes[b.name] += b.scale;
-            }
+            else if (active)
+                m_axes[b.name] += b.scale;
 
-            if (b.consume && (isActive || isReleased))
+            if (b.consume && (active || ks == KeyState::Released))
                 consumed[b.key] = true;
         }
     }
 
-    for (auto& [name, value] : m_axes)
-        value = std::clamp(value, -1.f, 1.f);
+    for (auto& [_, v] : m_axes)
+        v = std::clamp(v, -1.f, 1.f);
 }
 
 // ========================
@@ -226,15 +182,26 @@ void Input::Context::BindAxis(int key, const std::string& name, float scale)
     m_bindings.push_back({ key, name, BindingType::Axis, scale, false });
 }
 
-void Input::PushContext(const std::shared_ptr<Context>& ctx)
+void Input::Context::Rebind(const std::string& name, int newKey)
 {
-    m_contexts.push_back(ctx);
+    for (auto& b : m_bindings)
+        if (b.name == name)
+            b.key = newKey;
 }
 
-void Input::PopContext()
+std::vector<Input::Context::SerializableBinding> Input::Context::Serialize() const
 {
-    if (!m_contexts.empty())
-        m_contexts.pop_back();
+    std::vector<SerializableBinding> out;
+    for (const auto& b : m_bindings)
+        out.push_back({ b.name, b.key, b.type, b.scale, b.consume });
+    return out;
+}
+
+void Input::Context::Deserialize(const std::vector<SerializableBinding>& data)
+{
+    m_bindings.clear();
+    for (const auto& b : data)
+        m_bindings.push_back({ b.key, b.name, b.type, b.scale, b.consume });
 }
 
 // ========================
@@ -243,24 +210,34 @@ void Input::PopContext()
 
 bool Input::Action(const std::string& name) const
 {
-    auto it = m_actionDown.find(name);
-    return it != m_actionDown.end() && it->second;
+    return m_actionDown.contains(name);
 }
 
 bool Input::ActionPressed(const std::string& name) const
 {
-    auto it = m_actionPressed.find(name);
-    return it != m_actionPressed.end() && it->second;
+    return m_actionPressed.contains(name);
 }
 
 bool Input::ActionReleased(const std::string& name) const
 {
-    auto it = m_actionReleased.find(name);
-    return it != m_actionReleased.end() && it->second;
+    return m_actionReleased.contains(name);
 }
 
 float Input::Axis(const std::string& name) const
 {
     auto it = m_axes.find(name);
     return it != m_axes.end() ? it->second : 0.f;
+}
+
+int Input::GetAnyPressedKey() const
+{
+    for (int i = 0; i < KEY_COUNT; ++i)
+        if (m_keys[i] == KeyState::Pressed)
+            return i;
+
+    for (int i = 0; i < MOUSE_BUTTON_COUNT; ++i)
+        if (m_mouseButtons[i] == KeyState::Pressed)
+            return MOUSE_OFFSET + i;
+
+    return -1;
 }
