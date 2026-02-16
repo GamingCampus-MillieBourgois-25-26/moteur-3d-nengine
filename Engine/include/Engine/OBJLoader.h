@@ -42,6 +42,7 @@ private :
 	D3D11_SUBRESOURCE_DATA InitData;
 	HRESULT hr;
 	Renderer rend;
+	UINT indexCount;
 
 public:
 
@@ -50,5 +51,4 @@ public:
 	uint32_t addVertex(FaceIndex fix);
 	void vertexBufferCreation();
 	void indexBufferCreation();
-	void sizeVertex();
 };

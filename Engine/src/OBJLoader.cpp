@@ -71,6 +71,8 @@ void OBJLoader::loadOBJFile()
     std::cout << "Positions : " << positions.size() << "\n";
     std::cout << "UVs       : " << uvs.size() << "\n";
     std::cout << "Normales  : " << normals.size() << "\n";
+
+    indexCount = indices.size();
 }
 
 OBJLoader::FaceIndex OBJLoader::cutFace(std::string sg) {
@@ -141,8 +143,25 @@ void OBJLoader::indexBufferCreation() {
     hr = rend.GetDevice()->CreateBuffer(&bufferDesc, &InitData, &indexBuffer);  
 }
 
-void OBJLoader::sizeVertex() {
-    Vertex size;
+/*
 
+A la place du create mesh en hard code bien dur on mettra : 
 
-}
+OBJLoader loader;
+loader.loadOBJFile();
+loader.vertexBufferCreation();
+loader.indexBufferCreation();
+
+m_mesh.vertexBuffer = loader.vertexBuffer;
+m_mesh.indexBuffer  = loader.indexBuffer;
+m_mesh.indexCount   = loader.indices.size();
+
+le renderer a besoin de ca : 
+
+m_context->DrawIndexed(m_mesh.indexCount, 0, 0);
+
+Donc dans index count on va mettre indices.size()
+
+Mettre la bonne ref au device (y'en a un dans render normalement donc faudra voir) : rend.GetDevice()
+
+*/
