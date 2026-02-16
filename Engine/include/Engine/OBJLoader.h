@@ -50,4 +50,5 @@ public:
 	uint32_t addVertex(FaceIndex fix);
 	void vertexBufferCreation();
 	void indexBufferCreation();
+	void sizeVertex();
 };

@@ -140,3 +140,9 @@ void OBJLoader::indexBufferCreation() {
 
     hr = rend.GetDevice()->CreateBuffer(&bufferDesc, &InitData, &indexBuffer);  
 }
+
+void OBJLoader::sizeVertex() {
+    Vertex size;
+
+
+}
