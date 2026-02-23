@@ -1,11 +1,14 @@
-#include <Engine/Application.h>
+#include "Engine/Application.h"
 
 int main()
 {
     Engine::Application app;
 
+    // Initialize window + renderer
+    app.Init();
 
-    app.Run();
 
+
+    // Shutdown handled inside Run()
     return 0;
 }

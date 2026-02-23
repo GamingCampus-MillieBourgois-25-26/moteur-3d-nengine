@@ -1,4 +1,4 @@
-#include <Engine/Application.h>	
+#include "Engine/Application.h"	
 
 int main()
 {
@@ -6,10 +6,5 @@ int main()
 
 	app.Init();
 
-	while (app.getIsRunning() == true) 	{
-		app.Running();
-	}
-
-	app.Shutdown();
 	return 0;
 }
