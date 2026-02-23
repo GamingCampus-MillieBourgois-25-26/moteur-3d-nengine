@@ -7,7 +7,8 @@ target_sources(Engine
         src/Application.cpp
         src/Renderer.cpp
         src/Window.cpp
-	    src/AudioSystem.cpp
+        src/Input.cpp 
+	      src/AudioSystem.cpp
         src/OBJLoader.cpp
 )
 
