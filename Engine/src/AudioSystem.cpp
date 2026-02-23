@@ -7,7 +7,7 @@ bool AudioSystem::Init() {
 	result = FMOD::Studio::System::create(&mStudio);
 	/////
 	/*
-	Ici, permet de savoir si on a une erreur de type carte son not found, DLL not found, x86/x64 not good, FMOD not init
+	Ici, permet de savoir si on a une erreur de type "carte son" not found, DLL not found, x64 not good, FMOD not init
 	*/
 	/////
 	if (result != FMOD_OK) {
@@ -32,13 +32,13 @@ void AudioSystem::LoadBanks() {
 
 	// Ici, on lit les banks du project build dans la save de notre FMOD project.
 
-	FMOD_RESULT result1 = mStudio->loadBankFile("C:/Users/kuro/Documents/Unreal Projects/moteur-3d-nengine/Engine/Assets/Audio/Master.bank", FMOD_STUDIO_LOAD_BANK_NORMAL, &master);
+	FMOD_RESULT result1 = mStudio->loadBankFile("Audio/Master.bank", FMOD_STUDIO_LOAD_BANK_NORMAL, &master);
 	if (result1 != FMOD_OK) std::cout << FMOD_ErrorString(result1) << std::endl;
 
-	FMOD_RESULT result2 = mStudio->loadBankFile("C:/Users/kuro/Documents/Unreal Projects/moteur-3d-nengine/Engine/Assets/Audio/Master.strings.bank", FMOD_STUDIO_LOAD_BANK_NORMAL, &strings);
+	FMOD_RESULT result2 = mStudio->loadBankFile("Audio/Master.strings.bank", FMOD_STUDIO_LOAD_BANK_NORMAL, &strings);
 	if (result2 != FMOD_OK) std::cout << FMOD_ErrorString(result2) << std::endl;
 
-	FMOD_RESULT result3 = mStudio->loadBankFile("C:/Users/kuro/Documents/Unreal Projects/moteur-3d-nengine/Engine/Assets/Audio/Musics.bank", FMOD_STUDIO_LOAD_BANK_NORMAL, &musics);
+	FMOD_RESULT result3 = mStudio->loadBankFile("Audio/Musics.bank", FMOD_STUDIO_LOAD_BANK_NORMAL, &musics);
 	if (result3 != FMOD_OK) std::cout << FMOD_ErrorString(result3) << std::endl;
 }
 

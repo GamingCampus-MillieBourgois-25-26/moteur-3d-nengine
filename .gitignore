@@ -37,7 +37,6 @@ compile_commands.json
 # ----------------------
 # Binary & intermediate files
 # ----------------------
-*.obj
 *.o
 *.exe
 *.pdb

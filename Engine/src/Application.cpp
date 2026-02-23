@@ -8,7 +8,17 @@ void Engine::Application::Init()
 
 	window.Create(800, 600, "My Application");
 
+
+  
+	audio.Init();
+	audio.LoadBanks();
+	audio.PlayEvent("event:/MSC_DS3");
+	loader.loadOBJFile();
+
+  
+
 	if (!renderer.Initialize(window.GetGLFWwindow(), 800, 600))
+
 	{
 		std::cout << "Failed to initialize renderer\n";
 		return;
@@ -30,6 +40,7 @@ void Engine::Application::Running()
 		float dt = elapsed.count();
 		lastTime = now;
 
+				audio.Update();
 		window.Update();
 		renderer.Render(dt);
 

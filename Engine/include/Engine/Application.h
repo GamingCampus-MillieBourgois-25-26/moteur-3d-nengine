@@ -7,6 +7,9 @@
 #include <d3dcompiler.h>
 
 #include "Window.h"
+
+#include "AudioSystem.h"
+#include "OBJLoader.h"
 #include "Renderer.h"
 #include <chrono>
 
@@ -17,6 +20,8 @@ namespace Engine {
     private:
         bool isRunning = false;
 
+        AudioSystem audio;
+        OBJLoader loader;
         WindowInstance window;
 
         using clock = std::chrono::high_resolution_clock;

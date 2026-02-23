@@ -7,17 +7,21 @@ target_sources(Engine
         src/Application.cpp
         src/Renderer.cpp
         src/Window.cpp
-	    src/AudioSystem.cpp
+        src/Input.cpp 
+	  src/AudioSystem.cpp
+        src/OBJLoader.cpp
 )
 
 target_include_directories(Engine
     PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
+      ${CMAKE_CURRENT_SOURCE_DIR}/include
     	${CMAKE_CURRENT_SOURCE_DIR}/src
     	${CMAKE_CURRENT_SOURCE_DIR}/Assets/FMOD/api/core/inc
     	${CMAKE_CURRENT_SOURCE_DIR}/Assets/FMOD/api/studio/inc
-        ${CMAKE_CURRENT_SOURCE_DIR}/Assets/Audio
-        ${CMAKE_CURRENT_SOURCE_DIR}/Assets/Shaders
+
+      ${CMAKE_CURRENT_SOURCE_DIR}/Assets/Shaders
+      ${CMAKE_CURRENT_SOURCE_DIR}/Assets/Audio
+	    ${CMAKE_CURRENT_SOURCE_DIR}/Assets/OBJ
 )
 add_custom_target(copy_assets ALL
     COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/Game/Audio"
