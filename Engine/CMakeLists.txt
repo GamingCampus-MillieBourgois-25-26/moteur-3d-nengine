@@ -30,10 +30,13 @@ add_custom_target(copy_assets ALL
     COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/Editor/Audio"
     COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/Editor/Shaders"
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/Assets/Audio" "${CMAKE_BINARY_DIR}/Game/Audio"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/Assets/Audio" "${CMAKE_BINARY_DIR}/Editor/Audio"
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/Assets/Shaders" "${CMAKE_BINARY_DIR}/Game/Shaders"
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/Assets/Shaders" "${CMAKE_BINARY_DIR}/Editor/Shaders"
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/Assets/Audio" "${CMAKE_BINARY_DIR}/Editor/Audio"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/Assets/DLL" "${CMAKE_BINARY_DIR}/Editor"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/Assets/DLL" "${CMAKE_BINARY_DIR}/Game"
     COMMENT "Copy ${CMAKE_CURRENT_SOURCE_DIR}/Assets/Audio to ${CMAKE_BINARY_DIR}/Game/Audio"
+
 )
 # Windows definitions
 target_compile_definitions(Engine
