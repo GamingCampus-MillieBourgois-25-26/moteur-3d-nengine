@@ -13,6 +13,7 @@ void Engine::Application::Init()
 	audio.Init();
 	audio.LoadBanks();
 	audio.PlayEvent("event:/MSC_DS3");
+	loader.loadOBJFile();
 
   
 
@@ -36,6 +37,7 @@ void Engine::Application::Running()
 
 	while (isRunning && !window.ShouldClose()) {
 		// Update application state, handle input, render, etc.
+
 				audio.Update();
 		window.Update();
 		renderer.Render();

@@ -7,7 +7,7 @@ bool AudioSystem::Init() {
 	result = FMOD::Studio::System::create(&mStudio);
 	/////
 	/*
-	Ici, permet de savoir si on a une erreur de type carte son not found, DLL not found, x86/x64 not good, FMOD not init
+	Ici, permet de savoir si on a une erreur de type "carte son" not found, DLL not found, x64 not good, FMOD not init
 	*/
 	/////
 	if (result != FMOD_OK) {

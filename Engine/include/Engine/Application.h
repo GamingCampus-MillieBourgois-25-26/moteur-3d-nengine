@@ -8,6 +8,7 @@
 
 #include "Window.h"
 #include "AudioSystem.h"
+#include "OBJLoader.h"
 #include "Renderer.h"
 
 
@@ -19,7 +20,7 @@ namespace Engine {
     private:
         bool isRunning = false;
         AudioSystem audio;
-
+        OBJLoader loader;
         WindowInstance window;
 
 

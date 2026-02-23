@@ -8,6 +8,7 @@ target_sources(Engine
         src/Renderer.cpp
         src/Window.cpp
 	    src/AudioSystem.cpp
+        src/OBJLoader.cpp
 )
 
 target_include_directories(Engine
