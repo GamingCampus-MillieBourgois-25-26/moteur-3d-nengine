@@ -21,7 +21,8 @@ target_include_directories(Engine
 
       ${CMAKE_CURRENT_SOURCE_DIR}/Assets/Shaders
       ${CMAKE_CURRENT_SOURCE_DIR}/Assets/Audio
-	    ${CMAKE_CURRENT_SOURCE_DIR}/Assets/OBJ
+	  ${CMAKE_CURRENT_SOURCE_DIR}/Assets/OBJ
+      ${CMAKE_CURRENT_SOURCE_DIR}/Assets/FMOD
 )
 add_custom_target(copy_assets ALL
     COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/Game/Audio"
