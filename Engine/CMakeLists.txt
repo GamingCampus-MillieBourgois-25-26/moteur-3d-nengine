@@ -15,12 +15,17 @@ target_include_directories(Engine
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/include
     	${CMAKE_CURRENT_SOURCE_DIR}/src
-    	${CMAKE_CURRENT_SOURCE_DIR}/NotToIgnore/FMOD/api/core/inc
-    	${CMAKE_CURRENT_SOURCE_DIR}/NotToIgnore/FMOD/api/studio/inc
-        ${CMAKE_CURRENT_SOURCE_DIR}/Audio
-        ${CMAKE_CURRENT_SOURCE_DIR}/Assets
+    	${CMAKE_CURRENT_SOURCE_DIR}/Assets/FMOD/api/core/inc
+    	${CMAKE_CURRENT_SOURCE_DIR}/Assets/FMOD/api/studio/inc
+        ${CMAKE_CURRENT_SOURCE_DIR}/Assets/Audio
 )
-
+add_custom_target(copy_assets ALL
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/Game/Audio"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/Editor/Audio"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/Assets/Audio" "${CMAKE_BINARY_DIR}/Game/Audio"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/Assets/Audio" "${CMAKE_BINARY_DIR}/Editor/Audio"
+    COMMENT "Copy ${CMAKE_CURRENT_SOURCE_DIR}/Assets/Audio to ${CMAKE_BINARY_DIR}/Game/Audio"
+)
 # Windows definitions
 target_compile_definitions(Engine
     PRIVATE
