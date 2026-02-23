@@ -1,10 +1,22 @@
-#include "Engine/Application.h"	
+#include "Engine/Application.h"
 
 int main()
 {
-	Engine::Application app;
+    Engine::Application app;
 
-	app.Init();
+    // Initialize window and renderer
+    app.Init();
 
-	return 0;
+    // Main loop
+    while (app.getIsRunning())
+    {
+        app.Running();  // Update + Render
+
+
+    }
+
+    // Shutdown handled by Application destructor or explicit call
+    app.Shutdown();
+
+    return 0;
 }

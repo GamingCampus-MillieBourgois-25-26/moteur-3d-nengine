@@ -12,7 +12,7 @@ void Engine::Application::Init()
   
 	audio.Init();
 	audio.LoadBanks();
-	audio.PlayEvent("event:/MSC_DS3");
+	audio.PlayEvent("event:/MSC_EFN");
 	loader.loadOBJFile();
 
   
@@ -40,7 +40,7 @@ void Engine::Application::Running()
 		float dt = elapsed.count();
 		lastTime = now;
 
-				audio.Update();
+		audio.Update();
 		window.Update();
 		renderer.Render(dt);
 
