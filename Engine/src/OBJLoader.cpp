@@ -4,7 +4,7 @@ void OBJLoader::loadOBJFile()
 {
 	// réussir a lire le super fichier obj avec les différentes lignes dans big while 
 
-	file.open("E:/GitHub Desktop/Repositories/moteur-3d-nengine/Engine/Assets/TestMoteurOBJ.obj"); // ici il faut le chemin du fichier OBJ
+	file.open("D:/GitHub/G-Tech 2/moteur-3d-nengine/Engine/Assets/OBJ/TestMoteurOBJ.obj"); // ici il faut le chemin du fichier OBJ
 	if (!file.is_open()) { std::cerr << "Impossible d'ouvrir le fichier OBJ\n"; return; } // sécurité comme ca au moins on est chill si ca fais du caca
 
     while (std::getline(file, line))
@@ -126,7 +126,7 @@ void OBJLoader::vertexBufferCreation() {
     InitData.SysMemPitch = 0;
     InitData.SysMemSlicePitch = 0;
 
-    hr = rend.GetDevice()->CreateBuffer(&bufferDesc, &InitData, &vertexBuffer); // pas sur de ce que je fais ici 
+    hr = m_device->CreateBuffer(&bufferDesc, &InitData, &vertexBuffer); // pas sur de ce que je fais ici 
 }
 
 void OBJLoader::indexBufferCreation() {
@@ -140,28 +140,21 @@ void OBJLoader::indexBufferCreation() {
     InitData.SysMemPitch = 0;
     InitData.SysMemSlicePitch = 0;
 
-    hr = rend.GetDevice()->CreateBuffer(&bufferDesc, &InitData, &indexBuffer);  
+    hr = m_device->CreateBuffer(&bufferDesc, &InitData, &indexBuffer);
 }
 
-/*
+ID3D11Buffer* OBJLoader::getVertexBuffer() {
+    return vertexBuffer;
+}
 
-A la place du create mesh en hard code bien dur on mettra : 
+ID3D11Buffer* OBJLoader::getIndexBuffer() {
+    return indexBuffer;
+}
 
-OBJLoader loader;
-loader.loadOBJFile();
-loader.vertexBufferCreation();
-loader.indexBufferCreation();
+UINT OBJLoader::getIndexCount() {
+    return indexCount;
+}
 
-m_mesh.vertexBuffer = loader.vertexBuffer;
-m_mesh.indexBuffer  = loader.indexBuffer;
-m_mesh.indexCount   = loader.indices.size();
-
-le renderer a besoin de ca : 
-
-m_context->DrawIndexed(m_mesh.indexCount, 0, 0);
-
-Donc dans index count on va mettre indices.size()
-
-Mettre la bonne ref au device (y'en a un dans render normalement donc faudra voir) : rend.GetDevice()
-
-*/
+void OBJLoader::setDevice(ID3D11Device* d) {
+    m_device = d;
+}

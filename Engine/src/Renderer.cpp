@@ -1,4 +1,5 @@
 ﻿#include "Engine/Renderer.h"
+#include "Engine/OBJLoader.h"
 
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3.h>
@@ -38,11 +39,22 @@ bool Renderer::Initialize(GLFWwindow* window, int width, int height)
         return false;
     }
 
-    if (!CreateMesh()) {
-        std::cout << "ERROR: CreateMesh failed/n";
-        return false;
-    }
+    
+    //if (!CreateMesh()) {
+    //    std::cout << "ERROR: CreateMesh failed/n";
+    //    return false;
+    //}
+    
 
+    OBJLoader loader;
+    loader.setDevice(m_device);
+    loader.loadOBJFile();
+    loader.vertexBufferCreation();
+    loader.indexBufferCreation();
+
+    m_mesh.vertexBuffer = loader.getVertexBuffer();
+    m_mesh.indexBuffer = loader.getIndexBuffer();
+    m_mesh.indexCount = loader.getIndexCount();
 
     // Viewport
     D3D11_VIEWPORT viewport{};

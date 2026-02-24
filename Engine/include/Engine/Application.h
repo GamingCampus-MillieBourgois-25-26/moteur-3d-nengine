@@ -30,6 +30,7 @@ namespace Engine {
 
         Renderer renderer;
     public:
+
         void Init();
         void Running();
         void Shutdown();

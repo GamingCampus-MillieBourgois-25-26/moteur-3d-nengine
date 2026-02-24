@@ -43,12 +43,18 @@ private :
 	HRESULT hr;
 	Renderer rend;
 	UINT indexCount;
+	ID3D11Device* m_device = nullptr;
 
 public:
 
+	void setDevice(ID3D11Device* d);
 	void loadOBJFile();
 	FaceIndex cutFace(std::string sg);
 	uint32_t addVertex(FaceIndex fix);
 	void vertexBufferCreation();
 	void indexBufferCreation();
+
+	ID3D11Buffer* getVertexBuffer();
+	ID3D11Buffer* getIndexBuffer();
+	UINT getIndexCount();
 };
