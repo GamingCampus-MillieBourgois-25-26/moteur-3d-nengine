@@ -3,15 +3,18 @@
 #include <iostream>
 #include <d3d11.h>
 #include <dxgi.h>
-
 #include <d3dcompiler.h>
 
 #include "Window.h"
-
 #include "AudioSystem.h"
 #include "OBJLoader.h"
 #include "Renderer.h"
+#include "GameModule.h"
+#include "ModuleLoader.h"
+
 #include <chrono>
+#include <filesystem>
+#include <string>
 
 namespace Engine {
 
@@ -26,9 +29,12 @@ namespace Engine {
 
         using clock = std::chrono::high_resolution_clock;
 
-
-
         Renderer renderer;
+
+        // Module loader for hot-reload (simple C exports)
+        ModuleLoader m_moduleLoader;
+        std::string m_modulePath;        // path to original DLL (build output)
+
     public:
         void Init();
         void Running();

@@ -10,6 +10,8 @@ target_sources(Engine
         src/Input.cpp 
 	    src/AudioSystem.cpp
         src/OBJLoader.cpp
+        src/GameModule.cpp
+        src/ModuleLoader.cpp
 )
 
 target_include_directories(Engine
