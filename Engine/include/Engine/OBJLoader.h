@@ -12,7 +12,7 @@
 class OBJLoader {
 private : 
 
-	struct Vec3 { float x, y, z; }; 
+	struct Vec3 { float x, y, z; Vec3 operator*(float s) const { return { x * s, y * s, z * s }; }};
 	struct Vec2 { float u, v; };
 	struct Vertex { Vec3 position; Vec2 uv; Vec3 normal; };
 	struct VertexKey { 

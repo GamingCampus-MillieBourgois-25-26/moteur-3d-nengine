@@ -4,7 +4,7 @@ void OBJLoader::loadOBJFile()
 {
 	// réussir a lire le super fichier obj avec les différentes lignes dans big while 
 
-	file.open("D:/GitHub/G-Tech 2/moteur-3d-nengine/Engine/Assets/OBJ/TestMoteurOBJ.obj"); // ici il faut le chemin du fichier OBJ
+	file.open("OBJ/TestMoteurOBJ.obj"); // ici il faut le chemin du fichier OBJ
 	if (!file.is_open()) { std::cerr << "Impossible d'ouvrir le fichier OBJ\n"; return; } // sécurité comme ca au moins on est chill si ca fais du caca
 
     while (std::getline(file, line))
@@ -40,29 +40,36 @@ void OBJLoader::loadOBJFile()
         // Face
         else if (prefix == "f")
         {
-            std::string v1, v2, v3;
-            ss >> v1 >> v2 >> v3;
+            std::string v1, v2, v3, v4;
+            ss >> v1 >> v2 >> v3 >> v4;
 
-            std::cout << "Face brute : " << v1 << " " << v2 << " " << v3 << "\n";
+            std::cout << "Face brute : " << v1 << " " << v2 << " " << v3 << " " << v4 << "\n";
 
             // Découpe des index positions, UV et normale
-            cutFace(v1);
-            cutFace(v2);
-            cutFace(v3);
+            //cutFace(v1);
+            //cutFace(v2);
+            //cutFace(v3);
+            //cutFace(v4);
 
             // récup les bonnes pos/UV/normales, construire les vertices.
             
             FaceIndex index1 = cutFace(v1);
             FaceIndex index2 = cutFace(v2);
             FaceIndex index3 = cutFace(v3);
+            FaceIndex index4 = cutFace(v4);
 
             uint32_t a = addVertex(index1); 
             uint32_t b = addVertex(index2); 
             uint32_t c = addVertex(index3); 
-            
+            uint32_t d = addVertex(index4);
+
             indices.push_back(a); 
             indices.push_back(b); 
             indices.push_back(c);
+
+            indices.push_back(a);
+            indices.push_back(c);
+            indices.push_back(d);
 
             // -> ensuite, créer les buffers DX11, créer l'input layout, charger / compiler les shaders, envoyer les buffers au pipeline, drawIndexed().
         }
@@ -104,7 +111,7 @@ uint32_t OBJLoader::addVertex(FaceIndex fix)
 
     // Nouveau vertex 
     Vertex v;
-    v.position = positions[fix.pos];
+    v.position = positions[fix.pos] * 0.2f;
     v.normal = normals[fix.norm];
     v.uv = uvs[fix.uv];
 
