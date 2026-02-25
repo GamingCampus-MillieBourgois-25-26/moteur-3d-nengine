@@ -1,4 +1,5 @@
 ﻿#include "Engine/Renderer.h"
+#include "Engine/OBJLoader.h"
 
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3.h>
@@ -13,6 +14,7 @@ bool Renderer::Initialize(GLFWwindow* window, int width, int height)
     m_width = width;
     m_height = height;
     m_camera.aspect = static_cast<float>(width) / static_cast<float>(height);
+   
 
     if (!CreateDeviceAndSwapChain(window, width, height)) {
         std::cout << "ERROR: CreateDeviceAndSwapChain failed/n";
@@ -38,11 +40,22 @@ bool Renderer::Initialize(GLFWwindow* window, int width, int height)
         return false;
     }
 
-    if (!CreateMesh()) {
-        std::cout << "ERROR: CreateMesh failed/n";
-        return false;
-    }
+    
+    //if (!CreateMesh()) {
+    //    std::cout << "ERROR: CreateMesh failed/n";
+    //    return false;
+    //}
+    
 
+    OBJLoader loader;
+    loader.setDevice(m_device);
+    loader.loadOBJFile();
+    loader.vertexBufferCreation();
+    loader.indexBufferCreation();
+
+    m_mesh.vertexBuffer = loader.getVertexBuffer();
+    m_mesh.indexBuffer = loader.getIndexBuffer();
+    m_mesh.indexCount = loader.getIndexCount();
 
     // Viewport
     D3D11_VIEWPORT viewport{};
@@ -255,7 +268,7 @@ bool Renderer::CreatePipelineState()
     // Rasterizer
     D3D11_RASTERIZER_DESC rsDesc{};
     rsDesc.FillMode = D3D11_FILL_SOLID;
-    rsDesc.CullMode = D3D11_CULL_BACK;
+    rsDesc.CullMode = D3D11_CULL_NONE;
     rsDesc.FrontCounterClockwise = FALSE;
     rsDesc.DepthClipEnable = TRUE;
 
@@ -322,7 +335,7 @@ void Renderer::UpdateCamera(float dt)
 
     m_camera.position.x = sinf(angle) * 3.0f;
     m_camera.position.z = cosf(angle) * 3.0f;
-    m_camera.position.y = 1.5f;
+    m_camera.position.y = 2.0f;
 }
 
 void Renderer::UpdateConstantBuffer()
@@ -342,7 +355,7 @@ void Renderer::UpdateConstantBuffer()
 
 void Renderer::Render(float dt)
 {
-    UpdateCamera(dt);
+    //UpdateCamera(dt);
     UpdateConstantBuffer();
 
     float clearColor[4] = { 0.1f, 0.1f, 0.2f, 1.0f };

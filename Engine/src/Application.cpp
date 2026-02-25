@@ -1,7 +1,6 @@
 #include "Engine/Application.h"
 // L'equipe je vais ecrire en anglais c'est plus facile ;;
 
-
 void Engine::Application::Init()
 {
 	std::cout << "Initializing application...\n";
