@@ -40,12 +40,10 @@ bool Renderer::Initialize(GLFWwindow* window, int width, int height)
         return false;
     }
 
-    
     //if (!CreateMesh()) {
     //    std::cout << "ERROR: CreateMesh failed/n";
     //    return false;
     //}
-    
 
     OBJLoader loader;
     loader.setDevice(m_device);
