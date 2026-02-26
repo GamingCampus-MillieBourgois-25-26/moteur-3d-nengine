@@ -12,6 +12,7 @@ target_sources(Engine
         src/OBJLoader.cpp
         src/GameModule.cpp
         src/ModuleLoader.cpp
+        src/ScriptManager.cpp
 )
 
 target_include_directories(Engine
