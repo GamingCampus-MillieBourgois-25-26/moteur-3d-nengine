@@ -9,12 +9,13 @@
 #include "AudioSystem.h"
 #include "OBJLoader.h"
 #include "Renderer.h"
-#include "GameModule.h"
-#include "ModuleLoader.h"
+#include "ScriptManager.h"
+#include "ScriptAPI.h"
 
 #include <chrono>
 #include <filesystem>
 #include <string>
+#include <vector>
 
 namespace Engine {
 
@@ -31,9 +32,9 @@ namespace Engine {
 
         Renderer renderer;
 
-        // Module loader for hot-reload (simple C exports)
-        ModuleLoader m_moduleLoader;
-        std::string m_modulePath;        // path to original DLL (build output)
+        // Nouveau système de scripting
+        ScriptManager scriptManager;
+        std::vector<IScript*> m_scripts;
 
     public:
         void Init();

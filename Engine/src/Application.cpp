@@ -24,18 +24,25 @@ void Engine::Application::Init()
         return;
     }
 
-    // Path to GameModule DLL produced by the Game project
-    // Ajuste ce chemin selon ton build: ex. "${CMAKE_BINARY_DIR}/Game/GameModule.dll"
-    m_modulePath = "GameModule.dll";
-
-    // Try initial load
-    if (m_moduleLoader.Load(m_modulePath)) {
-        if (!m_moduleLoader.CallInit()) {
-            std::cout << "Warning: GameModule Init returned false\n";
-        }
+    // Charger la DLL gameplay via ScriptManager
+    if (!scriptManager.LoadModule("GameModule.dll"))
+    {
+        std::cout << "[Application] Failed to load GameModule.dll\n";
     }
-    else {
-        std::cout << "Warning: initial game module failed to load. Compile the DLL later to hot-reload.\n";
+    else
+    {
+        // Exemple : créer un script PlayerController
+        IScript* player = scriptManager.Create("PlayerController");
+        if (player)
+        {
+            player->OnCreate();
+            m_scripts.push_back(player);
+            std::cout << "[Application] PlayerController script created\n";
+        }
+        else
+        {
+            std::cout << "[Application] Script 'PlayerController' not found in DLL\n";
+        }
     }
 
     isRunning = true;
@@ -45,7 +52,9 @@ void Engine::Application::Running()
 {
     auto lastTime = clock::now();
     std::cout << "Application is running...\n";
-    while (isRunning && !window.ShouldClose()) {
+
+    while (isRunning && !window.ShouldClose())
+    {
         auto now = clock::now();
         std::chrono::duration<float> elapsed = now - lastTime;
         float dt = elapsed.count();
@@ -55,11 +64,10 @@ void Engine::Application::Running()
         audio.Update();
         window.Update();
 
-        // Check and reload the game module if it changed on disk
-        m_moduleLoader.ReloadIfChanged();
-
-        // Call module update if present
-        m_moduleLoader.CallUpdate(dt);
+        // Update scripts
+        ScriptContext ctx{ dt };
+        for (auto* script : m_scripts)
+            script->OnUpdate(ctx);
 
         // Render
         renderer.Render(dt);
@@ -70,9 +78,13 @@ void Engine::Application::Shutdown()
 {
     std::cout << "Shutting down application...\n";
 
-    // Call Shutdown and unload module
-    m_moduleLoader.CallShutdown();
-    m_moduleLoader.Unload();
+    // Détruire les scripts proprement
+    for (auto* script : m_scripts)
+    {
+        script->OnDestroy();
+        scriptManager.Destroy(script);
+    }
+    m_scripts.clear();
 
     renderer.Shutdown();
     window.ShouldClose();
