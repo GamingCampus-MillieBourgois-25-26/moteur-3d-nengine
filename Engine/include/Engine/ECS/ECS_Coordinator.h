@@ -1,11 +1,16 @@
 #pragma once
-#include <iostream>
-#include "MathsLib/Quaternion.h"
-#include "MathsLib/Vector3.h"
-#include <queue>
-#include <map>
-#include <thread>
+#include <memory>
+#include <cstdint>
 #include <bitset>
+#include <cassert>
+#include <typeindex>
+#include <unordered_map>
+#include <set>
+
+#include "Engine/ECS/ECS_Types.h"
+#include "Engine/ECS/ECS_Entity.h"
+#include "Engine/ECS/ECS_Component.h"
+#include "Engine/ECS/ECS_SystemManager.h"
 
 // Coordinator : il permet de tout regler 
 

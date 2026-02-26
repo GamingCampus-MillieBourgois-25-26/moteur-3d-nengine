@@ -13,7 +13,9 @@ target_sources(Engine
         src/ECS/ECS_Component.cpp
         src/ECS/ECS_Coordinator.cpp
         src/ECS/ECS_Entity.cpp
-        src/ECS/ECS_System.cpp
+        src/ECS/ECS_SystemManager.cpp
+        src/ECS/Systems/MovementSystem.cpp
+        src/ECS/Systems/RenderSystem.cpp
 )
 
 target_include_directories(Engine

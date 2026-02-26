@@ -1,15 +1,10 @@
 #pragma once
-#include <iostream>
-#include "MathsLib/Quaternion.h"
-#include "MathsLib/Vector3.h"
 #include <queue>
-#include <map>
-#include <thread>
+#include <array>
 #include <bitset>
-
-// Signature : bitset qui dit quels composants une entite possède (0111)
-
-using Signature = std::bitset<MAX_COMPONENTS>;
+#include <cstdint>
+#include <cassert>
+#include "Engine/ECS/ECS_Types.h"
 
 // ECS - Entity Component System
 
@@ -27,23 +22,26 @@ Coordinator       -> façade globale
 
 */
 
-// Entity (ID)
+// Signature : bitset qui dit quels composants une entite possède (0111)
 
-using Entity = std::uint32_t; // pas la peine de faire une classe car on a juste besoin de stocker l'ID. // Entity player = 1; Entity enemy = 2;
-constexpr std::uint32_t MAX_ENTITIES = 20;
+using Signature = std::bitset<MAX_COMPONENTS>;
+
+// Entity (ID)
 
 class EntityManager // role : distribuer des IDs, Recycler les IDs detruits, Stocker la signature de chaque entite
 {
 public:
+
+    EntityManager();
+
     Entity CreateEntity(); // prend un ID dans la queue
     void DestroyEntity(Entity entity); // remet l'ID dans la queue
 
     void SetSignature(Entity entity, Signature signature);
-    Signature GetSignature(Entity entity);
+    Signature GetSignature(Entity entity) const;
 
 private:
     std::queue<Entity> mAvailableEntities; // contient les IDs libres 
     std::array<Signature, MAX_ENTITIES> mSignatures{}; // contient la signature
     std::uint32_t mLivingEntityCount = 0;
 };
-
