@@ -37,6 +37,7 @@ namespace Engine {
         std::vector<IScript*> m_scripts;
 
     public:
+
         void Init();
         void Running();
         void Shutdown();

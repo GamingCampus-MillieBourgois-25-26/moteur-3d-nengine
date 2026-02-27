@@ -2,19 +2,19 @@
 
 void OBJLoader::loadOBJFile()
 {
-    // réussir a lire le super fichier obj avec les différentes lignes dans big while 
-
+    // rÃ©ussir a lire le super fichier obj avec les diffÃ©rentes lignes dans big while 
     file.open("OBJ/TestMoteurOBJ.obj"); // ici il faut le chemin du fichier OBJ
-    if (!file.is_open()) { std::cerr << "Impossible d'ouvrir le fichier OBJ\n"; return; } // sécurité comme ca au moins on est chill si ca fais du caca
+    if (!file.is_open()) { std::cerr << "Impossible d'ouvrir le fichier OBJ\n"; return; } // sÃ©curitÃ© comme ca au moins on est chill si ca fais du caca
+
 
     while (std::getline(file, line))
     {
-        std::stringstream ss(line); // c'est comme une machine qui découpe les mots en mode [v] [1.0] [2.0] etc
+        std::stringstream ss(line); // c'est comme une machine qui dÃ©coupe les mots en mode [v] [1.0] [2.0] etc
         std::string prefix;
-        ss >> prefix; // ici on vient lire le préfix
+        ss >> prefix; // ici on vient lire le prÃ©fix
 
         // Position
-        if (prefix == "v") // on dit que si ca commence par v alors c'est forcément une position et paf ca fais des chocapics
+        if (prefix == "v") // on dit que si ca commence par v alors c'est forcÃ©ment une position et paf ca fais des chocapics
         {
             Vec3 pos;
             ss >> pos.x >> pos.y >> pos.z; // on lit le reste selon le type de ligne pour avoir les positions inscrites dans le fichiers
@@ -45,33 +45,35 @@ void OBJLoader::loadOBJFile()
 
             std::cout << "Face brute : " << v1 << " " << v2 << " " << v3 << " " << v4 << "\n";
 
-            // Découpe des index positions, UV et normale
+            // DÃ©coupe des index positions, UV et normale
             //cutFace(v1);
             //cutFace(v2);
             //cutFace(v3);
             //cutFace(v4);
 
-            // récup les bonnes pos/UV/normales, construire les vertices.
+            // rÃ©cup les bonnes pos/UV/normales, construire les vertices.
 
             FaceIndex index1 = cutFace(v1);
             FaceIndex index2 = cutFace(v2);
             FaceIndex index3 = cutFace(v3);
             FaceIndex index4 = cutFace(v4);
 
-            uint32_t a = addVertex(index1);
-            uint32_t b = addVertex(index2);
-            uint32_t c = addVertex(index3);
+
+            uint32_t a = addVertex(index1); 
+            uint32_t b = addVertex(index2); 
+            uint32_t c = addVertex(index3); 
             uint32_t d = addVertex(index4);
 
-            indices.push_back(a);
-            indices.push_back(b);
+            indices.push_back(a); 
+            indices.push_back(b); 
             indices.push_back(c);
+
 
             indices.push_back(a);
             indices.push_back(c);
             indices.push_back(d);
 
-            // -> ensuite, créer les buffers DX11, créer l'input layout, charger / compiler les shaders, envoyer les buffers au pipeline, drawIndexed().
+            // -> ensuite, crÃ©er les buffers DX11, crÃ©er l'input layout, charger / compiler les shaders, envoyer les buffers au pipeline, drawIndexed().
         }
     }
 
@@ -86,7 +88,7 @@ OBJLoader::FaceIndex OBJLoader::cutFace(std::string sg) {
     std::stringstream ssm(sg);
     std::string a, b, c;
 
-    std::getline(ssm, a, '/'); // -> lis dans le flux jusqu'à rencontrer '/', quand c'est fait, stock tout dans la variable a.
+    std::getline(ssm, a, '/'); // -> lis dans le flux jusqu'Ã  rencontrer '/', quand c'est fait, stock tout dans la variable a.
     std::getline(ssm, b, '/');
     std::getline(ssm, c, '/');
 
@@ -104,10 +106,10 @@ uint32_t OBJLoader::addVertex(FaceIndex fix)
 {
     VertexKey key{ fix.pos, fix.uv, fix.norm };
 
-    // Déjà existant ? / Evite les doublons qui vont tout casser
-    auto it = vertexCache.find(key); // cherche si on a déjà créé le vertex pour le triplet (pos, uv, norm)
+    // DÃ©jÃ  existant ? / Evite les doublons qui vont tout casser
+    auto it = vertexCache.find(key); // cherche si on a dÃ©jÃ  crÃ©Ã© le vertex pour le triplet (pos, uv, norm)
     if (it != vertexCache.end()) // si on trouve le vertex dans le vecteur vertices alors
-        return it->second; // l'index existe déjà donc on return celui deja existant et on sert de la fonction
+        return it->second; // l'index existe dÃ©jÃ  donc on return celui deja existant et on sert de la fonction
 
     // Nouveau vertex 
     Vertex v;
@@ -116,20 +118,20 @@ uint32_t OBJLoader::addVertex(FaceIndex fix)
     v.uv = uvs[fix.uv];
 
     uint32_t index = vertices.size(); // donne le prochain index libre / taille actuelle du super tabeleau et on stock ce nb dans "index"
-    vertices.push_back(v); // donc on ajoute le vertex qu'on vient de créer a notre tableau de vertices
-    vertexCache[key] = index; // on l'enregistre dans le "cache" de la map pour que si on trouve de nouveau ce vecteur, on en créer pas d'autre
+    vertices.push_back(v); // donc on ajoute le vertex qu'on vient de crÃ©er a notre tableau de vertices
+    vertexCache[key] = index; // on l'enregistre dans le "cache" de la map pour que si on trouve de nouveau ce vecteur, on en crÃ©er pas d'autre
 
     return index;
 }
 
 void OBJLoader::vertexBufferCreation() {
-    bufferDesc.Usage = D3D11_USAGE_DEFAULT; // ce buffer ne sera pas modifier après création
-    bufferDesc.ByteWidth = sizeof(Vertex) * vertices.size(); // calcul de la taille totale du buffer pour le GPU // -> ce bloc mémoire va dans la VRAM
+    bufferDesc.Usage = D3D11_USAGE_DEFAULT; // ce buffer ne sera pas modifier aprÃ¨s crÃ©ation
+    bufferDesc.ByteWidth = sizeof(Vertex) * vertices.size(); // calcul de la taille totale du buffer pour le GPU // -> ce bloc mÃ©moire va dans la VRAM
     bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER; // ce buffer devient un vertex buffer 
     bufferDesc.CPUAccessFlags = 0;
     bufferDesc.MiscFlags = 0;
 
-    InitData.pSysMem = vertices.data(); // donnes à DirectX l’adresse des données en RAM // C’est ce que DirectX va copier dans le buffer GPU
+    InitData.pSysMem = vertices.data(); // donnes Ã  DirectX lâ€™adresse des donnÃ©es en RAM // Câ€™est ce que DirectX va copier dans le buffer GPU
     InitData.SysMemPitch = 0;
     InitData.SysMemSlicePitch = 0;
 
@@ -137,13 +139,13 @@ void OBJLoader::vertexBufferCreation() {
 }
 
 void OBJLoader::indexBufferCreation() {
-    bufferDesc.Usage = D3D11_USAGE_DEFAULT; // ce buffer ne sera pas modifier après création
-    bufferDesc.ByteWidth = sizeof(uint32_t) * indices.size(); // calcul de la taille totale du buffer pour le GPU // -> ce bloc mémoire va dans la VRAM
+    bufferDesc.Usage = D3D11_USAGE_DEFAULT; // ce buffer ne sera pas modifier aprÃ¨s crÃ©ation
+    bufferDesc.ByteWidth = sizeof(uint32_t) * indices.size(); // calcul de la taille totale du buffer pour le GPU // -> ce bloc mÃ©moire va dans la VRAM
     bufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER; // ce buffer devient un index buffer 
     bufferDesc.CPUAccessFlags = 0;
     bufferDesc.MiscFlags = 0;
 
-    InitData.pSysMem = indices.data(); // donnes à DirectX l’adresse des données en RAM // C’est ce que DirectX va copier dans le buffer GPU
+    InitData.pSysMem = indices.data(); // donnes Ã  DirectX lâ€™adresse des donnÃ©es en RAM // Câ€™est ce que DirectX va copier dans le buffer GPU
     InitData.SysMemPitch = 0;
     InitData.SysMemSlicePitch = 0;
 

@@ -41,6 +41,7 @@ bool Renderer::Initialize(GLFWwindow* window, int width, int height)
     }
 
 
+
     //if (!CreateMesh()) {
     //    std::cout << "ERROR: CreateMesh failed/n";
     //    return false;
@@ -57,6 +58,16 @@ bool Renderer::Initialize(GLFWwindow* window, int width, int height)
     m_mesh.indexBuffer = loader.getIndexBuffer();
     m_mesh.indexCount = loader.getIndexCount();
 
+    OBJLoader loader;
+    loader.setDevice(m_device);
+    loader.loadOBJFile();
+    loader.vertexBufferCreation();
+    loader.indexBufferCreation();
+
+    m_mesh.vertexBuffer = loader.getVertexBuffer();
+    m_mesh.indexBuffer = loader.getIndexBuffer();
+    m_mesh.indexCount = loader.getIndexCount();
+    std::cout << "IndexCount = " << m_mesh.indexCount << std::endl;
     // Viewport
     D3D11_VIEWPORT viewport{};
     viewport.Width = static_cast<float>(width);
@@ -267,7 +278,8 @@ bool Renderer::CreatePipelineState()
 {
     // Rasterizer
     D3D11_RASTERIZER_DESC rsDesc{};
-    rsDesc.FillMode = D3D11_FILL_SOLID;
+
+    rsDesc.FillMode = D3D11_FILL_WIREFRAME;
     rsDesc.CullMode = D3D11_CULL_NONE;
     rsDesc.FrontCounterClockwise = FALSE;
     rsDesc.DepthClipEnable = TRUE;
@@ -279,7 +291,7 @@ bool Renderer::CreatePipelineState()
     D3D11_DEPTH_STENCIL_DESC dsDesc{};
     dsDesc.DepthEnable = TRUE;
     dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-    dsDesc.DepthFunc = D3D11_COMPARISON_LESS;
+    dsDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
 
     hr = m_device->CreateDepthStencilState(&dsDesc, &m_depthState);
     if (FAILED(hr)) return false;
@@ -344,12 +356,16 @@ void Renderer::UpdateConstantBuffer()
     XMVECTOR at = XMLoadFloat3(&m_camera.target);
     XMVECTOR up = XMLoadFloat3(&m_camera.up);
 
+
     XMMATRIX view = XMMatrixLookAtLH(eye, at, up);
     XMMATRIX proj = XMMatrixPerspectiveFovLH(m_camera.fov, m_camera.aspect, m_camera.nearZ, m_camera.farZ);
-    XMMATRIX world = XMMatrixIdentity();
-
-    m_cbData.mvp = XMMatrixTranspose(world * view * proj);
-
+    //XMMATRIX world = XMMatrixIdentity();
+    static float rot = 0.0f;
+    rot += 0.01f;
+    XMMATRIX world = XMMatrixRotationY(rot);
+    m_cbData.world = XMMatrixTranspose(world);
+    m_cbData.view = XMMatrixTranspose(view);
+    m_cbData.proj = XMMatrixTranspose(proj);
     m_context->UpdateSubresource(m_constantBuffer, 0, nullptr, &m_cbData, 0, 0);
 }
 
@@ -395,7 +411,7 @@ void Renderer::Shutdown()
     if (m_depthState)        m_depthState->Release();
 
     if (m_depthStencilView)  m_depthStencilView->Release();
-    if (m_depthStencilBuffer) m_depthStencilBuffer->Release();
+    if (m_depthStencilBuffer)m_depthStencilBuffer->Release();
     if (m_renderTargetView)  m_renderTargetView->Release();
 
     if (m_swapChain)         m_swapChain->Release();

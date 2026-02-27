@@ -31,7 +31,7 @@ void Engine::Application::Init()
     }
     else
     {
-        // Exemple : créer un script PlayerController
+        // Exemple : crï¿½er un script PlayerController
         IScript* player = scriptManager.Create("PlayerController");
         if (player)
         {
@@ -78,7 +78,7 @@ void Engine::Application::Shutdown()
 {
     std::cout << "Shutting down application...\n";
 
-    // Détruire les scripts proprement
+    // Dï¿½truire les scripts proprement
     for (auto* script : m_scripts)
     {
         script->OnDestroy();
