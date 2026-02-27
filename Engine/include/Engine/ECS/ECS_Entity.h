@@ -1,7 +1,6 @@
 #pragma once
 #include <queue>
 #include <array>
-#include <bitset>
 #include <cstdint>
 #include <cassert>
 #include "Engine/ECS/ECS_Types.h"
@@ -21,10 +20,6 @@ SystemManager     -> gère les systèmes
 Coordinator       -> façade globale
 
 */
-
-// Signature : bitset qui dit quels composants une entite possède (0111)
-
-using Signature = std::bitset<MAX_COMPONENTS>;
 
 // Entity (ID)
 

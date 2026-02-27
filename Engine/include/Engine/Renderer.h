@@ -53,6 +53,7 @@ private:
     bool LoadShadersFromFiles(const std::wstring& vsPath, const std::wstring& psPath);
     bool CreatePipelineState();
     bool CreateMesh(); // mesh loader minimal (CPU → GPU)
+    void DrawMesh(const DirectX::XMMATRIX& world, ID3D11Buffer* vertexBuffer, ID3D11Buffer* indexBuffer, UINT indexCount);
     void UpdateCamera(float dt);
     void UpdateConstantBuffer();
 

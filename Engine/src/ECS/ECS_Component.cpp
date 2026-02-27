@@ -95,6 +95,16 @@ void ComponentManager::AddComponent(Entity entity, T component)
 }
 
 template<typename T>
+void ComponentManager::RemoveComponent(Entity entity) {
+    std::type_index typeName(typeid(T));
+
+    auto componentArray = static_cast<ComponentArray<T>*>(mComponentArrays[typeName].get());
+    assert(componentArray && "Component not registered.");
+
+    componentArray->RemoveData(entity);
+}
+
+template<typename T>
 T& ComponentManager::GetComponent(Entity entity)
 {
     std::type_index typeName(typeid(T));

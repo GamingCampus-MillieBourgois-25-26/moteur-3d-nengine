@@ -34,6 +34,7 @@ void Coordinator::RegisterComponent()
 template<typename T>
 void Coordinator::AddComponent(Entity entity, T component)
 {
+    assert(entity < MAX_ENTITIES && "Invalid entity.");
     mComponentManager->AddComponent<T>(entity, component);
 
     // Mettre à jour la signature de l'entité
@@ -42,6 +43,22 @@ void Coordinator::AddComponent(Entity entity, T component)
     mEntityManager->SetSignature(entity, signature);
 
     // Informer les systèmes que la signature a changé
+    mSystemManager->EntitySignatureChanged(entity, signature);
+}
+
+template<typename T>
+void Coordinator::RemoveComponent(Entity entity)
+{
+    assert(mEntityToIndex.find(entity) != mEntityToIndex.end()); // “Je ne retire le composant que si l’entité possède ce composant.”
+    // 1. Retirer le composant
+    mComponentManager->RemoveComponent<T>(entity); 
+
+    // 2. Mettre à jour la signature 
+    auto signature = mEntityManager->GetSignature(entity); 
+    signature.set(mComponentManager->GetComponentType<T>(), false); 
+    mEntityManager->SetSignature(entity, signature); 
+
+    // 3. Informer les systèmes 
     mSystemManager->EntitySignatureChanged(entity, signature);
 }
 

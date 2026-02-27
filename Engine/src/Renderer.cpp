@@ -17,12 +17,12 @@ bool Renderer::Initialize(GLFWwindow* window, int width, int height)
    
 
     if (!CreateDeviceAndSwapChain(window, width, height)) {
-        std::cout << "ERROR: CreateDeviceAndSwapChain failed/n";
+        std::cout << "ERROR: CreateDeviceAndSwapChain failed\n";
         return false;
     }
 
     if (!CreateRenderTargets(width, height)) {
-        std::cout << "ERROR: CreateRenderTargets failed/n";
+        std::cout << "ERROR: CreateRenderTargets failed\n";
         return false;
     }
 
@@ -36,7 +36,7 @@ bool Renderer::Initialize(GLFWwindow* window, int width, int height)
 
 
     if (!CreatePipelineState()) {
-        std::cout << "ERROR: CreatePipelineState failed/n";
+        std::cout << "ERROR: CreatePipelineState failed\n";
         return false;
     }
 
@@ -377,6 +377,42 @@ void Renderer::Render(float dt)
 
     m_context->DrawIndexed(m_mesh.indexCount, 0, 0);
     m_swapChain->Present(1, 0);
+}
+
+void Renderer::DrawMesh(const XMMATRIX& world,
+    ID3D11Buffer* vertexBuffer,
+    ID3D11Buffer* indexBuffer,
+    UINT indexCount)
+{
+    // 1. Construire view et proj comme dans UpdateConstantBuffer()
+    XMVECTOR eye = XMLoadFloat3(&m_camera.position);
+    XMVECTOR at = XMLoadFloat3(&m_camera.target);
+    XMVECTOR up = XMLoadFloat3(&m_camera.up);
+
+    XMMATRIX view = XMMatrixLookAtLH(eye, at, up);
+    XMMATRIX proj = XMMatrixPerspectiveFovLH(m_camera.fov, m_camera.aspect, m_camera.nearZ, m_camera.farZ);
+
+    // 2. Mettre à jour le constant buffer avec world * view * proj
+    m_cbData.mvp = XMMatrixTranspose(world * view * proj);
+    m_context->UpdateSubresource(m_constantBuffer, 0, nullptr, &m_cbData, 0, 0);
+
+    // 3. Binder les buffers GPU
+    UINT stride = sizeof(Vertex);
+    UINT offset = 0;
+    m_context->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
+    m_context->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+
+    // 4. Binder shaders, input layout, rasterizer, depth state
+    m_context->IASetInputLayout(m_inputLayout);
+    m_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    m_context->RSSetState(m_rasterizerState);
+    m_context->OMSetDepthStencilState(m_depthState, 0);
+    m_context->VSSetShader(m_vertexShader, nullptr, 0);
+    m_context->PSSetShader(m_pixelShader, nullptr, 0);
+    m_context->VSSetConstantBuffers(0, 1, &m_constantBuffer);
+
+    // 5. Draw call
+    m_context->DrawIndexed(indexCount, 0, 0);
 }
 
 void Renderer::Shutdown()
