@@ -58,15 +58,7 @@ bool Renderer::Initialize(GLFWwindow* window, int width, int height)
     m_mesh.indexBuffer = loader.getIndexBuffer();
     m_mesh.indexCount = loader.getIndexCount();
 
-    OBJLoader loader;
-    loader.setDevice(m_device);
-    loader.loadOBJFile();
-    loader.vertexBufferCreation();
-    loader.indexBufferCreation();
 
-    m_mesh.vertexBuffer = loader.getVertexBuffer();
-    m_mesh.indexBuffer = loader.getIndexBuffer();
-    m_mesh.indexCount = loader.getIndexCount();
     std::cout << "IndexCount = " << m_mesh.indexCount << std::endl;
     // Viewport
     D3D11_VIEWPORT viewport{};
