@@ -24,6 +24,7 @@ i*k = -j
 i*k*j = i*i = j*j = k*k
 
 */
+
 namespace MathsLib
 {
 	template<typename T>

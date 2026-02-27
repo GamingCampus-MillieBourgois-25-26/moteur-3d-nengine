@@ -42,7 +42,6 @@ namespace Engine {
         void Running();
         void Shutdown();
 
-        void Run();
 
         bool getIsRunning() const { return isRunning; }
         void setIsRunning(bool running) { isRunning = running; }

@@ -46,6 +46,8 @@ void Engine::Application::Init()
     }
 
     isRunning = true;
+
+    Running();
 }
 
 void Engine::Application::Running()
@@ -72,6 +74,8 @@ void Engine::Application::Running()
         // Render
         renderer.Render(dt);
     }
+
+    Shutdown();
 }
 
 void Engine::Application::Shutdown()
@@ -91,7 +95,3 @@ void Engine::Application::Shutdown()
     isRunning = false;
 }
 
-void Engine::Application::Run()
-{
-    std::cout << "Run entry (unused)\n";
-}
