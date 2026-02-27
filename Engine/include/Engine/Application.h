@@ -3,15 +3,19 @@
 #include <iostream>
 #include <d3d11.h>
 #include <dxgi.h>
-
 #include <d3dcompiler.h>
 
 #include "Window.h"
-
 #include "AudioSystem.h"
 #include "OBJLoader.h"
 #include "Renderer.h"
+#include "ScriptManager.h"
+#include "ScriptAPI.h"
+
 #include <chrono>
+#include <filesystem>
+#include <string>
+#include <vector>
 
 namespace Engine {
 
@@ -26,9 +30,12 @@ namespace Engine {
 
         using clock = std::chrono::high_resolution_clock;
 
-
-
         Renderer renderer;
+
+        // Nouveau système de scripting
+        ScriptManager scriptManager;
+        std::vector<IScript*> m_scripts;
+
     public:
 
         void Init();

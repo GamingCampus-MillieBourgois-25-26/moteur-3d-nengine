@@ -41,11 +41,22 @@ bool Renderer::Initialize(GLFWwindow* window, int width, int height)
     }
 
 
+
     //if (!CreateMesh()) {
     //    std::cout << "ERROR: CreateMesh failed/n";
     //    return false;
     //}
 
+
+    OBJLoader loader;
+    loader.setDevice(m_device);
+    loader.loadOBJFile();
+    loader.vertexBufferCreation();
+    loader.indexBufferCreation();
+
+    m_mesh.vertexBuffer = loader.getVertexBuffer();
+    m_mesh.indexBuffer = loader.getIndexBuffer();
+    m_mesh.indexCount = loader.getIndexCount();
 
     OBJLoader loader;
     loader.setDevice(m_device);
@@ -267,6 +278,7 @@ bool Renderer::CreatePipelineState()
 {
     // Rasterizer
     D3D11_RASTERIZER_DESC rsDesc{};
+
     rsDesc.FillMode = D3D11_FILL_WIREFRAME;
     rsDesc.CullMode = D3D11_CULL_NONE;
     rsDesc.FrontCounterClockwise = FALSE;
@@ -359,7 +371,7 @@ void Renderer::UpdateConstantBuffer()
 
 void Renderer::Render(float dt)
 {
-    UpdateCamera(dt);
+    //UpdateCamera(dt);
     UpdateConstantBuffer();
 
     float clearColor[4] = { 0.1f, 0.1f, 0.2f, 1.0f };

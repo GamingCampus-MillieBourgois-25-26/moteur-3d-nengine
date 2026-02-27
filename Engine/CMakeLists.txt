@@ -10,6 +10,7 @@ target_sources(Engine
         src/Input.cpp 
 	    src/AudioSystem.cpp
         src/OBJLoader.cpp
+        src/ScriptManager.cpp
 )
 
 target_include_directories(Engine
