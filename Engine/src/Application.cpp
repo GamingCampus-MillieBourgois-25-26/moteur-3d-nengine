@@ -46,7 +46,7 @@ void Engine::Application::Init()
 	// 5. Add Transform
 	Transform tr;
 	tr.position = { 0, 0, 0 };
-	tr.scale = { 1, 1, 1 };
+	tr.scale = { 1, 2, 1 };
 	tr.rotation = { 0, 0, 0, 1 }; // quaternion
 	coord.AddComponent(e, tr);
 
