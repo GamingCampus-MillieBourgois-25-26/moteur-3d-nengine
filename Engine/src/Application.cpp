@@ -23,6 +23,52 @@ void Engine::Application::Init()
 		return;
 	}
 
+	// ECS
+
+	coord.Init();
+
+	// 1. Register components
+	coord.RegisterComponent<Transform>();
+	coord.RegisterComponent<MeshRenderer>();
+
+	// 2. Register RenderSystem
+	renderSystem = coord.RegisterSystem<RenderSystem>();
+
+	// 3. Define signature for RenderSystem
+	Signature signature;
+	signature.set(coord.GetComponentType<Transform>(), true);
+	signature.set(coord.GetComponentType<MeshRenderer>(), true);
+	coord.SetSystemSignature<RenderSystem>(signature);
+
+	// 4. Create an entity
+	Entity e = coord.CreateEntity();
+
+	// 5. Add Transform
+	Transform tr;
+	tr.position = { 0, 0, 0 };
+	tr.scale = { 1, 1, 1 };
+	tr.rotation = { 0, 0, 0, 1 }; // quaternion
+	coord.AddComponent(e, tr);
+
+	// 6. Add MeshRenderer
+	MeshRenderer mr;
+	mr.vertexBuffer = renderer.GetMesh().vertexBuffer;   // on va ajouter GetMesh()
+	mr.indexBuffer = renderer.GetMesh().indexBuffer;
+	mr.indexCount = renderer.GetMesh().indexCount;
+	coord.AddComponent(e, mr);
+
+	/*for (int i = 0; i < 10; i++)
+	{
+		Entity e = coord.CreateEntity();
+
+		Transform tr;
+		tr.position = { float(i), 0, 0 };
+		tr.scale = { 1, 1, 1 };
+		tr.rotation = { 0, 0, 0, 1 };
+		coord.AddComponent(e, tr);
+		coord.AddComponent(e, mr);
+	}*/
+
 	isRunning = true;
 }
 
@@ -41,8 +87,8 @@ void Engine::Application::Running()
 
 		audio.Update();
 		window.Update();
-		renderer.Render(dt);
-
+		//renderer.Render(dt);
+		renderSystem->Render(coord, renderer);
 	}
 
 }

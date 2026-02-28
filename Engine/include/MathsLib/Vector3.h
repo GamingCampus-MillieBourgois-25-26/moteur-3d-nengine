@@ -12,8 +12,10 @@ namespace MathsLib
 	{
 	public:
 		T x, y, z;
-		Vector3<T>() = default;
-		Vector3<T>(T x = 0.0f, T y = 0.0f, T z = 0.0f);
+		//Vector3<T>() = default;
+		//Vector3<T>(T x = 0.0f, T y = 0.0f, T z = 0.0f);
+		Vector3();
+		Vector3(T x, T y, T z);
 
 		static Vector3 back;
 		static Vector3 down;

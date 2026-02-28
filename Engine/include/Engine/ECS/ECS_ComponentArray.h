@@ -1,6 +1,7 @@
 #pragma once
-#include <array> 
-#include <unordered_map> 
+#include <array>
+#include <unordered_map>
+#include <cassert>
 #include "Engine/ECS/ECS_Types.h"
 #include "Engine/ECS/ECS_IComponentArray.h"
 
@@ -8,15 +9,57 @@ template<typename T>
 class ComponentArray : public IComponentArray
 {
 public:
-    void InsertData(Entity entity, T component);
-    void RemoveData(Entity entity);
-    T& GetData(Entity entity);
+    std::array<T, MAX_ENTITIES> mComponentArray;
+    std::unordered_map<Entity, size_t> mEntityToIndex;
+    std::unordered_map<size_t, Entity> mIndexToEntity;
+    size_t mSize = 0;
 
-    void EntityDestroyed(Entity entity) override;
+    void InsertData(Entity entity, T component)
+    {
+        assert(mSize < MAX_ENTITIES && "Too many components of this type.");
+        assert(mEntityToIndex.find(entity) == mEntityToIndex.end());
 
-private:
-    std::array<T, MAX_ENTITIES> mComponentArray; // stockage dense
-    std::unordered_map<Entity, size_t> mEntityToIndex; // ou est le composant d'une entite
-    std::unordered_map<size_t, Entity> mIndexToEntity; // a qui appartient une case
-    size_t mSize = 0; // nbr reel de composants actifs
+        size_t newIndex = mSize;
+
+        mEntityToIndex[entity] = newIndex;
+        mIndexToEntity[newIndex] = entity;
+        mComponentArray[newIndex] = component;
+
+        ++mSize;
+    }
+
+    void RemoveData(Entity entity)
+    {
+        assert(mEntityToIndex.find(entity) != mEntityToIndex.end());
+
+        size_t indexOfRemovedEntity = mEntityToIndex[entity];
+        size_t indexOfLastElement = mSize - 1;
+
+        // Move last element
+        mComponentArray[indexOfRemovedEntity] = mComponentArray[indexOfLastElement];
+
+        Entity entityOfLastElement = mIndexToEntity[indexOfLastElement];
+
+        mEntityToIndex[entityOfLastElement] = indexOfRemovedEntity;
+        mIndexToEntity[indexOfRemovedEntity] = entityOfLastElement;
+
+        mEntityToIndex.erase(entity);
+        mIndexToEntity.erase(indexOfLastElement);
+
+        --mSize;
+    }
+
+    T& GetData(Entity entity)
+    {
+        assert(mEntityToIndex.find(entity) != mEntityToIndex.end());
+        return mComponentArray[mEntityToIndex[entity]];
+    }
+
+    void EntityDestroyed(Entity entity) override
+    {
+        if (mEntityToIndex.find(entity) != mEntityToIndex.end())
+        {
+            RemoveData(entity);
+        }
+    }
 };

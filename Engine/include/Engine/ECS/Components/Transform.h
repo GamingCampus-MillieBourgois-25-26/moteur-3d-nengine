@@ -6,6 +6,7 @@
 
 struct Transform 
 { 
+	Transform() = default;
 	MathsLib::Vector3<float> position; 
 	MathsLib::Quaternion<float> rotation; 
 	MathsLib::Vector3<float> scale; 

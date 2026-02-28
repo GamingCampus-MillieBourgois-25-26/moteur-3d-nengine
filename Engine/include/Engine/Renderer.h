@@ -14,6 +14,12 @@ public:
     void Render(float dt);
     void Shutdown();
 
+    // ECS Modif
+
+    void BeginFrame();
+    void EndFrame();
+    void DrawMesh(const DirectX::XMMATRIX& world, ID3D11Buffer* vertexBuffer, ID3D11Buffer* indexBuffer, UINT indexCount);
+
     ID3D11Device* GetDevice() const { return m_device; }
 
 private:
@@ -53,7 +59,6 @@ private:
     bool LoadShadersFromFiles(const std::wstring& vsPath, const std::wstring& psPath);
     bool CreatePipelineState();
     bool CreateMesh(); // mesh loader minimal (CPU → GPU)
-    void DrawMesh(const DirectX::XMMATRIX& world, ID3D11Buffer* vertexBuffer, ID3D11Buffer* indexBuffer, UINT indexCount);
     void UpdateCamera(float dt);
     void UpdateConstantBuffer();
 
@@ -80,4 +85,10 @@ private:
 
     int                     m_width = 0;
     int                     m_height = 0;
+
+    // ECS
+public : 
+
+    const Mesh& GetMesh() const { return m_mesh; }
+
 };

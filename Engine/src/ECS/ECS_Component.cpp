@@ -1,5 +1,5 @@
 #include "Engine/ECS/ECS_Component.h"
-
+/*
 template<typename T>
 void ComponentArray<T>::InsertData(Entity entity, T component)
 {
@@ -53,7 +53,7 @@ void ComponentArray<T>::EntityDestroyed(Entity entity)
     {
         RemoveData(entity);
     }
-}
+}*/
 
 ////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -64,7 +64,7 @@ void ComponentArray<T>::EntityDestroyed(Entity entity)
 ////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////
-
+/*
 template<typename T>
 void ComponentManager::RegisterComponent()
 {
@@ -123,7 +123,7 @@ ComponentType ComponentManager::GetComponentType()
     assert(mComponentTypes.find(typeName) != mComponentTypes.end() && "Component not registered.");
 
     return mComponentTypes[typeName];
-}
+}*/
 
 void ComponentManager::EntityDestroyed(Entity entity)
 {

@@ -1,4 +1,7 @@
 #include "Engine/ECS/ECS_Coordinator.h"
+#include "Engine/ECS/ECS_Component.h"
+#include "Engine/ECS/ECS_Entity.h"
+#include "Engine/ECS/ECS_SystemManager.h"
 
 void Coordinator::Init()
 {
@@ -25,7 +28,7 @@ void Coordinator::DestroyEntity(Entity entity)
 ///////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////
 
-template<typename T>
+/*template<typename T>
 void Coordinator::RegisterComponent()
 {
     mComponentManager->RegisterComponent<T>();
@@ -49,14 +52,13 @@ void Coordinator::AddComponent(Entity entity, T component)
 template<typename T>
 void Coordinator::RemoveComponent(Entity entity)
 {
-    assert(mEntityToIndex.find(entity) != mEntityToIndex.end()); // “Je ne retire le composant que si l’entité possède ce composant.”
     // 1. Retirer le composant
-    mComponentManager->RemoveComponent<T>(entity); 
+    mComponentManager->RemoveComponent<T>(entity);
 
     // 2. Mettre à jour la signature 
-    auto signature = mEntityManager->GetSignature(entity); 
-    signature.set(mComponentManager->GetComponentType<T>(), false); 
-    mEntityManager->SetSignature(entity, signature); 
+    auto signature = mEntityManager->GetSignature(entity);
+    signature.set(mComponentManager->GetComponentType<T>(), false);
+    mEntityManager->SetSignature(entity, signature);
 
     // 3. Informer les systèmes 
     mSystemManager->EntitySignatureChanged(entity, signature);
@@ -87,4 +89,4 @@ template<typename T>
 void Coordinator::SetSystemSignature(Signature signature)
 {
     mSystemManager->SetSignature<T>(signature);
-}
+}*/

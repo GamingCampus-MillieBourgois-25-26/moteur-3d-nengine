@@ -1,5 +1,5 @@
 #include "Engine/ECS/ECS_SystemManager.h"
-
+/*
 template<typename T>
 std::shared_ptr<T> SystemManager::RegisterSystem()
 {
@@ -19,7 +19,7 @@ void SystemManager::SetSignature(Signature signature)
 
     mSignatures[typeName] = signature;
 }
-
+*/
 void SystemManager::EntityDestroyed(Entity entity)
 {
     for (auto const& pair : mSystems)
