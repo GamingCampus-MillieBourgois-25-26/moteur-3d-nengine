@@ -2,46 +2,48 @@
 
 EntityManager::EntityManager()
 {
+	// On pré-remplit la queue avec tous les IDs disponibles (0 -> MAX_ENTITIES) 
+	// Cela permet de distribuer les IDs dans l'ordre et de les recycler plus tard.
 	for (Entity entity = 0; entity < MAX_ENTITIES; ++entity) // pré-remplissage de la queue car les entités sont libres
 		mAvailableEntities.push(entity);
 }
 
 Entity EntityManager::CreateEntity()
 {
+	// Sécurité : on ne doit jamais dépasser MAX_ENTITIES
+	assert(mLivingEntityCount < MAX_ENTITIES);
 
-	/*
-	
-	queue.push(x);     // ajoute à la fin
-	queue.front();     // regarde l’élément au début
-	queue.pop();       // supprime l’élément au début
-	queue.empty();     // vérifie si vide
-	
-	*/
-
-	assert(mLivingEntityCount < MAX_ENTITIES); // marche comme un if mais c'est plus securiser dans un moteur
-
-	Entity id = mAvailableEntities.front(); // ici on donne l'id a l'entity 
+	Entity id = mAvailableEntities.front(); // ici on donne un ID LIBRE a l'entity 
 	mAvailableEntities.pop(); // suppression de l'ID (ID plus disponible)
 
-	++mLivingEntityCount; // on ajoute +1 au compteur 
+	++mLivingEntityCount; // on ajoute +1 au compteur d'entity vivantes
 
 	return id;
 }
 
 void EntityManager::DestroyEntity(Entity entity)
 {
-	assert(mLivingEntityCount > 0); // permet de verifier si on a bien des entity avant de destroy
-	assert(entity < MAX_ENTITIES); // ici, verifie que l'entity est valide
+	// permet de verifier si on a bien des entity avant de destroy
+	assert(mLivingEntityCount > 0); 
+	
+	// verifie que l'ID est valide
+	assert(entity < MAX_ENTITIES); 
 
-	mSignatures[entity].reset(); // reinitialisation de la signature pour eviter d'en avoir 8000
+	// On reset la signature pour éviter de garder des composants fantômes
+	mSignatures[entity].reset(); 
 
+	// On remet l'ID dans la queue des IDs disponibles
 	mAvailableEntities.push(entity); 
+
+	// On décrémente le compteur
 	--mLivingEntityCount;
 }
 
 void EntityManager::SetSignature(Entity entity, Signature signature)
 {
-	assert(entity < MAX_ENTITIES); // verifie que l'ID est valide
+	assert(entity < MAX_ENTITIES); 
+
+	// On stocke la signature
 	mSignatures[entity] = signature;
 }
 
