@@ -11,7 +11,8 @@
 #include "AudioSystem.h"
 #include "OBJLoader.h"
 #include "Renderer.h"
-#include "Engine/ECS/Systems/RenderSystem.h"
+#include "ECS/Systems/RenderSystem.h"
+#include "ECS/Systems/MovementSystem.h"
 #include <chrono>
 
 namespace Engine {
@@ -29,6 +30,7 @@ namespace Engine {
 
         Coordinator coord;
         std::shared_ptr<RenderSystem> renderSystem;
+        std::shared_ptr<MovementSystem> movementSystem;
 
         using clock = std::chrono::high_resolution_clock;
 

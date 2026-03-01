@@ -32,7 +32,10 @@ private:
 
     struct ConstantBufferData
     {
-        DirectX::XMMATRIX mvp;
+        //DirectX::XMMATRIX mvp;
+        DirectX::XMMATRIX world; 
+        DirectX::XMMATRIX view; 
+        DirectX::XMMATRIX proj; 
     };
 
     struct Mesh

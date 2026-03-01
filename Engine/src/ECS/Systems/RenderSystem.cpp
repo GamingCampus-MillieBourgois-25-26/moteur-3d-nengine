@@ -3,7 +3,7 @@
 
 void RenderSystem::Render(Coordinator& coord, Renderer& renderer)
 {
-    std::cout << "Render\n";
+    //std::cout << "Render\n";
     renderer.BeginFrame();
 
     for (auto entity : mEntities)

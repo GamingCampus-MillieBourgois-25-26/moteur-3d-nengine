@@ -27,18 +27,29 @@ void Engine::Application::Init()
 
 	coord.Init();
 
-	// 1. Register components
+	// 1. Register components (on enregistre les composants qu'on va donner)
 	coord.RegisterComponent<Transform>();
+	coord.RegisterComponent<Velocity>();
 	coord.RegisterComponent<MeshRenderer>();
+
+	// Enregistrer le MovementSystem
+	movementSystem = coord.RegisterSystem<MovementSystem>();
+
+	Signature movementSignature;
+	movementSignature.set(coord.GetComponentType<Transform>(), true);
+	movementSignature.set(coord.GetComponentType<Velocity>(), true);
+
+	coord.SetSystemSignature<MovementSystem>(movementSignature);
 
 	// 2. Register RenderSystem
 	renderSystem = coord.RegisterSystem<RenderSystem>();
 
 	// 3. Define signature for RenderSystem
-	Signature signature;
-	signature.set(coord.GetComponentType<Transform>(), true);
-	signature.set(coord.GetComponentType<MeshRenderer>(), true);
-	coord.SetSystemSignature<RenderSystem>(signature);
+	Signature renderSignature;
+	renderSignature.set(coord.GetComponentType<Transform>(), true);
+	renderSignature.set(coord.GetComponentType<MeshRenderer>(), true);
+
+	coord.SetSystemSignature<RenderSystem>(renderSignature);
 
 	// 4. Create an entity
 	Entity e = coord.CreateEntity();
@@ -46,7 +57,7 @@ void Engine::Application::Init()
 	// 5. Add Transform
 	Transform tr;
 	tr.position = { 0, 0, 0 };
-	tr.scale = { 1, 2, 1 };
+	tr.scale = { 0.5, 0.5, 0.5 };
 	tr.rotation = { 0, 0, 0, 1 }; // quaternion
 	coord.AddComponent(e, tr);
 
@@ -57,13 +68,18 @@ void Engine::Application::Init()
 	mr.indexCount = renderer.GetMesh().indexCount;
 	coord.AddComponent(e, mr);
 
-	/*for (int i = 0; i < 10; i++)
+	// 7. Add Velocity
+	Velocity vel;
+	vel.velocity = { 0, 0, 0 };
+	coord.AddComponent(e, vel);
+
+	/*for (int i = 0; i < 1; i++)
 	{
 		Entity e = coord.CreateEntity();
 
 		Transform tr;
-		tr.position = { float(i), 0, 0 };
-		tr.scale = { 1, 1, 1 };
+		tr.position = { float(i + 1), 0, 0 };
+		tr.scale = { 0.2, 0.2, 0.2 };
 		tr.rotation = { 0, 0, 0, 1 };
 		coord.AddComponent(e, tr);
 		coord.AddComponent(e, mr);
@@ -88,6 +104,7 @@ void Engine::Application::Running()
 		audio.Update();
 		window.Update();
 		//renderer.Render(dt);
+		movementSystem->Update(coord, dt);
 		renderSystem->Render(coord, renderer);
 	}
 

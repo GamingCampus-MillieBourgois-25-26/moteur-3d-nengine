@@ -285,7 +285,7 @@ bool Renderer::CreatePipelineState()
     return true;
 }
 
-bool Renderer::CreateMesh()
+/*bool Renderer::CreateMesh()
 {
     // Mesh loader minimal : un simple triangle, mais via une structure Mesh
     std::vector<Vertex> vertices =
@@ -323,7 +323,7 @@ bool Renderer::CreateMesh()
     if (FAILED(hr)) return false;
 
     return true;
-}
+}*/
 
 void Renderer::UpdateCamera(float dt)
 {
@@ -344,12 +344,28 @@ void Renderer::UpdateConstantBuffer()
 
     XMMATRIX view = XMMatrixLookAtLH(eye, at, up);
     XMMATRIX proj = XMMatrixPerspectiveFovLH(m_camera.fov, m_camera.aspect, m_camera.nearZ, m_camera.farZ);
+
+    m_cbData.view = XMMatrixTranspose(view);
+    m_cbData.proj = XMMatrixTranspose(proj);
+
+    m_context->UpdateSubresource(m_constantBuffer, 0, nullptr, &m_cbData, 0, 0);
+}
+
+/*
+void Renderer::UpdateConstantBuffer()
+{
+    XMVECTOR eye = XMLoadFloat3(&m_camera.position);
+    XMVECTOR at = XMLoadFloat3(&m_camera.target);
+    XMVECTOR up = XMLoadFloat3(&m_camera.up);
+
+    XMMATRIX view = XMMatrixLookAtLH(eye, at, up);
+    XMMATRIX proj = XMMatrixPerspectiveFovLH(m_camera.fov, m_camera.aspect, m_camera.nearZ, m_camera.farZ);
     XMMATRIX world = XMMatrixIdentity();
 
     m_cbData.mvp = XMMatrixTranspose(world * view * proj);
 
     m_context->UpdateSubresource(m_constantBuffer, 0, nullptr, &m_cbData, 0, 0);
-}
+}*/
 
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
@@ -363,7 +379,7 @@ void Renderer::UpdateConstantBuffer()
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
-void Renderer::Render(float dt)
+/*void Renderer::Render(float dt)
 {
     //UpdateCamera(dt);
     UpdateConstantBuffer();
@@ -389,17 +405,17 @@ void Renderer::Render(float dt)
 
     m_context->DrawIndexed(m_mesh.indexCount, 0, 0);
     m_swapChain->Present(1, 0);
-}
+}*/
 
 void Renderer::BeginFrame() {
-    std::cout << "Begin Frame\n";
+    //std::cout << "Begin Frame\n";
     float clearColor[4] = { 0.1f, 0.1f, 0.2f, 1.0f };
     m_context->ClearRenderTargetView(m_renderTargetView, clearColor);
     m_context->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 
 void Renderer::EndFrame() {
-    std::cout << "End Frame\n";
+    //std::cout << "End Frame\n";
     m_swapChain->Present(1, 0);
 }
 
@@ -417,7 +433,10 @@ void Renderer::DrawMesh(const XMMATRIX& world,
     XMMATRIX proj = XMMatrixPerspectiveFovLH(m_camera.fov, m_camera.aspect, m_camera.nearZ, m_camera.farZ);
 
     // Mettre à jour le constant buffer
-    m_cbData.mvp = XMMatrixTranspose(world * view * proj);
+    m_cbData.world = XMMatrixTranspose(world); 
+    m_cbData.view = XMMatrixTranspose(view); 
+    m_cbData.proj = XMMatrixTranspose(proj);
+    //m_cbData.mvp = XMMatrixTranspose(world * view * proj);
     m_context->UpdateSubresource(m_constantBuffer, 0, nullptr, &m_cbData, 0, 0);
 
     // Bind pipeline
