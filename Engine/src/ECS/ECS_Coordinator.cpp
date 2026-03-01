@@ -3,6 +3,13 @@
 #include "Engine/ECS/ECS_Entity.h"
 #include "Engine/ECS/ECS_SystemManager.h"
 
+/*
+    Init()
+    ------
+    Initialise les trois managers internes.
+    Obligatoire avant toute utilisation du Coordinator.
+*/
+
 void Coordinator::Init()
 {
     mComponentManager = std::make_unique<ComponentManager>();
@@ -10,13 +17,25 @@ void Coordinator::Init()
     mSystemManager = std::make_unique<SystemManager>();
 }
 
-///////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////
+/*
+    CreateEntity()
+    --------------
+    Demande à l’EntityManager un nouvel ID d’entité.
+*/
 
 Entity Coordinator::CreateEntity()
 {
     return mEntityManager->CreateEntity();
 }
+
+/*
+    DestroyEntity()
+    ---------------
+    Détruit une entité dans :
+    - EntityManager      -> recycle l’ID
+    - ComponentManager   -> supprime tous ses composants
+    - SystemManager      -> la retire de tous les systèmes
+*/
 
 void Coordinator::DestroyEntity(Entity entity)
 {
@@ -24,69 +43,3 @@ void Coordinator::DestroyEntity(Entity entity)
     mComponentManager->EntityDestroyed(entity);
     mSystemManager->EntityDestroyed(entity);
 }
-
-///////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////
-
-/*template<typename T>
-void Coordinator::RegisterComponent()
-{
-    mComponentManager->RegisterComponent<T>();
-}
-
-template<typename T>
-void Coordinator::AddComponent(Entity entity, T component)
-{
-    assert(entity < MAX_ENTITIES && "Invalid entity.");
-    mComponentManager->AddComponent<T>(entity, component);
-
-    // Mettre à jour la signature de l'entité
-    auto signature = mEntityManager->GetSignature(entity);
-    signature.set(mComponentManager->GetComponentType<T>(), true);
-    mEntityManager->SetSignature(entity, signature);
-
-    // Informer les systèmes que la signature a changé
-    mSystemManager->EntitySignatureChanged(entity, signature);
-}
-
-template<typename T>
-void Coordinator::RemoveComponent(Entity entity)
-{
-    // 1. Retirer le composant
-    mComponentManager->RemoveComponent<T>(entity);
-
-    // 2. Mettre à jour la signature 
-    auto signature = mEntityManager->GetSignature(entity);
-    signature.set(mComponentManager->GetComponentType<T>(), false);
-    mEntityManager->SetSignature(entity, signature);
-
-    // 3. Informer les systèmes 
-    mSystemManager->EntitySignatureChanged(entity, signature);
-}
-
-template<typename T>
-T& Coordinator::GetComponent(Entity entity)
-{
-    return mComponentManager->GetComponent<T>(entity);
-}
-
-template<typename T>
-ComponentType Coordinator::GetComponentType()
-{
-    return mComponentManager->GetComponentType<T>();
-}
-
-///////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////
-
-template<typename T>
-std::shared_ptr<T> Coordinator::RegisterSystem()
-{
-    return mSystemManager->RegisterSystem<T>();
-}
-
-template<typename T>
-void Coordinator::SetSystemSignature(Signature signature)
-{
-    mSystemManager->SetSignature<T>(signature);
-}*/

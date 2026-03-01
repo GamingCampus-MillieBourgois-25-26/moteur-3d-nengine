@@ -1,25 +1,10 @@
 #include "Engine/ECS/ECS_SystemManager.h"
+
 /*
-template<typename T>
-std::shared_ptr<T> SystemManager::RegisterSystem()
-{
-    std::type_index typeName = typeid(T);
-    assert(mSystems.find(typeName) == mSystems.end() && "System already registered.");
-
-    auto system = std::make_shared<T>();
-    mSystems[typeName] = system;
-    return system;
-}
-
-template<typename T>
-void SystemManager::SetSignature(Signature signature)
-{
-    std::type_index typeName = typeid(T);
-    assert(mSystems.find(typeName) != mSystems.end() && "System not registered.");
-
-    mSignatures[typeName] = signature;
-}
+    Quand une entité est détruite :
+    - elle doit être retirée de tous les systèmes
 */
+
 void SystemManager::EntityDestroyed(Entity entity)
 {
     for (auto const& pair : mSystems)
@@ -29,7 +14,12 @@ void SystemManager::EntityDestroyed(Entity entity)
     }
 }
 
-// Si l'entite possede tous les composants requis par le systeme
+/*
+    Quand une entité change de signature (ajout/suppression de composant) :
+    - on vérifie pour chaque système si l'entité correspond à sa signature
+    - si oui -> on ajoute l'entité au système
+    - sinon -> on la retire
+*/
 void SystemManager::EntitySignatureChanged(Entity entity, Signature entitySignature)
 {
     for (auto const& pair : mSystems)
@@ -38,6 +28,7 @@ void SystemManager::EntitySignatureChanged(Entity entity, Signature entitySignat
         auto const& system = pair.second;
         auto const& systemSignature = mSignatures[type];
 
+        // Vérifie si l'entité possède tous les composants requis
         if ((entitySignature & systemSignature) == systemSignature)
             system->mEntities.insert(entity);
         else

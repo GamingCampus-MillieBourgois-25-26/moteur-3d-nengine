@@ -2,23 +2,24 @@
 
 void MovementSystem::Update(Coordinator& coord, float dt)
 {
-    for (auto entity : mEntities) // pour entre ici il faut que l'entity ai un transform et une velocity
+    // mEntities contient toutes les entités ayant Transform + Velocity
+    for (auto entity : mEntities) 
     {
+        // Récupération des composants nécessaires
         auto& t = coord.GetComponent<Transform>(entity);
         auto& v = coord.GetComponent<Velocity>(entity);
 
-        // Déplacement
+        // Déplacement : position += velocity * dt
         t.position = t.position + v.velocity * dt; 
 
-        // Rotation sur l’axe X
+        // Rotation autour de l’axe X
         t.rotation = t.rotation * MathsLib::Quaternion<float>::Euler(rotationSpeedX * dt, 0, 0);
-        // Rotation sur l’axe Y
+        // Rotation autour de l’axe Y
         t.rotation = t.rotation * MathsLib::Quaternion<float>::Euler(0, rotationSpeedY * dt, 0);
-        // Rotation sur l’axe Z
+        // Rotation autour de l’axe Z
         t.rotation = t.rotation * MathsLib::Quaternion<float>::Euler(0, 0, rotationSpeedZ * dt);
 
-        // Important : normaliser le quaternion
+        // Normalisation obligatoire pour éviter la dérive du quaternion
         t.rotation.Normalize();
-        std::cout << "feur\n";
     }
 }

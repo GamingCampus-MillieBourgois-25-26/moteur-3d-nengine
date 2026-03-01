@@ -7,6 +7,16 @@
 #include "Engine/Renderer.h"
 #include <DirectXMath.h>
 
+/*
+    RenderSystem
+    ------------
+    Système de rendu :
+    - récupère Transform + MeshRenderer
+    - construit la matrice world
+    - appelle le Renderer pour dessiner
+
+    Ce système ne fait aucune logique de jeu.
+*/
 
 class RenderSystem : public System
 {
