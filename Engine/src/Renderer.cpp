@@ -528,3 +528,44 @@ void Renderer::Shutdown()
     if (m_context)           m_context->Release();
     if (m_device)            m_device->Release();
 }
+
+void Renderer::RotateCamera(float dyaw, float dpitch)
+{
+    m_camera.yaw += dyaw;
+    m_camera.pitch += dpitch;
+    if (m_camera.pitch > 1.5f) m_camera.pitch = 1.5f;
+    if (m_camera.pitch < -1.5f) m_camera.pitch = -1.5f;
+
+    DirectX::XMFLOAT3 dir{
+        sinf(m_camera.yaw) * cosf(m_camera.pitch),
+        sinf(m_camera.pitch),
+        cosf(m_camera.yaw) * cosf(m_camera.pitch)
+    };
+    m_camera.target = {
+        m_camera.position.x + dir.x,
+        m_camera.position.y + dir.y,
+        m_camera.position.z + dir.z
+    };
+}
+
+void Renderer::MoveCamera(float right, float up, float forward)
+{
+    using namespace DirectX;
+    XMVECTOR pos = XMLoadFloat3(&m_camera.position);
+
+    XMVECTOR fwd = XMVector3Normalize(XMVectorSet(
+        sinf(m_camera.yaw) * cosf(m_camera.pitch),
+        sinf(m_camera.pitch),
+        cosf(m_camera.yaw) * cosf(m_camera.pitch), 0));
+
+    XMVECTOR r = XMVector3Normalize(XMVector3Cross(fwd, XMVectorSet(0, 1, 0, 0)));
+    XMVECTOR u = XMVectorSet(0, 1, 0, 0);
+
+    pos = XMVectorAdd(pos, XMVectorScale(fwd, forward));
+    pos = XMVectorAdd(pos, XMVectorScale(r, right));
+    pos = XMVectorAdd(pos, XMVectorScale(u, up));
+    XMStoreFloat3(&m_camera.position, pos);
+
+    // Recalcule target
+    RotateCamera(0, 0);
+}

@@ -122,3 +122,6 @@ private:
     float m_scrollX = 0.f;
     float m_scrollY = 0.f;
 };
+// En bas de Input.h
+struct GLFWwindow;
+std::unique_ptr<Input> CreateGLFWInput(GLFWwindow* window);

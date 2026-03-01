@@ -171,7 +171,16 @@ std::shared_ptr<Input::Context> Input::CreateContext()
 {
     return std::make_shared<Context>();
 }
+void Input::PushContext(const std::shared_ptr<Context>& ctx)
+{
+    m_contexts.push_back(ctx);
+}
 
+void Input::PopContext()
+{
+    if (!m_contexts.empty())
+        m_contexts.pop_back();
+}
 void Input::Context::BindAction(int key, const std::string& name, bool consume)
 {
     m_bindings.push_back({ key, name, BindingType::Action, 1.f, consume });
@@ -240,4 +249,9 @@ int Input::GetAnyPressedKey() const
             return MOUSE_OFFSET + i;
 
     return -1;
+
+}
+std::unique_ptr<Input> CreateGLFWInput(GLFWwindow* window)
+{
+    return std::make_unique<Input>(std::make_unique<GLFWBackend>(window));
 }

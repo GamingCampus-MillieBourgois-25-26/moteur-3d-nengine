@@ -11,6 +11,7 @@
 #include "AudioSystem.h"
 #include "OBJ/OBJLoader.h"
 #include "Renderer.h"
+#include "Input.h"
 #include "ECS/Systems/RenderSystem.h"
 #include "ECS/Systems/MovementSystem.h"
 #include <chrono>
@@ -25,7 +26,7 @@ namespace Engine {
         AudioSystem audio;
         OBJLoader loader;
         WindowInstance window;
-
+        std::unique_ptr<Input> input;
         // ECS 
 
         Coordinator coord;
@@ -34,7 +35,8 @@ namespace Engine {
 
         using clock = std::chrono::high_resolution_clock;
 
-
+		float mouseSensitivity = 0.002f;
+		float speed = 0.f;
 
         Renderer renderer;
     public:
@@ -43,7 +45,6 @@ namespace Engine {
         void Running();
         void Shutdown();
 
-        void Run();
 
         bool getIsRunning() const { return isRunning; }
         void setIsRunning(bool running) { isRunning = running; }

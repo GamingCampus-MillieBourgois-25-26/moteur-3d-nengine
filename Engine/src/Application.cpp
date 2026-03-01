@@ -1,4 +1,5 @@
 #include "Engine/Application.h"
+#include <GLFW/glfw3.h> 
 // L'equipe je vais ecrire en anglais c'est plus facile ;;
 
 void Engine::Application::Init()
@@ -7,7 +8,18 @@ void Engine::Application::Init()
 
 	window.Create(800, 600, "My Application");
 
+	input = CreateGLFWInput(window.GetGLFWwindow());
+	// Créer l'input avec le backend GLFW
 
+	// Créer le contexte caméra
+	auto camCtx = input->CreateContext();
+	camCtx->BindAxis(GLFW_KEY_W, "MoveForward", 1.f);
+	camCtx->BindAxis(GLFW_KEY_S, "MoveForward", -1.f);
+	camCtx->BindAxis(GLFW_KEY_D, "MoveRight", -1.f);
+	camCtx->BindAxis(GLFW_KEY_A, "MoveRight", 1.f);
+	camCtx->BindAxis(GLFW_KEY_E, "MoveUp", 1.f);
+	camCtx->BindAxis(GLFW_KEY_Q, "MoveUp", -1.f);
+	input->PushContext(camCtx);
   
 	audio.Init();
 	audio.LoadBanks();
@@ -86,6 +98,8 @@ void Engine::Application::Init()
 	}*/
 
 	isRunning = true;
+
+	Running();
 }
 
 
@@ -106,8 +120,23 @@ void Engine::Application::Running()
 		//renderer.Render(dt);
 		movementSystem->Update(coord, dt);
 		renderSystem->Render(coord, renderer);
-	}
 
+		input->Update();
+
+		speed = 2.0f * dt;
+
+
+		renderer.MoveCamera(
+			input->Axis("MoveRight") * speed,
+			input->Axis("MoveUp") * speed,
+			input->Axis("MoveForward") * speed
+		);
+		renderer.RotateCamera(
+			input->MouseDX() * mouseSensitivity,
+			input->MouseDY() * mouseSensitivity
+		);
+	}
+	Shutdown();
 }
 
 void Engine::Application::Shutdown()
@@ -115,9 +144,4 @@ void Engine::Application::Shutdown()
 	std::cout << "Shutting down application...\n";
 	window.ShouldClose();
 	isRunning = false;
-}
-
-void Engine::Application::Run()
-{
-	std::cout << "TA GUEULE\n";
 }
