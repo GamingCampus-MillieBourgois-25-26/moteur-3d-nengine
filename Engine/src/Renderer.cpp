@@ -1,5 +1,5 @@
 ﻿#include "Engine/Renderer.h"
-#include "Engine/OBJLoader.h"
+#include "Engine/OBJ/OBJLoader.h"
 
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3.h>

@@ -9,7 +9,7 @@
 #include "Window.h"
 
 #include "AudioSystem.h"
-#include "OBJLoader.h"
+#include "OBJ/OBJLoader.h"
 #include "Renderer.h"
 #include "ECS/Systems/RenderSystem.h"
 #include "ECS/Systems/MovementSystem.h"
