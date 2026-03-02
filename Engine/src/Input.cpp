@@ -1,6 +1,5 @@
 #include "Engine/Input.h"
 #include <GLFW/glfw3.h>
-//#include <Xinput.h>
 #include <Engine/json.hpp>
 #include <fstream>
 #include <filesystem>
@@ -11,6 +10,7 @@ using json = nlohmann::json;
 // GLFW Backend
 // ========================
 
+// Implémentation concrète du backend avec GLFW
 class GLFWBackend : public IInputBackend
 {
 public:
@@ -19,6 +19,7 @@ public:
         glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         glfwSetWindowUserPointer(m_window, this);
 
+        // Callback scroll accumulé par frame
         glfwSetScrollCallback(m_window,
             [](GLFWwindow* window, double x, double y)
             {
@@ -53,6 +54,7 @@ Input::Input(std::unique_ptr<IInputBackend> backend)
     m_mouseButtons.fill(KeyState::Up);
 }
 
+// Update appelée chaque frame
 void Input::Update()
 {
     m_backend->PollEvents();
@@ -63,6 +65,7 @@ void Input::Update()
     m_scrollX = m_backend->ConsumeScrollX();
     m_scrollY = m_backend->ConsumeScrollY();
 
+    // Reset des états logiques
     m_actionDown.clear();
     m_actionPressed.clear();
     m_actionReleased.clear();
@@ -75,6 +78,7 @@ void Input::Update()
 // Polling
 // ========================
 
+// Mise à jour des états clavier
 void Input::PollKeyboard()
 {
     for (int i = 0; i < KEY_COUNT; ++i)
@@ -89,6 +93,7 @@ void Input::PollKeyboard()
     }
 }
 
+// Mise à jour des boutons souris
 void Input::PollMouseButtons()
 {
     for (int i = 0; i < MOUSE_BUTTON_COUNT; ++i)
@@ -103,6 +108,7 @@ void Input::PollMouseButtons()
     }
 }
 
+// Calcul du delta souris
 void Input::PollMouse()
 {
     double x, y;
@@ -126,18 +132,22 @@ void Input::PollMouse()
 // Context Resolution
 // ========================
 
+// Résolution des bindings par priorité de contexte
 void Input::ResolveContexts()
 {
     std::unordered_map<int, bool> consumed;
 
+    // Parcours des contextes du plus prioritaire au moins prioritaire
     for (auto it = m_contexts.rbegin(); it != m_contexts.rend(); ++it)
     {
         for (const auto& b : (*it)->m_bindings)
         {
+            // Input déjà consommé
             if (consumed[b.key]) continue;
 
             KeyState ks = KeyState::Up;
 
+            // Clavier ou souris selon l'offset
             if (b.key >= MOUSE_OFFSET)
                 ks = m_mouseButtons[b.key - MOUSE_OFFSET];
             else
@@ -145,20 +155,24 @@ void Input::ResolveContexts()
 
             bool active = ks == KeyState::Pressed || ks == KeyState::Down;
 
+            // Action
             if (b.type == BindingType::Action)
             {
                 if (ks == KeyState::Pressed) m_actionPressed[b.name] = true;
                 if (ks == KeyState::Released) m_actionReleased[b.name] = true;
                 if (active) m_actionDown[b.name] = true;
             }
+            // Axe
             else if (active)
                 m_axes[b.name] += b.scale;
 
+            // Consommation de l'input
             if (b.consume && (active || ks == KeyState::Released))
                 consumed[b.key] = true;
         }
     }
 
+    // Clamp des axes
     for (auto& [_, v] : m_axes)
         v = std::clamp(v, -1.f, 1.f);
 }
@@ -172,36 +186,24 @@ std::shared_ptr<Input::Context> Input::CreateContext()
     return std::make_shared<Context>();
 }
 
+// Ajout d'une nouvelle action
 void Input::Context::BindAction(int key, const std::string& name, bool consume)
 {
     m_bindings.push_back({ key, name, BindingType::Action, 1.f, consume });
 }
 
+// Ajout d'un nouvel axe
 void Input::Context::BindAxis(int key, const std::string& name, float scale)
 {
     m_bindings.push_back({ key, name, BindingType::Axis, scale, false });
 }
 
+// Rebinding d'une action existante
 void Input::Context::Rebind(const std::string& name, int newKey)
 {
     for (auto& b : m_bindings)
         if (b.name == name)
             b.key = newKey;
-}
-
-std::vector<Input::Context::SerializableBinding> Input::Context::Serialize() const
-{
-    std::vector<SerializableBinding> out;
-    for (const auto& b : m_bindings)
-        out.push_back({ b.name, b.key, b.type, b.scale, b.consume });
-    return out;
-}
-
-void Input::Context::Deserialize(const std::vector<SerializableBinding>& data)
-{
-    m_bindings.clear();
-    for (const auto& b : data)
-        m_bindings.push_back({ b.key, b.name, b.type, b.scale, b.consume });
 }
 
 // ========================
@@ -229,6 +231,7 @@ float Input::Axis(const std::string& name) const
     return it != m_axes.end() ? it->second : 0.f;
 }
 
+// Détection d'un input pour le rebinding
 int Input::GetAnyPressedKey() const
 {
     for (int i = 0; i < KEY_COUNT; ++i)
