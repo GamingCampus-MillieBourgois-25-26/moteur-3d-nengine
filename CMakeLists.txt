@@ -40,6 +40,3 @@ set(USE_MSVC_RUNTIME_LIBRARY_DLL ON CACHE BOOL "" FORCE)
 
 FetchContent_MakeAvailable(bullet3)
 
-add_subdirectory(Engine)
-add_subdirectory(Game)
-add_subdirectory(Editor)
