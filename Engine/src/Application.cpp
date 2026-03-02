@@ -14,24 +14,24 @@ void Engine::Application::Init()
 
     window.Create(800, 600, "My Application");
 
-	input = CreateGLFWInput(window.GetGLFWwindow());
-	// Créer l'input avec le backend GLFW
+    input = CreateGLFWInput(window.GetGLFWwindow());
+    // Créer l'input avec le backend GLFW
 
-	// Créer le contexte caméra
-	auto camCtx = input->CreateContext();
-	camCtx->BindAxis(GLFW_KEY_W, "MoveForward", 1.f);
-	camCtx->BindAxis(GLFW_KEY_S, "MoveForward", -1.f);
-	camCtx->BindAxis(GLFW_KEY_D, "MoveRight", -1.f);
-	camCtx->BindAxis(GLFW_KEY_A, "MoveRight", 1.f);
-	camCtx->BindAxis(GLFW_KEY_E, "MoveUp", 1.f);
-	camCtx->BindAxis(GLFW_KEY_Q, "MoveUp", -1.f);
-	camCtx->BindAction(GLFW_KEY_SPACE, "LockCamera");
-	input->PushContext(camCtx);
-  
-	audio.Init();
-	audio.LoadBanks();
-	audio.PlayEvent("event:/MSC_EFN");
-	loader.loadOBJFile();
+    // Créer le contexte caméra
+    auto camCtx = input->CreateContext();
+    camCtx->BindAxis(GLFW_KEY_W, "MoveForward", 1.f);
+    camCtx->BindAxis(GLFW_KEY_S, "MoveForward", -1.f);
+    camCtx->BindAxis(GLFW_KEY_D, "MoveRight", -1.f);
+    camCtx->BindAxis(GLFW_KEY_A, "MoveRight", 1.f);
+    camCtx->BindAxis(GLFW_KEY_E, "MoveUp", 1.f);
+    camCtx->BindAxis(GLFW_KEY_Q, "MoveUp", -1.f);
+    camCtx->BindAction(GLFW_KEY_SPACE, "LockCamera");
+    input->PushContext(camCtx);
+
+    audio.Init();
+    audio.LoadBanks();
+    audio.PlayEvent("event:/MSC_EFN");
+    loader.loadOBJFile();
 
     if (!renderer.Initialize(window.GetGLFWwindow(), 800, 600))
     {
@@ -39,113 +39,88 @@ void Engine::Application::Init()
         return;
     }
 
-	// ECS
+    // ECS
 
-	coord.Init();
+    coord.Init();
 
-	// 1. Register components (on enregistre les composants qu'on va donner)
-	coord.RegisterComponent<Transform>();
-	coord.RegisterComponent<Velocity>();
-	coord.RegisterComponent<MeshRenderer>();
+    // 1. Register components (on enregistre les composants qu'on va donner)
+    coord.RegisterComponent<Transform>();
+    coord.RegisterComponent<Velocity>();
+    coord.RegisterComponent<MeshRenderer>();
 
-	// Enregistrer le MovementSystem
-	movementSystem = coord.RegisterSystem<MovementSystem>();
+    // Enregistrer le MovementSystem
+    movementSystem = coord.RegisterSystem<MovementSystem>();
 
-	Signature movementSignature;
-	movementSignature.set(coord.GetComponentType<Transform>(), true);
-	movementSignature.set(coord.GetComponentType<Velocity>(), true);
+    Signature movementSignature;
+    movementSignature.set(coord.GetComponentType<Transform>(), true);
+    movementSignature.set(coord.GetComponentType<Velocity>(), true);
 
-	coord.SetSystemSignature<MovementSystem>(movementSignature);
+    coord.SetSystemSignature<MovementSystem>(movementSignature);
 
-	// 2. Register RenderSystem
-	renderSystem = coord.RegisterSystem<RenderSystem>();
+    // 2. Register RenderSystem
+    renderSystem = coord.RegisterSystem<RenderSystem>();
 
-	// 3. Define signature for RenderSystem
-	Signature renderSignature;
-	renderSignature.set(coord.GetComponentType<Transform>(), true);
-	renderSignature.set(coord.GetComponentType<MeshRenderer>(), true);
+    // 3. Define signature for RenderSystem
+    Signature renderSignature;
+    renderSignature.set(coord.GetComponentType<Transform>(), true);
+    renderSignature.set(coord.GetComponentType<MeshRenderer>(), true);
 
-	coord.SetSystemSignature<RenderSystem>(renderSignature);
+    coord.SetSystemSignature<RenderSystem>(renderSignature);
 
-	// 4. Create an entity
-	Entity e = coord.CreateEntity();
+    // 4. Create an entity
+    ::Entity e = coord.CreateEntity();
 
-	// 5. Add Transform
-	Transform tr;
-	tr.position = { 0, 0, 0 };
-	tr.scale = { 0.5, 0.5, 0.5 };
-	tr.rotation = { 0, 0, 0, 1 }; // quaternion
-	coord.AddComponent(e, tr);
+    // 5. Add Transform
+    ::Transform tr;
+    tr.position = { 0, 0, 0 };
+    tr.scale = { 0.5f, 0.5f, 0.5f };
+    tr.rotation = { 0, 0, 0, 1 }; // quaternion
+    coord.AddComponent<::Transform>(e, tr);
 
-	// 6. Add MeshRenderer
-	MeshRenderer mr;
-	mr.vertexBuffer = renderer.GetMesh().vertexBuffer;   // on va ajouter GetMesh()
-	mr.indexBuffer = renderer.GetMesh().indexBuffer;
-	mr.indexCount = renderer.GetMesh().indexCount;
-	coord.AddComponent(e, mr);
+    // 6. Add MeshRenderer
+    MeshRenderer mr;
+    mr.vertexBuffer = renderer.GetMesh().vertexBuffer;   // on va ajouter GetMesh()
+    mr.indexBuffer = renderer.GetMesh().indexBuffer;
+    mr.indexCount = renderer.GetMesh().indexCount;
+    coord.AddComponent<MeshRenderer>(e, mr);
 
-	// 7. Add Velocity
-	Velocity vel;
-	vel.velocity = { 0, 0, 0 };
-	coord.AddComponent(e, vel);
+    // Add the initial entity to the scene list for UI
+    m_sceneEntities.push_back(e);
 
-	/*for (int i = 0; i < 1; i++)
-	{
-		Entity e = coord.CreateEntity();
+    // 7. Add Velocity
+    Velocity vel;
+    vel.velocity = { 0, 0, 0 };
+    coord.AddComponent<Velocity>(e, vel);
 
-		Transform tr;
-		tr.position = { float(i + 1), 0, 0 };
-		tr.scale = { 0.2, 0.2, 0.2 };
-		tr.rotation = { 0, 0, 0, 1 };
-		coord.AddComponent(e, tr);
-		coord.AddComponent(e, mr);
-	}*/
-
-	isRunning = true;
-
-	Running();
+    isRunning = true;
 }
 
-void Engine::Application::Running()
+void Engine::Application::Update(float dt)
 {
-    auto lastTime = clock::now();
-    std::cout << "Application is running...\n";
+    // une itération de la boucle principale (mise à jour du moteur + rendu de la scène)
+    audio.Update();
+    window.Update();
+    movementSystem->Update(coord, dt);
+    renderSystem->Render(coord, renderer); // RenderSystem commence par BeginFrame() et dessine la scène (ne présente pas)
 
-    while (isRunning && !window.ShouldClose())
-    {
-        auto now = clock::now();
-        std::chrono::duration<float> elapsed = now - lastTime;
-        float dt = elapsed.count();
-        lastTime = now;
+    input->Update();
 
-		audio.Update();
-		window.Update();
-		movementSystem->Update(coord, dt);
-		renderSystem->Render(coord, renderer);
+    speed = 2.0f * dt;
 
-		input->Update();
+    renderer.MoveCamera(
+        input->Axis("MoveRight") * speed,
+        input->Axis("MoveUp") * speed,
+        input->Axis("MoveForward") * speed
+    );
 
-		speed = 2.0f * dt;
-
-
-		renderer.MoveCamera(
-			input->Axis("MoveRight") * speed,
-			input->Axis("MoveUp") * speed,
-			input->Axis("MoveForward") * speed
-		);
-		std::cout << input->Action("LockCamera") << std::endl;
-		if (input->Action("LockCamera")) {
-			glfwSetInputMode(window.GetGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-			renderer.RotateCamera(
-				input->MouseDX() * mouseSensitivity,
-				input->MouseDY() * mouseSensitivity
-			);
-		}
-		else glfwSetInputMode(window.GetGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-
-		
-	}
-	Shutdown();
+    if (input->Action("LockCamera")) {
+        glfwSetInputMode(window.GetGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        renderer.RotateCamera(
+            input->MouseDX() * mouseSensitivity,
+            input->MouseDY() * mouseSensitivity
+        );
+    }
+    else glfwSetInputMode(window.GetGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 }
 
 void Engine::Application::Shutdown()
@@ -154,4 +129,43 @@ void Engine::Application::Shutdown()
 
     window.ShouldClose();
     isRunning = false;
+}
+
+// --- Editor-friendly ECS helpers ---
+
+::Entity Engine::Application::CreateRenderableEntity()
+{
+    ::Entity e = coord.CreateEntity();
+
+    ::Transform tr;
+    tr.position = { 0.0f, 0.0f, 0.0f };
+    tr.scale = { 1.0f, 1.0f, 1.0f };
+    tr.rotation = { 0.0f, 0.0f, 0.0f, 1.0f };
+
+    coord.AddComponent<::Transform>(e, tr);
+
+    MeshRenderer mr;
+    mr.vertexBuffer = renderer.GetMesh().vertexBuffer;
+    mr.indexBuffer = renderer.GetMesh().indexBuffer;
+    mr.indexCount = renderer.GetMesh().indexCount;
+    coord.AddComponent<MeshRenderer>(e, mr);
+
+    // Optionnel : add zero velocity
+    Velocity vel;
+    vel.velocity = { 0.0f, 0.0f, 0.0f };
+    coord.AddComponent<Velocity>(e, vel);
+
+    m_sceneEntities.push_back(e);
+    return e;
+}
+
+::Transform Engine::Application::GetTransform(::Entity entity)
+{
+    // Retourne une copie du Transform
+    return coord.GetComponent<::Transform>(entity);
+}
+
+void Engine::Application::SetTransform(::Entity entity, const ::Transform& t)
+{
+    coord.GetComponent<::Transform>(entity) = t;
 }

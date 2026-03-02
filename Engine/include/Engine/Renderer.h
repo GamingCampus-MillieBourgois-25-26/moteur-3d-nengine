@@ -24,6 +24,7 @@ public:
     void DrawMesh(const DirectX::XMMATRIX& world, ID3D11Buffer* vertexBuffer, ID3D11Buffer* indexBuffer, UINT indexCount);
 
     ID3D11Device* GetDevice() const { return m_device; }
+    ID3D11DeviceContext* GetContext() const { return m_context; } // ajouté pour ImGui DX11
 
 private:
     struct Vertex
@@ -36,9 +37,9 @@ private:
     struct ConstantBufferData
     {
         //DirectX::XMMATRIX mvp;
-        DirectX::XMMATRIX world; 
-        DirectX::XMMATRIX view; 
-        DirectX::XMMATRIX proj; 
+        DirectX::XMMATRIX world;
+        DirectX::XMMATRIX view;
+        DirectX::XMMATRIX proj;
     };
 
     struct Mesh
@@ -57,8 +58,8 @@ private:
         float aspect = 1.0f;
         float nearZ = 0.1f;
         float farZ = 100.0f;
-		float yaw = 0.0f;
-		float pitch = 0.0f;
+        float yaw = 0.0f;
+        float pitch = 0.0f;
     };
 
 private:
@@ -95,7 +96,7 @@ private:
     int                     m_height = 0;
 
     // ECS
-public : 
+public:
 
     const Mesh& GetMesh() const { return m_mesh; }
 
