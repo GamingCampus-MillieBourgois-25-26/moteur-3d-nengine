@@ -25,7 +25,7 @@ void Engine::Application::Init()
 	camCtx->BindAxis(GLFW_KEY_A, "MoveRight", 1.f);
 	camCtx->BindAxis(GLFW_KEY_E, "MoveUp", 1.f);
 	camCtx->BindAxis(GLFW_KEY_Q, "MoveUp", -1.f);
-	camCtx->BindAction(GLFW_MOUSE_BUTTON_2, "LockCamera", false);
+	camCtx->BindAction(GLFW_KEY_SPACE, "LockCamera");
 	input->PushContext(camCtx);
   
 	audio.Init();
@@ -133,10 +133,16 @@ void Engine::Application::Running()
 			input->Axis("MoveUp") * speed,
 			input->Axis("MoveForward") * speed
 		);
+		std::cout << input->Action("LockCamera") << std::endl;
+		if (input->Action("LockCamera")) {
+			glfwSetInputMode(window.GetGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 			renderer.RotateCamera(
 				input->MouseDX() * mouseSensitivity,
 				input->MouseDY() * mouseSensitivity
 			);
+		}
+		else glfwSetInputMode(window.GetGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+
 		
 	}
 	Shutdown();
@@ -146,7 +152,6 @@ void Engine::Application::Shutdown()
 {
     std::cout << "Shutting down application...\n";
 
-    //renderer.Shutdown();
     window.ShouldClose();
     isRunning = false;
 }

@@ -16,7 +16,6 @@ class GLFWBackend : public IInputBackend
 public:
     explicit GLFWBackend(GLFWwindow* window) : m_window(window)
     {
-        glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         glfwSetWindowUserPointer(m_window, this);
 
         glfwSetScrollCallback(m_window,
