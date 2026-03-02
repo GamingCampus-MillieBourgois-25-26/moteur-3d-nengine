@@ -31,8 +31,12 @@ namespace MathsLib
 	class Quaternion {
 	public:
 		T w, x, y, z;
-		Quaternion<T>() = default;
-		Quaternion<T>(T w = 1.0f, T x = 0.0f, T y = 0.0f, T z = 0.0f);
+		//Quaternion<T>() = default;
+		//Quaternion<T>(T w = 1.0f, T x = 0.0f, T y = 0.0f, T z = 0.0f);
+
+		Quaternion();
+		Quaternion(T w, T x, T y, T z);
+
 		Quaternion normalized() const;
 		T magnitude() const;
 		void Normalize();

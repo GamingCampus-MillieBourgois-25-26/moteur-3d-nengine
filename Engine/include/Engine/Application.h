@@ -7,11 +7,12 @@
 
 #include "Window.h"
 #include "AudioSystem.h"
-#include "OBJLoader.h"
+#include "OBJ/OBJLoader.h"
 #include "Renderer.h"
-#include "ScriptManager.h"
-#include "ScriptAPI.h"
 
+#include "Input.h"
+#include "ECS/Systems/RenderSystem.h"
+#include "ECS/Systems/MovementSystem.h"
 #include <chrono>
 #include <filesystem>
 #include <string>
@@ -27,14 +28,17 @@ namespace Engine {
         AudioSystem audio;
         OBJLoader loader;
         WindowInstance window;
+        std::unique_ptr<Input> input;
+        // ECS 
+
+        Coordinator coord;
+        std::shared_ptr<RenderSystem> renderSystem;
+        std::shared_ptr<MovementSystem> movementSystem;
 
         using clock = std::chrono::high_resolution_clock;
 
-        Renderer renderer;
-
-        // Nouveau système de scripting
-        ScriptManager scriptManager;
-        std::vector<IScript*> m_scripts;
+		float mouseSensitivity = 0.002f;
+		float speed = 0.f;
 
     public:
 

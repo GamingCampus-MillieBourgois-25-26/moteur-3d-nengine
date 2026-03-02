@@ -1,11 +1,17 @@
-#include "Quaternion.h"
-#pragma once
+//#include "Quaternion.h"
+//#pragma once
 
 namespace MathsLib
 {
 	template <typename T>
+	Quaternion<T>::Quaternion() 
+		: w(1), x(0), y(0), z(0) {}
+
+	template<typename T>
 	Quaternion<T>::Quaternion(T w, T x, T y, T z) 
 		: w(w), x(x), y(y), z(z) {}
+	//Quaternion<T>::Quaternion(T w, T x, T y, T z) 
+	//	: w(w), x(x), y(y), z(z) {}
 
 #pragma region StaticProperties
 
@@ -147,29 +153,30 @@ namespace MathsLib
 	{
 		Quaternion q = normalized();
 		angle = 2 * std::acos(std::clamp(q.w, T(-1), T(1)));
-		T s = std::sqrt(std::max(T(0), T(1) - q.w * q.w));
+		//T s = std::sqrt(std::max(T(0), T(1) - q.w * q.w));
+		T s = std::sqrt((std::max)(T(0), T(1) - q.w * q.w));
 		if (s < 0.001f)
 			axis = Vector3<T>(1, 0, 0);
 		else
 			axis = Vector3<T>(q.x / s, q.y / s, q.z / s);
 	}
 
-	template<typename T>
-	Quaternion<T> Quaternion<T>::AngleAxis(float degrees, Vector3<T>& axis) {
-		float radians = degrees * 0.0174533f;
+	//template<typename T>
+	//Quaternion<T> Quaternion<T>::AngleAxis(float degrees, Vector3<T>& axis) {
+	//	float radians = degrees * 0.0174533f;
 
-		if (MagnitudeSq(axis) != 1) { // Do epsilon check here!
-			axis = Normalize(axis);
-		}
+	//	if (MagnitudeSq(axis) != 1) { // Do epsilon check here!
+	//		axis = Normalize(axis);
+	//	}
 
-		Quaternion result;
-		result.x = axis.x * sinf(radians * 0.5f);
-		result.y = axis.y * sinf(radians * 0.5f);
-		result.z = axis.z * sinf(radians * 0.5f);
-		result.w = cosf(radians * 0.5f);
+	//	Quaternion result;
+	//	result.x = axis.x * sinf(radians * 0.5f);
+	//	result.y = axis.y * sinf(radians * 0.5f);
+	//	result.z = axis.z * sinf(radians * 0.5f);
+	//	result.w = cosf(radians * 0.5f);
 
-		return result;
-	}
+	//	return result;
+	//}
 
 
 
@@ -202,7 +209,9 @@ namespace MathsLib
 	template<typename T>
 	T Quaternion<T>::Dot(const Quaternion<T>& a, const Quaternion<T>& b) {
 		return a.w * b.w + a.x * b.x + a.y * b.y + a.z * b.z;
-	}template<typename T>
+	}
+	
+	template<typename T>
 		Quaternion<T> Quaternion<T>::Euler(T x, T y, T z) {
 		T c1 = std::cos(y * 0.5);
 		T s1 = std::sin(y * 0.5);
@@ -258,7 +267,7 @@ namespace MathsLib
 	Quaternion<T> Quaternion<T>::RotateTowards(const Quaternion<T>& from, const Quaternion<T>& to, T maxDegreesDelta) {
 		T angle = Angle(from, to);
 		if (angle == 0) return to;
-		T t = std::min(T(1), maxDegreesDelta / angle);
+		T t = ((std::min)(T(1), maxDegreesDelta / angle));
 		return SlerpUnclamped(from, to, t);
 	}
 

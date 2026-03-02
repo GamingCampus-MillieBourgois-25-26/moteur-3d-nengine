@@ -1,4 +1,4 @@
-#include "Engine/OBJLoader.h"
+#include "Engine/OBJ/OBJLoader.h"
 
 void OBJLoader::loadOBJFile()
 {

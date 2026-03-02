@@ -1,5 +1,5 @@
 ﻿#include "Engine/Renderer.h"
-#include "Engine/OBJLoader.h"
+#include "Engine/OBJ/OBJLoader.h"
 
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3.h>
@@ -17,12 +17,12 @@ bool Renderer::Initialize(GLFWwindow* window, int width, int height)
 
 
     if (!CreateDeviceAndSwapChain(window, width, height)) {
-        std::cout << "ERROR: CreateDeviceAndSwapChain failed/n";
+        std::cout << "ERROR: CreateDeviceAndSwapChain failed\n";
         return false;
     }
 
     if (!CreateRenderTargets(width, height)) {
-        std::cout << "ERROR: CreateRenderTargets failed/n";
+        std::cout << "ERROR: CreateRenderTargets failed\n";
         return false;
     }
 
@@ -36,17 +36,14 @@ bool Renderer::Initialize(GLFWwindow* window, int width, int height)
 
 
     if (!CreatePipelineState()) {
-        std::cout << "ERROR: CreatePipelineState failed/n";
+        std::cout << "ERROR: CreatePipelineState failed\n";
         return false;
     }
-
-
 
     //if (!CreateMesh()) {
     //    std::cout << "ERROR: CreateMesh failed/n";
     //    return false;
     //}
-
 
     OBJLoader loader;
     loader.setDevice(m_device);
@@ -291,7 +288,7 @@ bool Renderer::CreatePipelineState()
     return true;
 }
 
-bool Renderer::CreateMesh()
+/*bool Renderer::CreateMesh()
 {
     // Mesh loader minimal : un simple triangle, mais via une structure Mesh
     std::vector<Vertex> vertices =
@@ -329,7 +326,7 @@ bool Renderer::CreateMesh()
     if (FAILED(hr)) return false;
 
     return true;
-}
+}*/
 
 void Renderer::UpdateCamera(float dt)
 {
@@ -351,17 +348,42 @@ void Renderer::UpdateConstantBuffer()
 
     XMMATRIX view = XMMatrixLookAtLH(eye, at, up);
     XMMATRIX proj = XMMatrixPerspectiveFovLH(m_camera.fov, m_camera.aspect, m_camera.nearZ, m_camera.farZ);
-    //XMMATRIX world = XMMatrixIdentity();
-    static float rot = 0.0f;
-    rot += 0.01f;
-    XMMATRIX world = XMMatrixRotationY(rot);
-    m_cbData.world = XMMatrixTranspose(world);
+
     m_cbData.view = XMMatrixTranspose(view);
     m_cbData.proj = XMMatrixTranspose(proj);
+
     m_context->UpdateSubresource(m_constantBuffer, 0, nullptr, &m_cbData, 0, 0);
 }
 
-void Renderer::Render(float dt)
+/*
+void Renderer::UpdateConstantBuffer()
+{
+    XMVECTOR eye = XMLoadFloat3(&m_camera.position);
+    XMVECTOR at = XMLoadFloat3(&m_camera.target);
+    XMVECTOR up = XMLoadFloat3(&m_camera.up);
+
+    XMMATRIX view = XMMatrixLookAtLH(eye, at, up);
+    XMMATRIX proj = XMMatrixPerspectiveFovLH(m_camera.fov, m_camera.aspect, m_camera.nearZ, m_camera.farZ);
+    XMMATRIX world = XMMatrixIdentity();
+
+    m_cbData.mvp = XMMatrixTranspose(world * view * proj);
+
+    m_context->UpdateSubresource(m_constantBuffer, 0, nullptr, &m_cbData, 0, 0);
+}*/
+
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+
+/*void Renderer::Render(float dt)
 {
     //UpdateCamera(dt);
     UpdateConstantBuffer();
@@ -387,7 +409,107 @@ void Renderer::Render(float dt)
 
     m_context->DrawIndexed(m_mesh.indexCount, 0, 0);
     m_swapChain->Present(1, 0);
+}*/
+
+void Renderer::BeginFrame() {
+    //std::cout << "Begin Frame\n";
+    float clearColor[4] = { 0.1f, 0.1f, 0.2f, 1.0f };
+    m_context->ClearRenderTargetView(m_renderTargetView, clearColor);
+    m_context->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
+
+void Renderer::EndFrame() {
+    //std::cout << "End Frame\n";
+    m_swapChain->Present(1, 0);
+}
+
+void Renderer::DrawMesh(const XMMATRIX& world,
+    ID3D11Buffer* vertexBuffer,
+    ID3D11Buffer* indexBuffer,
+    UINT indexCount)
+{
+    // Construire view et proj
+    XMVECTOR eye = XMLoadFloat3(&m_camera.position);
+    XMVECTOR at = XMLoadFloat3(&m_camera.target);
+    XMVECTOR up = XMLoadFloat3(&m_camera.up);
+
+    XMMATRIX view = XMMatrixLookAtLH(eye, at, up);
+    XMMATRIX proj = XMMatrixPerspectiveFovLH(m_camera.fov, m_camera.aspect, m_camera.nearZ, m_camera.farZ);
+
+    // Mettre à jour le constant buffer
+    m_cbData.world = XMMatrixTranspose(world); 
+    m_cbData.view = XMMatrixTranspose(view); 
+    m_cbData.proj = XMMatrixTranspose(proj);
+    //m_cbData.mvp = XMMatrixTranspose(world * view * proj);
+    m_context->UpdateSubresource(m_constantBuffer, 0, nullptr, &m_cbData, 0, 0);
+
+    // Bind pipeline
+    UINT stride = sizeof(Vertex);
+    UINT offset = 0;
+
+    m_context->IASetInputLayout(m_inputLayout);
+    m_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    m_context->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
+    m_context->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+
+    m_context->RSSetState(m_rasterizerState);
+    m_context->OMSetDepthStencilState(m_depthState, 0);
+
+    m_context->VSSetShader(m_vertexShader, nullptr, 0);
+    m_context->PSSetShader(m_pixelShader, nullptr, 0);
+    m_context->VSSetConstantBuffers(0, 1, &m_constantBuffer);
+
+    // Draw
+    m_context->DrawIndexed(indexCount, 0, 0);
+}
+
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+
+/*void Renderer::DrawMesh(const XMMATRIX& world,
+    ID3D11Buffer* vertexBuffer,
+    ID3D11Buffer* indexBuffer,
+    UINT indexCount)
+{
+    // 1. Construire view et proj comme dans UpdateConstantBuffer()
+    XMVECTOR eye = XMLoadFloat3(&m_camera.position);
+    XMVECTOR at = XMLoadFloat3(&m_camera.target);
+    XMVECTOR up = XMLoadFloat3(&m_camera.up);
+
+    XMMATRIX view = XMMatrixLookAtLH(eye, at, up);
+    XMMATRIX proj = XMMatrixPerspectiveFovLH(m_camera.fov, m_camera.aspect, m_camera.nearZ, m_camera.farZ);
+
+    // 2. Mettre à jour le constant buffer avec world * view * proj
+    m_cbData.mvp = XMMatrixTranspose(world * view * proj);
+    m_context->UpdateSubresource(m_constantBuffer, 0, nullptr, &m_cbData, 0, 0);
+
+    // 3. Binder les buffers GPU
+    UINT stride = sizeof(Vertex);
+    UINT offset = 0;
+    m_context->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
+    m_context->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+
+    // 4. Binder shaders, input layout, rasterizer, depth state
+    m_context->IASetInputLayout(m_inputLayout);
+    m_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    m_context->RSSetState(m_rasterizerState);
+    m_context->OMSetDepthStencilState(m_depthState, 0);
+    m_context->VSSetShader(m_vertexShader, nullptr, 0);
+    m_context->PSSetShader(m_pixelShader, nullptr, 0);
+    m_context->VSSetConstantBuffers(0, 1, &m_constantBuffer);
+
+    // 5. Draw call
+    m_context->DrawIndexed(indexCount, 0, 0);
+}*/
 
 void Renderer::Shutdown()
 {
@@ -409,4 +531,45 @@ void Renderer::Shutdown()
     if (m_swapChain)         m_swapChain->Release();
     if (m_context)           m_context->Release();
     if (m_device)            m_device->Release();
+}
+
+void Renderer::RotateCamera(float dyaw, float dpitch)
+{
+    m_camera.yaw += dyaw;
+    m_camera.pitch += dpitch;
+    if (m_camera.pitch > 1.5f) m_camera.pitch = 1.5f;
+    if (m_camera.pitch < -1.5f) m_camera.pitch = -1.5f;
+
+    DirectX::XMFLOAT3 dir{
+        sinf(m_camera.yaw) * cosf(m_camera.pitch),
+        sinf(m_camera.pitch),
+        cosf(m_camera.yaw) * cosf(m_camera.pitch)
+    };
+    m_camera.target = {
+        m_camera.position.x + dir.x,
+        m_camera.position.y + dir.y,
+        m_camera.position.z + dir.z
+    };
+}
+
+void Renderer::MoveCamera(float right, float up, float forward)
+{
+    using namespace DirectX;
+    XMVECTOR pos = XMLoadFloat3(&m_camera.position);
+
+    XMVECTOR fwd = XMVector3Normalize(XMVectorSet(
+        sinf(m_camera.yaw) * cosf(m_camera.pitch),
+        sinf(m_camera.pitch),
+        cosf(m_camera.yaw) * cosf(m_camera.pitch), 0));
+
+    XMVECTOR r = XMVector3Normalize(XMVector3Cross(fwd, XMVectorSet(0, 1, 0, 0)));
+    XMVECTOR u = XMVectorSet(0, 1, 0, 0);
+
+    pos = XMVectorAdd(pos, XMVectorScale(fwd, forward));
+    pos = XMVectorAdd(pos, XMVectorScale(r, right));
+    pos = XMVectorAdd(pos, XMVectorScale(u, up));
+    XMStoreFloat3(&m_camera.position, pos);
+
+    // Recalcule target
+    RotateCamera(0, 0);
 }

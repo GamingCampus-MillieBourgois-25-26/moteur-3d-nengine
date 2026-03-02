@@ -1,12 +1,22 @@
-#include "Vector3.h"
-#pragma once
+//#include "Vector3.h"
+//#pragma once
 
 namespace MathsLib
 {
+	//template <typename T>
+	//Vector3<T>::Vector3(T x, T y, T z) : x(x), y(y), z(z)
+	//{
+	//}
+
 	template <typename T>
-	Vector3<T>::Vector3(T x, T y, T z) : x(x), y(y), z(z)
-	{
-	}
+	Vector3<T>::Vector3()
+		: x(0), y(0), z(0)
+	{}
+
+	template <typename T>
+	Vector3<T>::Vector3(T x, T y, T z)
+		: x(x), y(y), z(z)
+	{}
 #pragma region StaticProperties
 	template<typename T>  Vector3<T> Vector3<T>::back(0, 0, -1);
 	template<typename T>  Vector3<T> Vector3<T>::down(0, -1, 0);

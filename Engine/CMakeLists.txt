@@ -10,6 +10,12 @@ target_sources(Engine
         src/Input.cpp 
 	    src/AudioSystem.cpp
         src/OBJLoader.cpp
+        src/ECS/ECS_Component.cpp
+        src/ECS/ECS_Coordinator.cpp
+        src/ECS/ECS_Entity.cpp
+        src/ECS/ECS_SystemManager.cpp
+        src/ECS/Systems/MovementSystem.cpp
+        src/ECS/Systems/RenderSystem.cpp
         src/ScriptManager.cpp
 )
 
