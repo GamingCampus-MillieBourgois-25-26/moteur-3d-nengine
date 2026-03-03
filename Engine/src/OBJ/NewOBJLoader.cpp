@@ -1,6 +1,6 @@
 #include "Engine/OBJ/NewOBJLoader.h"
 
-// Hash custom pour pouvoir utiliser Vertex comme clé dans un unordered_map
+// Hash custom pour pouvoir utiliser Vertex comme clé dans un unordered_map (un hash permet de créé un int d'un truc comme un vertex qui a pleins de float)
 struct VertexHash {
     size_t operator()(Vertex const& v) const noexcept {
         // On combine les hash des composantes position/normal/uv
@@ -13,7 +13,7 @@ struct VertexHash {
 
 // Comparateur d'égalité pour Vertex (utilisé par unordered_map)
 struct VertexEq {
-    bool operator()(Vertex const& a, Vertex const& b) const noexcept {
+    bool operator()(Vertex const& a, Vertex const& b) const noexcept { // les noexcept permettent de dire "cette fonction ne lancera jamais d'exception" (c'est de l'optimisation 
         return a.position.x == b.position.x &&
             a.position.y == b.position.y &&
             a.position.z == b.position.z &&
