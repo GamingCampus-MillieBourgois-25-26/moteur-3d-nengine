@@ -76,5 +76,8 @@ namespace Engine {
         // Get / Set Transform for an entity (copies)
         ::Transform GetTransform(::Entity entity);
         void SetTransform(::Entity entity, const ::Transform& t);
+
+        // Supprime une entité créée via l'éditeur/runtime (retire aussi de la liste pour l'UI)
+        void DestroyEntity(::Entity entity);
     };
 }

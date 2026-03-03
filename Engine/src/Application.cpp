@@ -169,3 +169,15 @@ void Engine::Application::SetTransform(::Entity entity, const ::Transform& t)
 {
     coord.GetComponent<::Transform>(entity) = t;
 }
+
+// Supprime une entité: la détruit via le coordinator et la retire de la liste utilisée par l'UI
+void Engine::Application::DestroyEntity(::Entity entity)
+{
+    // 1) Détruire dans l'ECS (components, systèmes, recycler l'ID)
+    coord.DestroyEntity(entity);
+
+    // 2) Retirer de la liste d'entités de la scène (conserver l'ordre des autres)
+    auto it = std::find(m_sceneEntities.begin(), m_sceneEntities.end(), entity);
+    if (it != m_sceneEntities.end())
+        m_sceneEntities.erase(it);
+}
