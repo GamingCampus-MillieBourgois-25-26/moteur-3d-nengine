@@ -31,7 +31,7 @@ void Engine::Application::Init()
 	audio.Init();
 	audio.LoadBanks();
 	audio.PlayEvent("event:/MSC_EFN");
-	loader.loadOBJFile();
+	//loader.loadOBJFile();
 
     if (!renderer.Initialize(window.GetGLFWwindow(), 800, 600))
     {
@@ -78,13 +78,16 @@ void Engine::Application::Init()
 	coord.AddComponent(e, tr);
 
 	// 6. Add MeshRenderer
-	MeshRenderer mr;
-	mr.vertexBuffer = renderer.GetMesh().vertexBuffer;   // on va ajouter GetMesh()
-	mr.indexBuffer = renderer.GetMesh().indexBuffer;
-	mr.indexCount = renderer.GetMesh().indexCount;
+	MeshData meshData = LoadOBJ("OBJ/TestMoteurOBJ.obj");
+
+	// 7. Créer les buffers GPU via le Renderer
+	MeshRenderer mr = renderer.CreateMeshRenderer(meshData);
+
+	// 8. Ajouter le MeshRenderer à l'entité
 	coord.AddComponent(e, mr);
 
-	// 7. Add Velocity
+
+	// 9. Add Velocity
 	Velocity vel;
 	vel.velocity = { 0, 0, 0 };
 	coord.AddComponent(e, vel);
@@ -133,7 +136,7 @@ void Engine::Application::Running()
 			input->Axis("MoveUp") * speed,
 			input->Axis("MoveForward") * speed
 		);
-		std::cout << input->Action("LockCamera") << std::endl;
+		//std::cout << input->Action("LockCamera") << std::endl;
 		if (input->Action("LockCamera")) {
 			glfwSetInputMode(window.GetGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 			renderer.RotateCamera(

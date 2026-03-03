@@ -27,7 +27,7 @@ namespace Engine {
 
         Renderer renderer;
         AudioSystem audio;
-        OBJLoader loader;
+        //OBJLoader loader;
         WindowInstance window;
         std::unique_ptr<Input> input;
         // ECS 
