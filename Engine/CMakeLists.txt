@@ -16,6 +16,7 @@ target_sources(Engine
         src/ECS/ECS_SystemManager.cpp
         src/ECS/Systems/MovementSystem.cpp
         src/ECS/Systems/RenderSystem.cpp
+        src/ECS/Systems/PhysicsBodySystem.cpp
         src/ScriptManager.cpp
 )
 
@@ -29,6 +30,7 @@ target_include_directories(Engine
     ${CMAKE_CURRENT_SOURCE_DIR}/Assets/Audio
 	${CMAKE_CURRENT_SOURCE_DIR}/Assets/OBJ
     ${CMAKE_CURRENT_SOURCE_DIR}/Assets/FMOD
+    ${bullet3_SOURCE_DIR}/src
 )
 add_custom_target(copy_assets ALL
     COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/Editor/Audio"
@@ -73,4 +75,7 @@ target_link_libraries(Engine
         d3dcompiler
         glfw
         opengl32
+        BulletDynamics
+        BulletCollision
+        LinearMath
 )
