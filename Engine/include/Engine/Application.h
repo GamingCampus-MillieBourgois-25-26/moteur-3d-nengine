@@ -9,6 +9,7 @@
 #include "AudioSystem.h"
 #include "OBJ/OBJLoader.h"
 #include "Renderer.h"
+#include "ScriptManager.h"
 
 #include "Input.h"
 #include "ECS/Systems/RenderSystem.h"
@@ -60,6 +61,24 @@ namespace Engine {
 
         bool getIsRunning() const { return isRunning; }
         void setIsRunning(bool running) { isRunning = running; }
+
+        template<typename T>
+        void AddComponent(Entity e, const T& component)
+        {
+            coord.AddComponent<T>(e, component);
+        }
+
+        template<typename T>
+        T& GetComponent(Entity e)
+        {
+            return coord.GetComponent<T>(e);
+        }
+
+        ScriptManager& GetScriptManager()
+        {
+            return scriptManager;
+        }
+
 
         // Accesseurs pour l'éditeur / ImGui
         WindowInstance& GetWindow() { return window; }
