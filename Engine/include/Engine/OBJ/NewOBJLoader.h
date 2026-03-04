@@ -1,5 +1,6 @@
 #pragma once
 #include "Engine/OBJ/tiny_obj_loader.h"
+#include "Engine/OBJ/WICTextureLoader.h"
 #include "DirectXMath.h"
 
 #include <unordered_map>
@@ -16,5 +17,18 @@ struct MeshData {
     std::vector<uint32_t> indices; // Index buffer
 };
 
+struct MaterialData {
+    ID3D11ShaderResourceView* diffuse = nullptr;
+};
+
+struct MaterialCPU {
+    std::string diffuseTexName;
+};
+
+struct OBJResult {
+    MeshData mesh;
+    MaterialCPU material;
+};
+
 // Charge un fichier .obj et reconstruit un mesh optimisé (vertices uniques + indices) 
-MeshData LoadOBJ(const std::string& path);
+OBJResult LoadOBJ(const std::string& path);

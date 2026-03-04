@@ -74,35 +74,31 @@ void Engine::Application::Init()
 	Transform tr;
 	tr.position = { 0, 0, 0 };
 	tr.scale = { 0.5, 0.5, 0.5 };
-	tr.rotation = { 0, 0, 0, 1 }; // quaternion
+	tr.rotation = { 0, 0, 180, 1 }; // quaternion
 	coord.AddComponent(e, tr);
 
-	// 6. Add MeshRenderer
-	MeshData meshData = LoadOBJ("OBJ/TestMoteurOBJ.obj");
+	// Chargement du modele .obj
+	OBJResult obj = LoadOBJ("OBJ/SpinCat.obj");
 
-	// 7. Créer les buffers GPU via le Renderer
-	MeshRenderer mr = renderer.CreateMeshRenderer(meshData);
+	// Création des buffers GPU
+	MeshRenderer mr = renderer.CreateMeshRenderer(obj.mesh);
 
-	// 8. Ajouter le MeshRenderer à l'entité
+	// Ajout du MeshRender à l'entité pour le RenderSystem
 	coord.AddComponent(e, mr);
 
+	// Charger la texture diffuse automatiquement
+	MaterialData mat;
+	mat.diffuse = renderer.CreateTextureFromFile(
+		L"Engine/Assets/OBJ/" + std::wstring(obj.material.diffuseTexName.begin(), obj.material.diffuseTexName.end())
+	);
 
-	// 9. Add Velocity
+	// Ajouter le composant Material
+	coord.AddComponent(e, mat);
+
+	// 10. Add Velocity
 	Velocity vel;
 	vel.velocity = { 0, 0, 0 };
 	coord.AddComponent(e, vel);
-
-	/*for (int i = 0; i < 1; i++)
-	{
-		Entity e = coord.CreateEntity();
-
-		Transform tr;
-		tr.position = { float(i + 1), 0, 0 };
-		tr.scale = { 0.2, 0.2, 0.2 };
-		tr.rotation = { 0, 0, 0, 1 };
-		coord.AddComponent(e, tr);
-		coord.AddComponent(e, mr);
-	}*/
 
 	isRunning = true;
 

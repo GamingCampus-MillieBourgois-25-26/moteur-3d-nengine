@@ -605,3 +605,25 @@ MeshRenderer Renderer::CreateMeshRenderer(const MeshData& mesh)
 
     return mr;
 }
+
+// permet de créer la super texture
+
+ID3D11ShaderResourceView* Renderer::CreateTextureFromFile(const std::wstring& path)
+{
+    ID3D11ShaderResourceView* srv = nullptr;
+
+    HRESULT hr = DirectX::CreateWICTextureFromFile(
+        m_device,
+        m_context,
+        path.c_str(),
+        nullptr,
+        &srv
+    );
+
+    if (FAILED(hr)) {
+        std::wcout << L"Failed to load texture: " << path << std::endl;
+        return nullptr;
+    }
+
+    return srv;
+}

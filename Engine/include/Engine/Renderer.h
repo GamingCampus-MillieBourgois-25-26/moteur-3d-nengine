@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "Engine/ECS/Components/MeshRenderer.h"
+#include "Engine/OBJ/WICTextureLoader.h"
 #include "Engine/OBJ/NewOBJLoader.h"
 #include <d3d11.h>
 #include <DirectXMath.h>
@@ -103,5 +104,5 @@ public :
     //const Mesh& GetMesh() const { return m_mesh; }
     // NewOBJ Modif
     MeshRenderer CreateMeshRenderer(const MeshData& mesh);
-
+    ID3D11ShaderResourceView* CreateTextureFromFile(const std::wstring& path);
 };
