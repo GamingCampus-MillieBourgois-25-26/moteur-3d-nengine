@@ -43,66 +43,74 @@ void Engine::Application::Init()
 
 	coord.Init();
 
-	// 1. Register components (on enregistre les composants qu'on va donner)
+	// 1. Register components
 	coord.RegisterComponent<Transform>();
 	coord.RegisterComponent<Velocity>();
 	coord.RegisterComponent<MeshRenderer>();
+	coord.RegisterComponent<Collider>();
 
-	// Enregistrer le MovementSystem
+	// 2. Register PhysicsBodySystem (owns the Bullet world + simulation)
+	physicsBodySystem = coord.RegisterSystem<PhysicsBodySystem>();
+
+	Signature physicsSignature;
+	physicsSignature.set(coord.GetComponentType<Transform>(), true);
+	coord.SetSystemSignature<PhysicsBodySystem>(physicsSignature);
+
+	physicsBodySystem->Init();
+
+	// 3. Register ColliderSystem (creates shapes → delegates to PhysicsBodySystem)
+	colliderSystem = coord.RegisterSystem<ColliderSystem>();
+
+	Signature colliderSignature;
+	colliderSignature.set(coord.GetComponentType<Transform>(), true);
+	colliderSignature.set(coord.GetComponentType<Collider>(), true);
+	coord.SetSystemSignature<ColliderSystem>(colliderSignature);
+
+	colliderSystem->Init(physicsBodySystem);
+
+	// 4. Register MovementSystem
 	movementSystem = coord.RegisterSystem<MovementSystem>();
 
 	Signature movementSignature;
 	movementSignature.set(coord.GetComponentType<Transform>(), true);
 	movementSignature.set(coord.GetComponentType<Velocity>(), true);
-
 	coord.SetSystemSignature<MovementSystem>(movementSignature);
 
-	// 2. Register RenderSystem
+	// 5. Register RenderSystem
 	renderSystem = coord.RegisterSystem<RenderSystem>();
 
-	// 3. Define signature for RenderSystem
 	Signature renderSignature;
 	renderSignature.set(coord.GetComponentType<Transform>(), true);
 	renderSignature.set(coord.GetComponentType<MeshRenderer>(), true);
-
 	coord.SetSystemSignature<RenderSystem>(renderSignature);
 
-	// Register PhysicsBodySystem
-	physicsBodySystem = coord.RegisterSystem<PhysicsBodySystem>();
-
-	Signature physicsSignature;
-	physicsSignature.set(coord.GetComponentType<Transform>(), true);
-
-	coord.SetSystemSignature<PhysicsBodySystem>(physicsSignature);
-
-	physicsBodySystem->Init();
-
-	// 4. Create an entity
+	// 6. Create a dynamic entity
 	Entity e = coord.CreateEntity();
 
-	// 5. Add Transform
 	Transform tr;
 	tr.position = { 0, 2, 0 };
 	tr.scale = { 0.5, 0.5, 0.5 };
-	tr.rotation = { 0, 0, 0, 1 }; // quaternion
+	tr.rotation = { 0, 0, 0, 1 };
 	coord.AddComponent(e, tr);
 
-	// 6. Add MeshRenderer
 	MeshRenderer mr;
-	mr.vertexBuffer = renderer.GetMesh().vertexBuffer;   // on va ajouter GetMesh()
+	mr.vertexBuffer = renderer.GetMesh().vertexBuffer;
 	mr.indexBuffer = renderer.GetMesh().indexBuffer;
 	mr.indexCount = renderer.GetMesh().indexCount;
 	coord.AddComponent(e, mr);
 
-	// 7. Add Velocity
 	Velocity vel;
 	vel.velocity = { 0, 0, 0 };
 	coord.AddComponent(e, vel);
 
-	// 8. Add a dynamic rigid body (mass=1, box half-extents match scale)
-	physicsBodySystem->AddRigidBody(e, coord, 1.0f, btVector3(0.5f, 0.5f, 0.5f));
+	// Collider → ColliderSystem creates the shape, PhysicsBodySystem gets the rigid body
+	Collider col;
+	col.shapeType   = ColliderShapeType::Box;
+	col.halfExtents = { 0.5f, 0.5f, 0.5f };
+	col.mass        = 1.0f;
+	coord.AddComponent(e, col);
 
-	// 9. (Optional) Create a static ground plane
+	// 7. Create a static ground plane
 	Entity ground = coord.CreateEntity();
 
 	Transform groundTr;
@@ -111,8 +119,11 @@ void Engine::Application::Init()
 	groundTr.rotation = { 0, 0, 0, 1 };
 	coord.AddComponent(ground, groundTr);
 
-	// mass = 0 → static object (won't move, acts as ground)
-	physicsBodySystem->AddRigidBody(ground, coord, 0.0f, btVector3(10.0f, 0.1f, 10.0f));
+	Collider groundCol;
+	groundCol.shapeType   = ColliderShapeType::Box;
+	groundCol.halfExtents = { 10.0f, 0.1f, 10.0f };
+	groundCol.mass        = 0.0f; // statique
+	coord.AddComponent(ground, groundCol);
 
 	isRunning = true;
 
@@ -135,7 +146,10 @@ void Engine::Application::Running()
 		audio.Update();
 		window.Update();
 
-		// Step physics BEFORE movement/render so transforms are up-to-date
+		// 1. ColliderSystem: detect new Collider components → create shapes
+		colliderSystem->Update(coord);
+
+		// 2. PhysicsBodySystem: step simulation + sync transforms
 		physicsBodySystem->Update(coord, dt);
 
 		movementSystem->Update(coord, dt);
@@ -143,8 +157,6 @@ void Engine::Application::Running()
 
 		input->Update();
 
-
-		//std::cout << input->Action("LockCamera") << std::endl;
 		if (input->Action("LockCamera")) {
 			glfwSetInputMode(window.GetGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 			renderer.RotateCamera(

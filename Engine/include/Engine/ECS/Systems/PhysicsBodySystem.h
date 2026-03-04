@@ -30,10 +30,9 @@ public:
     // Initialise le monde physique Bullet
     void Init();
 
-    // Ajoute un rigid body pour une entite donnee
-    // mass = 0  objet statique
-    void AddRigidBody(Entity entity, Coordinator& coord, float mass = 1.0f,
-                      const btVector3& halfExtents = btVector3(0.5f, 0.5f, 0.5f));
+    // Ajoute un rigid body a partir d'une shape deja creee (utilise par ColliderSystem)
+    void AddRigidBody(Entity entity, Coordinator& coord, float mass,
+                      std::unique_ptr<btCollisionShape> shape);
 
     // Supprime le rigid body associe a une entite
     void RemoveRigidBody(Entity entity);
@@ -44,6 +43,9 @@ public:
     // Libere toutes les ressources Bullet
     void Shutdown();
 
+    // Verifie si une entite a deja un rigid body
+    bool HasRigidBody(Entity entity) const;
+
 private:
     // Composants du monde Bullet
     std::unique_ptr<btDefaultCollisionConfiguration>     m_collisionConfig;
@@ -52,7 +54,7 @@ private:
     std::unique_ptr<btSequentialImpulseConstraintSolver> m_solver;
     std::unique_ptr<btDiscreteDynamicsWorld>             m_dynamicsWorld;
 
-    // Association Entity → btRigidBody (+ collision shape + motion state)
+    // Association Entity -> btRigidBody (+ collision shape + motion state)
     struct BodyData
     {
         std::unique_ptr<btRigidBody>          rigidBody;

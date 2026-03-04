@@ -21,16 +21,13 @@ void PhysicsBodySystem::Init()
 }
 
 void PhysicsBodySystem::AddRigidBody(Entity entity, Coordinator& coord, float mass,
-                                     const btVector3& halfExtents)
+                                     std::unique_ptr<btCollisionShape> shape)
 {
-    // Ne pas ajouter deux fois le même entity
+    // Ne pas ajouter deux fois le meme entity
     if (m_bodies.find(entity) != m_bodies.end())
         return;
 
     auto& transform = coord.GetComponent<Transform>(entity);
-
-    // Collision shape : boîte
-    auto shape = std::make_unique<btBoxShape>(halfExtents);
 
     // Position initiale depuis le Transform
     btTransform startTransform;
@@ -80,6 +77,11 @@ void PhysicsBodySystem::RemoveRigidBody(Entity entity)
     m_bodies.erase(it);
 }
 
+bool PhysicsBodySystem::HasRigidBody(Entity entity) const
+{
+    return m_bodies.find(entity) != m_bodies.end();
+}
+
 void PhysicsBodySystem::Update(Coordinator& coord, float dt)
 {
     if (!m_dynamicsWorld)
@@ -88,7 +90,7 @@ void PhysicsBodySystem::Update(Coordinator& coord, float dt)
     // Avancer la simulation Bullet
     m_dynamicsWorld->stepSimulation(dt, 10);
 
-    // Synchroniser chaque rigid body ? Transform ECS
+    // Synchroniser chaque rigid body vers Transform ECS
     for (auto& [entity, bodyData] : m_bodies)
     {
         btTransform btTrans;
