@@ -118,6 +118,7 @@ void Engine::Application::Running()
         float dt = elapsed.count();
         lastTime = now;
 
+		speed = 2.0f * dt;
 		audio.Update();
 		window.Update();
 		movementSystem->Update(coord, dt);
@@ -125,15 +126,8 @@ void Engine::Application::Running()
 
 		input->Update();
 
-		speed = 2.0f * dt;
 
-
-		renderer.MoveCamera(
-			input->Axis("MoveRight") * speed,
-			input->Axis("MoveUp") * speed,
-			input->Axis("MoveForward") * speed
-		);
-		std::cout << input->Action("LockCamera") << std::endl;
+		//std::cout << input->Action("LockCamera") << std::endl;
 		if (input->Action("LockCamera")) {
 			glfwSetInputMode(window.GetGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 			renderer.RotateCamera(
@@ -143,8 +137,13 @@ void Engine::Application::Running()
 		}
 		else glfwSetInputMode(window.GetGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
-		
+		renderer.MoveCamera(
+			input->Axis("MoveRight") * speed,
+			input->Axis("MoveUp") * speed,
+			input->Axis("MoveForward") * speed
+		);		
 	}
+
 	Shutdown();
 }
 
