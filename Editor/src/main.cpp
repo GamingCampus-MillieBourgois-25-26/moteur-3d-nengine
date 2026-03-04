@@ -113,7 +113,7 @@ int main()
         // --- Colonne droite : panneau de transform et actions individuelles ---
         if (selectedEntities.empty())
         {
-            ImGui::TextWrapped("Aucune entité sélectionnée. Sélectionnez une entité à gauche pour éditer son Transform.");
+            ImGui::TextWrapped("No entity selected. Select an entity on the left to edit it.");
         }
         else
         {
@@ -125,6 +125,8 @@ int main()
             float pos[3] = { t.position.x, t.position.y, t.position.z };
             float scl[3] = { t.scale.x, t.scale.y, t.scale.z };
             float rot[4] = { t.rotation.x, t.rotation.y, t.rotation.z, t.rotation.w }; // quaternion
+            static ImVec4 color = ImVec4(114.0f / 255.0f, 144.0f / 255.0f, 154.0f / 255.0f, 200.0f / 255.0f);
+            static ImGuiColorEditFlags base_flags = ImGuiColorEditFlags_None;
 
             bool changed = false;
 
@@ -159,6 +161,15 @@ int main()
                 ImGui::PushItemWidth(-1);
                 if (ImGui::DragFloat4("##rotation", rot, 0.001f, 0.0f, 0.0f, "%.3f"))
                     changed = true;
+                ImGui::PopItemWidth();
+
+                // color row                              
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+                ImGui::TextUnformatted("Color (RGB) [NOT IMPLEMENTED YET]");                              //not yet linked to entity color
+                ImGui::TableSetColumnIndex(1);
+                ImGui::PushItemWidth(-1);
+                ImGui::ColorPicker3("##picker", (float*)&color, base_flags | ImGuiColorEditFlags_PickerHueWheel);
                 ImGui::PopItemWidth();
 
                 ImGui::EndTable();
