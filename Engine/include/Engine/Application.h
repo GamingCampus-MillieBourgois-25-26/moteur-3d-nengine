@@ -40,8 +40,8 @@ namespace Engine {
 
         using clock = std::chrono::high_resolution_clock;
 
-		float mouseSensitivity = 0.002f;
-		float speed = 0.f;
+        float mouseSensitivity = 0.002f;
+        float speed = 0.f;
 
     public:
 

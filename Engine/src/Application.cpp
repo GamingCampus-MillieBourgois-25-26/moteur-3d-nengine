@@ -10,9 +10,9 @@ namespace fs = std::filesystem;
 
 void Engine::Application::Init()
 {
-    std::cout << "Initializing application...\n";
+	std::cout << "Initializing application...\n";
 
-    window.Create(800, 600, "My Application");
+	window.Create(800, 600, "My Application");
 
 	input = CreateGLFWInput(window.GetGLFWwindow());
 	// Créer l'input avec le backend GLFW
@@ -27,17 +27,17 @@ void Engine::Application::Init()
 	camCtx->BindAxis(GLFW_KEY_Q, "MoveUp", -1.f);
 	camCtx->BindAction(GLFW_KEY_SPACE, "LockCamera");
 	input->PushContext(camCtx);
-  
+
 	audio.Init();
 	audio.LoadBanks();
 	audio.PlayEvent("event:/MSC_EFN");
 	loader.loadOBJFile();
 
-    if (!renderer.Initialize(window.GetGLFWwindow(), 800, 600))
-    {
-        std::cout << "Failed to initialize renderer\n";
-        return;
-    }
+	if (!renderer.Initialize(window.GetGLFWwindow(), 800, 600))
+	{
+		std::cout << "Failed to initialize renderer\n";
+		return;
+	}
 
 	// ECS
 
@@ -121,15 +121,15 @@ void Engine::Application::Init()
 
 void Engine::Application::Running()
 {
-    auto lastTime = clock::now();
-    std::cout << "Application is running...\n";
+	auto lastTime = clock::now();
+	std::cout << "Application is running...\n";
 
-    while (isRunning && !window.ShouldClose())
-    {
-        auto now = clock::now();
-        std::chrono::duration<float> elapsed = now - lastTime;
-        float dt = elapsed.count();
-        lastTime = now;
+	while (isRunning && !window.ShouldClose())
+	{
+		auto now = clock::now();
+		std::chrono::duration<float> elapsed = now - lastTime;
+		float dt = elapsed.count();
+		lastTime = now;
 
 		speed = 2.0f * dt;
 		audio.Update();
@@ -158,7 +158,7 @@ void Engine::Application::Running()
 			input->Axis("MoveRight") * speed,
 			input->Axis("MoveUp") * speed,
 			input->Axis("MoveForward") * speed
-		);		
+		);
 	}
 
 	Shutdown();
@@ -166,7 +166,7 @@ void Engine::Application::Running()
 
 void Engine::Application::Shutdown()
 {
-    std::cout << "Shutting down application...\n";
+	std::cout << "Shutting down application...\n";
 
     physicsBodySystem->Shutdown();
 
