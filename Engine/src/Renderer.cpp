@@ -269,7 +269,7 @@ bool Renderer::CreatePipelineState()
     // Rasterizer
     D3D11_RASTERIZER_DESC rsDesc{};
 
-    rsDesc.FillMode = D3D11_FILL_WIREFRAME;
+    rsDesc.FillMode = D3D11_FILL_SOLID;
     rsDesc.CullMode = D3D11_CULL_NONE;
     rsDesc.FrontCounterClockwise = FALSE;
     rsDesc.DepthClipEnable = TRUE;
