@@ -1,4 +1,4 @@
-#include "Engine/OBJ/OBJLoader.h"
+/*#include "Engine/OBJ/OBJLoader.h"
 
 void OBJLoader::loadOBJFile()
 {
@@ -166,4 +166,4 @@ UINT OBJLoader::getIndexCount() {
 
 void OBJLoader::setDevice(ID3D11Device* d) {
     m_device = d;
-}
+}*/

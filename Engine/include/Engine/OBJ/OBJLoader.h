@@ -1,4 +1,4 @@
-#pragma once
+/*#pragma once
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -57,4 +57,4 @@ public:
 	ID3D11Buffer* getVertexBuffer();
 	ID3D11Buffer* getIndexBuffer();
 	UINT getIndexCount();
-};
+};*/

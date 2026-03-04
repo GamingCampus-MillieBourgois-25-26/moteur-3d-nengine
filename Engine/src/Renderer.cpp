@@ -1,5 +1,6 @@
 ﻿#include "Engine/Renderer.h"
 #include "Engine/OBJ/OBJLoader.h"
+#include "Engine/OBJ/NewOBJLoader.h"
 
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3.h>
@@ -40,11 +41,11 @@ bool Renderer::Initialize(GLFWwindow* window, int width, int height)
         return false;
     }
 
-    //if (!CreateMesh()) {
-    //    std::cout << "ERROR: CreateMesh failed/n";
-    //    return false;
-    //}
-
+    /*if (!CreateMesh()) {
+        std::cout << "ERROR: CreateMesh failed/n";
+        return false;
+    }
+    
     OBJLoader loader;
     loader.setDevice(m_device);
     loader.loadOBJFile();
@@ -54,9 +55,9 @@ bool Renderer::Initialize(GLFWwindow* window, int width, int height)
     m_mesh.vertexBuffer = loader.getVertexBuffer();
     m_mesh.indexBuffer = loader.getIndexBuffer();
     m_mesh.indexCount = loader.getIndexCount();
+    */
 
-
-    std::cout << "IndexCount = " << m_mesh.indexCount << std::endl;
+    //std::cout << "IndexCount = " << m_mesh.indexCount << std::endl;
     // Viewport
     D3D11_VIEWPORT viewport{};
     viewport.Width = static_cast<float>(width);
@@ -268,7 +269,7 @@ bool Renderer::CreatePipelineState()
     // Rasterizer
     D3D11_RASTERIZER_DESC rsDesc{};
 
-    rsDesc.FillMode = D3D11_FILL_WIREFRAME;
+    rsDesc.FillMode = D3D11_FILL_SOLID;
     rsDesc.CullMode = D3D11_CULL_NONE;
     rsDesc.FrontCounterClockwise = FALSE;
     rsDesc.DepthClipEnable = TRUE;
@@ -369,7 +370,7 @@ void Renderer::UpdateConstantBuffer()
     m_cbData.mvp = XMMatrixTranspose(world * view * proj);
 
     m_context->UpdateSubresource(m_constantBuffer, 0, nullptr, &m_cbData, 0, 0);
-}*/
+}
 
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
@@ -383,7 +384,7 @@ void Renderer::UpdateConstantBuffer()
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
-/*void Renderer::Render(float dt)
+void Renderer::Render(float dt)
 {
     //UpdateCamera(dt);
     UpdateConstantBuffer();
@@ -513,8 +514,8 @@ void Renderer::DrawMesh(const XMMATRIX& world,
 
 void Renderer::Shutdown()
 {
-    if (m_mesh.vertexBuffer) m_mesh.vertexBuffer->Release();
-    if (m_mesh.indexBuffer)  m_mesh.indexBuffer->Release();
+    //if (m_mesh.vertexBuffer) m_mesh.vertexBuffer->Release();
+    //if (m_mesh.indexBuffer)  m_mesh.indexBuffer->Release();
 
     if (m_constantBuffer)    m_constantBuffer->Release();
     if (m_inputLayout)       m_inputLayout->Release();
@@ -572,4 +573,35 @@ void Renderer::MoveCamera(float right, float up, float forward)
 
     // Recalcule target
     RotateCamera(0, 0);
+}
+
+MeshRenderer Renderer::CreateMeshRenderer(const MeshData& mesh)
+{
+    MeshRenderer mr;
+
+    // --- Vertex Buffer ---
+    D3D11_BUFFER_DESC vbd{};
+    vbd.Usage = D3D11_USAGE_DEFAULT;
+    vbd.ByteWidth = UINT(mesh.vertices.size() * sizeof(Vertex));
+    vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+
+    D3D11_SUBRESOURCE_DATA vinit{};
+    vinit.pSysMem = mesh.vertices.data();
+
+    m_device->CreateBuffer(&vbd, &vinit, &mr.vertexBuffer);
+
+    // --- Index Buffer ---
+    D3D11_BUFFER_DESC ibd{};
+    ibd.Usage = D3D11_USAGE_DEFAULT;
+    ibd.ByteWidth = UINT(mesh.indices.size() * sizeof(uint32_t));
+    ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+
+    D3D11_SUBRESOURCE_DATA iinit{};
+    iinit.pSysMem = mesh.indices.data();
+
+    m_device->CreateBuffer(&ibd, &iinit, &mr.indexBuffer);
+
+    mr.indexCount = (uint32_t)mesh.indices.size();
+
+    return mr;
 }

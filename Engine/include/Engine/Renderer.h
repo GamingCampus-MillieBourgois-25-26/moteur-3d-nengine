@@ -1,4 +1,6 @@
 ﻿#pragma once
+#include "Engine/ECS/Components/MeshRenderer.h"
+#include "Engine/OBJ/NewOBJLoader.h"
 #include <d3d11.h>
 #include <DirectXMath.h>
 #include <string>
@@ -19,6 +21,8 @@ public:
     void RotateCamera(float yaw, float pitch);
     void SetCameraCapture(bool capture);
 
+
+
     void BeginFrame();
     void EndFrame();
     void DrawMesh(const DirectX::XMMATRIX& world, ID3D11Buffer* vertexBuffer, ID3D11Buffer* indexBuffer, UINT indexCount);
@@ -35,18 +39,17 @@ private:
 
     struct ConstantBufferData
     {
-        //DirectX::XMMATRIX mvp;
         DirectX::XMMATRIX world; 
         DirectX::XMMATRIX view; 
         DirectX::XMMATRIX proj; 
     };
 
-    struct Mesh
-    {
-        ID3D11Buffer* vertexBuffer = nullptr;
-        ID3D11Buffer* indexBuffer = nullptr;
-        UINT indexCount = 0;
-    };
+    //struct Mesh
+    //{
+    //    ID3D11Buffer* vertexBuffer = nullptr;
+    //    ID3D11Buffer* indexBuffer = nullptr;
+    //    UINT indexCount = 0;
+    //};
 
     struct Camera
     {
@@ -87,7 +90,7 @@ private:
     ID3D11RasterizerState* m_rasterizerState = nullptr;
     ID3D11DepthStencilState* m_depthState = nullptr;
 
-    Mesh                    m_mesh;
+    //Mesh                    m_mesh;
     Camera                  m_camera;
     ConstantBufferData      m_cbData;
 
@@ -97,6 +100,8 @@ private:
     // ECS
 public : 
 
-    const Mesh& GetMesh() const { return m_mesh; }
+    //const Mesh& GetMesh() const { return m_mesh; }
+    // NewOBJ Modif
+    MeshRenderer CreateMeshRenderer(const MeshData& mesh);
 
 };
