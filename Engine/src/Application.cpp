@@ -10,9 +10,9 @@ namespace fs = std::filesystem;
 
 void Engine::Application::Init()
 {
-    std::cout << "Initializing application...\n";
+	std::cout << "Initializing application...\n";
 
-    window.Create(800, 600, "My Application");
+	window.Create(800, 600, "My Application");
 
 	input = CreateGLFWInput(window.GetGLFWwindow());
 	// Créer l'input avec le backend GLFW
@@ -27,17 +27,17 @@ void Engine::Application::Init()
 	camCtx->BindAxis(GLFW_KEY_Q, "MoveUp", -1.f);
 	camCtx->BindAction(GLFW_KEY_SPACE, "LockCamera");
 	input->PushContext(camCtx);
-  
+
 	audio.Init();
 	audio.LoadBanks();
 	audio.PlayEvent("event:/MSC_EFN");
 	loader.loadOBJFile();
 
-    if (!renderer.Initialize(window.GetGLFWwindow(), 800, 600))
-    {
-        std::cout << "Failed to initialize renderer\n";
-        return;
-    }
+	if (!renderer.Initialize(window.GetGLFWwindow(), 800, 600))
+	{
+		std::cout << "Failed to initialize renderer\n";
+		return;
+	}
 
 	// ECS
 
@@ -67,12 +67,22 @@ void Engine::Application::Init()
 
 	coord.SetSystemSignature<RenderSystem>(renderSignature);
 
+	// Register PhysicsBodySystem
+	physicsBodySystem = coord.RegisterSystem<PhysicsBodySystem>();
+
+	Signature physicsSignature;
+	physicsSignature.set(coord.GetComponentType<Transform>(), true);
+
+	coord.SetSystemSignature<PhysicsBodySystem>(physicsSignature);
+
+	physicsBodySystem->Init();
+
 	// 4. Create an entity
 	Entity e = coord.CreateEntity();
 
 	// 5. Add Transform
 	Transform tr;
-	tr.position = { 0, 0, 0 };
+	tr.position = { 0, 2, 0 };
 	tr.scale = { 0.5, 0.5, 0.5 };
 	tr.rotation = { 0, 0, 0, 1 }; // quaternion
 	coord.AddComponent(e, tr);
@@ -89,17 +99,20 @@ void Engine::Application::Init()
 	vel.velocity = { 0, 0, 0 };
 	coord.AddComponent(e, vel);
 
-	/*for (int i = 0; i < 1; i++)
-	{
-		Entity e = coord.CreateEntity();
+	// 8. Add a dynamic rigid body (mass=1, box half-extents match scale)
+	physicsBodySystem->AddRigidBody(e, coord, 1.0f, btVector3(0.5f, 0.5f, 0.5f));
 
-		Transform tr;
-		tr.position = { float(i + 1), 0, 0 };
-		tr.scale = { 0.2, 0.2, 0.2 };
-		tr.rotation = { 0, 0, 0, 1 };
-		coord.AddComponent(e, tr);
-		coord.AddComponent(e, mr);
-	}*/
+	// 9. (Optional) Create a static ground plane
+	Entity ground = coord.CreateEntity();
+
+	Transform groundTr;
+	groundTr.position = { 0, -1, 0 };
+	groundTr.scale = { 10, 0.1f, 10 };
+	groundTr.rotation = { 0, 0, 0, 1 };
+	coord.AddComponent(ground, groundTr);
+
+	// mass = 0 → static object (won't move, acts as ground)
+	physicsBodySystem->AddRigidBody(ground, coord, 0.0f, btVector3(10.0f, 0.1f, 10.0f));
 
 	isRunning = true;
 
@@ -108,19 +121,23 @@ void Engine::Application::Init()
 
 void Engine::Application::Running()
 {
-    auto lastTime = clock::now();
-    std::cout << "Application is running...\n";
+	auto lastTime = clock::now();
+	std::cout << "Application is running...\n";
 
-    while (isRunning && !window.ShouldClose())
-    {
-        auto now = clock::now();
-        std::chrono::duration<float> elapsed = now - lastTime;
-        float dt = elapsed.count();
-        lastTime = now;
+	while (isRunning && !window.ShouldClose())
+	{
+		auto now = clock::now();
+		std::chrono::duration<float> elapsed = now - lastTime;
+		float dt = elapsed.count();
+		lastTime = now;
 
 		speed = 2.0f * dt;
 		audio.Update();
 		window.Update();
+
+		// Step physics BEFORE movement/render so transforms are up-to-date
+		physicsBodySystem->Update(coord, dt);
+
 		movementSystem->Update(coord, dt);
 		renderSystem->Render(coord, renderer);
 
@@ -141,7 +158,7 @@ void Engine::Application::Running()
 			input->Axis("MoveRight") * speed,
 			input->Axis("MoveUp") * speed,
 			input->Axis("MoveForward") * speed
-		);		
+		);
 	}
 
 	Shutdown();
@@ -149,8 +166,10 @@ void Engine::Application::Running()
 
 void Engine::Application::Shutdown()
 {
-    std::cout << "Shutting down application...\n";
+	std::cout << "Shutting down application...\n";
 
-    window.ShouldClose();
-    isRunning = false;
+	physicsBodySystem->Shutdown();
+
+	window.ShouldClose();
+	isRunning = false;
 }
