@@ -31,7 +31,7 @@ OBJResult LoadOBJ(const std::string& path) {
     tinyobj::ObjReaderConfig config;
 
     // Où chercher les fichiers .mtl (matériaux)
-    config.mtl_search_path = "Engine/Assets/OBJ/"; 
+    config.mtl_search_path = ""; // test avec chemin du game (pas de chemin car on pop direct dans le dossier voulu) !
 
     // Parse du fichier .obj
     if (!reader.ParseFromFile(path, config)) {
@@ -40,6 +40,8 @@ OBJResult LoadOBJ(const std::string& path) {
         if (err.empty()) { err = "Unknown error while parsing OBJ file."; }
         throw std::runtime_error("TinyObjLoader error: " + err);
     }
+
+    std::cout << "OBJ loaded = " << std::boolalpha << reader.Valid() << std::endl;
 
     // Affichage des warnings éventuels (non bloquants) 
     if (!reader.Warning().empty()) { std::cout << "TinyObjLoader warning: " << reader.Warning() << std::endl; }
@@ -73,9 +75,9 @@ OBJResult LoadOBJ(const std::string& path) {
 
         std::cout << "DiffuseTexName brut = [" << mats[0].diffuse_texname << "]" << std::endl;
     }
+    std::cout << "Nb matériaux = " << mats.size() << std::endl;
 
     std::cout << "DiffuseTexName nettoyé = [" << material.diffuseTexName << "]" << std::endl;
-
 
     // Mesh final
     MeshData mesh;

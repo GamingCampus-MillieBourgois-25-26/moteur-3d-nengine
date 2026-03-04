@@ -47,6 +47,7 @@ void Engine::Application::Init()
 	coord.RegisterComponent<Transform>();
 	coord.RegisterComponent<Velocity>();
 	coord.RegisterComponent<MeshRenderer>();
+	coord.RegisterComponent<MaterialData>();
 
 	// Enregistrer le MovementSystem
 	movementSystem = coord.RegisterSystem<MovementSystem>();
@@ -64,6 +65,7 @@ void Engine::Application::Init()
 	Signature renderSignature;
 	renderSignature.set(coord.GetComponentType<Transform>(), true);
 	renderSignature.set(coord.GetComponentType<MeshRenderer>(), true);
+	renderSignature.set(coord.GetComponentType<MaterialData>(), true);
 
 	coord.SetSystemSignature<RenderSystem>(renderSignature);
 
@@ -85,16 +87,20 @@ void Engine::Application::Init()
 
 	// Ajout du MeshRender à l'entité pour le RenderSystem
 	coord.AddComponent(e, mr);
-
+	
 	// Charger la texture diffuse automatiquement
 	MaterialData mat;
+	if (!mat.diffuse) {
+		std::cout << "ERREUR: texture diffuse NULL" << std::endl;
+	}
+
 	mat.diffuse = renderer.CreateTextureFromFile(
-		L"Engine/Assets/OBJ/" + std::wstring(obj.material.diffuseTexName.begin(), obj.material.diffuseTexName.end())
+		L"OBJ/" + std::wstring(obj.material.diffuseTexName.begin(), obj.material.diffuseTexName.end())
 	);
 
 	// Ajouter le composant Material
 	coord.AddComponent(e, mat);
-
+	
 	// 10. Add Velocity
 	Velocity vel;
 	vel.velocity = { 0, 0, 0 };

@@ -70,7 +70,9 @@ namespace DirectX
 
         ID3D11Texture2D* tex = nullptr;
         HRESULT hr = device->CreateTexture2D(&desc, &initData, &tex);
-        if (FAILED(hr)) return hr;
+        if (FAILED(hr)) {
+            std::cout << "CreateTexture2D FAILED: 0x" << std::hex << hr << std::endl;
+        }
 
         if (texture) *texture = tex;
 
