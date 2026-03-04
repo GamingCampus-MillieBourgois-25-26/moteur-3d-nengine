@@ -214,7 +214,9 @@ int main()
 
             float pos[3] = { t.position.x, t.position.y, t.position.z };
             float scl[3] = { t.scale.x, t.scale.y, t.scale.z };
-            float rot[4] = { t.rotation.x, t.rotation.y, t.rotation.z, t.rotation.w };
+            float rot[4] = { t.rotation.x, t.rotation.y, t.rotation.z, t.rotation.w }; // quaternion
+            static ImVec4 color = ImVec4(114.0f / 255.0f, 144.0f / 255.0f, 154.0f / 255.0f, 200.0f / 255.0f);
+            static ImGuiColorEditFlags base_flags = ImGuiColorEditFlags_None;
 
             bool changed = false;
 
@@ -234,6 +236,15 @@ int main()
                 ImGui::TableSetColumnIndex(0); ImGui::Text("Rotation");
                 ImGui::TableSetColumnIndex(1);
                 if (ImGui::DragFloat4("##rot", rot, 0.01f)) changed = true;
+
+                // color row                              
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+                ImGui::TextUnformatted("Color (RGB) [NOT IMPLEMENTED YET]");                              //not yet linked to entity color
+                ImGui::TableSetColumnIndex(1);
+                ImGui::PushItemWidth(-1);
+                ImGui::ColorPicker3("##picker", (float*)&color, base_flags | ImGuiColorEditFlags_PickerHueWheel);
+                ImGui::PopItemWidth();
 
                 ImGui::EndTable();
             }
