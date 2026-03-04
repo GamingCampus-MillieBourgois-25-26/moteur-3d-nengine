@@ -1,15 +1,74 @@
 #include "Engine/Application.h"
 
+// include ImGui Obligatoire
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_impl_glfw.h"
 #include "ImGui/imgui_impl_dx11.h"
-
 #include <GLFW/glfw3.h>
+#include "Engine/ECS/ECS_Component.h"
+#include "Engine/ECS/Systems/RenderSystem.h"
+
+// include pour fonction nécessaire
 #include <chrono>
 #include <set>
 #include <vector>
 #include <algorithm>
 
+// génération de fichier CPP + Headers
+#include <fstream>
+#include <filesystem>
+
+// ------------------------------------------------------------
+// Génération automatique des fichiers de script
+// ------------------------------------------------------------
+static void GenerateEntityFiles(const std::string& name)
+{
+    namespace fs = std::filesystem;
+
+    fs::create_directories("Game/include");
+    fs::create_directories("Game/src");
+
+    std::string headerPath = "Game/include/" + name + ".h";
+    std::string sourcePath = "Game/src/" + name + ".cpp";
+
+    // HEADER
+    std::ofstream h(headerPath);
+    if (h)
+    {
+        h << "#pragma once\n";
+        h << "#include \"Engine/ScriptAPI/IScript.h\"\n\n";
+        h << "class " << name << " : public IScript\n";
+        h << "{\n";
+        h << "public:\n";
+        h << "    void OnCreate() override;\n";
+        h << "    void OnUpdate(const ScriptContext& ctx) override;\n";
+        h << "    void OnDestroy() override;\n";
+        h << "};\n";
+    }
+
+    // SOURCE
+    std::ofstream cpp(sourcePath);
+    if (cpp)
+    {
+        cpp << "#include \"" << name << ".h\"\n\n";
+
+        cpp << "void " << name << "::OnCreate() {\n";
+        cpp << "    // TODO\n";
+        cpp << "}\n\n";
+
+        cpp << "void " << name << "::OnUpdate(const ScriptContext& ctx) {\n";
+        cpp << "    // TODO\n";
+        cpp << "}\n\n";
+
+        cpp << "void " << name << "::OnDestroy() {\n";
+        cpp << "    // TODO\n";
+        cpp << "}\n";
+    }
+}
+
+// ------------------------------------------------------------
+// MAIN
+// ------------------------------------------------------------
 int main()
 {
     Engine::Application app;
@@ -23,13 +82,11 @@ int main()
 
     GLFWwindow* window = app.GetWindow().GetGLFWwindow();
 
-    // Initialise backend GLFW (generic) and DX11
     ImGui_ImplGlfw_InitForOther(window, true);
     ImGui_ImplDX11_Init(app.GetRenderer().GetDevice(), app.GetRenderer().GetContext());
 
     bool show_demo = false;
 
-    // Ensemble des entités sélectionnées dans l'UI
     std::set<::Entity> selectedEntities;
 
     auto lastTime = std::chrono::high_resolution_clock::now();
@@ -37,58 +94,88 @@ int main()
     while (app.getIsRunning() && !app.GetWindow().ShouldClose())
     {
         auto now = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<float> elapsed = now - lastTime;
-        float dt = elapsed.count();
+        float dt = std::chrono::duration<float>(now - lastTime).count();
         lastTime = now;
 
-        // Start ImGui frame (we build UI before rendering the scene)
         ImGui_ImplDX11_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
+        // ------------------------------------------------------------
         // Overlay
+        // ------------------------------------------------------------
         ImGui::Begin("Editor Overlay");
         ImGui::Text("Delta time: %.3f ms", dt * 1000.0f);
         ImGui::Text("FPS: %.1f", dt > 0.0f ? 1.0f / dt : 0.0f);
-        if (ImGui::Button("Quit")) {
-            app.setIsRunning(false);
-        }
+        if (ImGui::Button("Quit")) app.setIsRunning(false);
         ImGui::Checkbox("Show ImGui demo", &show_demo);
         ImGui::End();
 
-        // Main Scene window
+        // ------------------------------------------------------------
+        // Scene Window
+        // ------------------------------------------------------------
         ImGui::Begin("Scene");
 
         const auto& entities = app.GetEntities();
         ImGui::Text("Entities: %zu", entities.size());
         ImGui::Separator();
 
-        // Deux colonnes : gauche = liste d'entités, droite = transform + actions
         ImGui::Columns(2, "scene_cols", true);
 
-        // --- Colonne gauche : création, liste, selection multi ---
+        // ------------------------------------------------------------
+        // Colonne gauche : création + liste
+        // ------------------------------------------------------------
+        static char entityNameBuffer[64] = "NewEntity";
+        ImGui::InputText("Entity Name", entityNameBuffer, sizeof(entityNameBuffer));
+
         if (ImGui::Button("Create Entity"))
         {
-            ::Entity newE = app.CreateRenderableEntity();
-            if (!ImGui::GetIO().KeyCtrl)
-                selectedEntities.clear();
-            selectedEntities.insert(newE);
+            std::string className = entityNameBuffer;
+
+            // 1) Créer l'entité
+            Entity e = app.CreateRenderableEntity();
+
+            // 2) Ajouter Name
+            Name nameComp;
+            nameComp.value = className;
+            app.AddComponent<Name>(e, nameComp);
+
+            // 3) Ajouter Script
+            Script scriptComp;
+            scriptComp.className = className;
+            scriptComp.instance = nullptr;
+            app.AddComponent<Script>(e, scriptComp);
+
+            // 4) Générer les fichiers
+            GenerateEntityFiles(className);
+
+            // 5) Enregistrer le script dans ScriptManager
+            // (Le script sera instancié automatiquement dans Application::Update)
+            app.GetScriptManager().RegisterScript<className>(className); // <-- tu vas remplacer ça par ScriptRegistry
+
+            // 6) Sélection
+            selectedEntities.clear();
+            selectedEntities.insert(e);
         }
 
         ImGui::SameLine();
-        if (ImGui::Button("Refresh")) { /* noop */ }
+        if (ImGui::Button("Refresh")) {}
 
         ImGui::Separator();
 
-        for (size_t i = 0; i < entities.size(); ++i)
+        // Liste des entités
+        for (Entity e : entities)
         {
-            ::Entity e = entities[i];
-            char label[64];
-            sprintf_s(label, "Entity %u", e);
-            bool is_selected = selectedEntities.find(e) != selectedEntities.end();
+            Name name = app.GetComponent<Name>(e);
+
+            char label[128];
+            sprintf_s(label, "%s (%u)", name.value.c_str(), e);
+
+            bool is_selected = selectedEntities.contains(e);
+
             if (ImGui::Selectable(label, is_selected))
             {
-                if (!(ImGui::GetIO().KeyCtrl))
+                if (!ImGui::GetIO().KeyCtrl)
                     selectedEntities.clear();
 
                 if (is_selected)
@@ -102,115 +189,112 @@ int main()
 
         if (ImGui::Button("Delete Selected"))
         {
-            std::vector<::Entity> toDelete(selectedEntities.begin(), selectedEntities.end());
-            for (auto ent : toDelete)
-                app.DestroyEntity(ent);
+            for (Entity e : selectedEntities)
+                app.DestroyEntity(e);
             selectedEntities.clear();
         }
 
+        // ------------------------------------------------------------
+        // Colonne droite : Transform + actions
+        // ------------------------------------------------------------
         ImGui::NextColumn();
 
-        // --- Colonne droite : panneau de transform et actions individuelles ---
         if (selectedEntities.empty())
         {
-            ImGui::TextWrapped("Aucune entité sélectionnée. Sélectionnez une entité à gauche pour éditer son Transform.");
+            ImGui::TextWrapped("Aucune entité sélectionnée.");
         }
         else
         {
-            ::Entity editEntity = *selectedEntities.begin();
-            ImGui::Text("Editing: Entity %u", editEntity);
+            Entity e = *selectedEntities.begin();
 
-            ::Transform t = app.GetTransform(editEntity);
+            Name name = app.GetComponent<Name>(e);
+            ImGui::Text("Editing: %s (%u)", name.value.c_str(), e);
+
+            Transform t = app.GetTransform(e);
 
             float pos[3] = { t.position.x, t.position.y, t.position.z };
             float scl[3] = { t.scale.x, t.scale.y, t.scale.z };
-            float rot[4] = { t.rotation.x, t.rotation.y, t.rotation.z, t.rotation.w }; // quaternion
+            float rot[4] = { t.rotation.x, t.rotation.y, t.rotation.z, t.rotation.w };
 
             bool changed = false;
 
-            // Use an ImGui table to guarantee alignment and avoid weird wrapping/spacing
             if (ImGui::BeginTable("transform_table", 2, ImGuiTableFlags_SizingStretchProp))
             {
-                // Position row (uses DragFloat3 so dragging works like Unity/UE)
                 ImGui::TableNextRow();
-                ImGui::TableSetColumnIndex(0);
-                ImGui::TextUnformatted("Position");
+                ImGui::TableSetColumnIndex(0); ImGui::Text("Position");
                 ImGui::TableSetColumnIndex(1);
-                ImGui::PushItemWidth(-1);
-                if (ImGui::DragFloat3("##position", pos, 0.01f, 0.0f, 0.0f, "%.3f"))
-                    changed = true;
-                ImGui::PopItemWidth();
+                if (ImGui::DragFloat3("##pos", pos, 0.01f)) changed = true;
 
-                // Scale row
                 ImGui::TableNextRow();
-                ImGui::TableSetColumnIndex(0);
-                ImGui::TextUnformatted("Scale");
+                ImGui::TableSetColumnIndex(0); ImGui::Text("Scale");
                 ImGui::TableSetColumnIndex(1);
-                ImGui::PushItemWidth(-1);
-                if (ImGui::DragFloat3("##scale", scl, 0.01f, 0.0f, 0.0f, "%.3f"))
-                    changed = true;
-                ImGui::PopItemWidth();
+                if (ImGui::DragFloat3("##scl", scl, 0.01f)) changed = true;
 
-                // Rotation row (quat) - DragFloat4 exists in ImGui
                 ImGui::TableNextRow();
-                ImGui::TableSetColumnIndex(0);
-                ImGui::TextUnformatted("Rotation (quat)");
+                ImGui::TableSetColumnIndex(0); ImGui::Text("Rotation");
                 ImGui::TableSetColumnIndex(1);
-                ImGui::PushItemWidth(-1);
-                if (ImGui::DragFloat4("##rotation", rot, 0.001f, 0.0f, 0.0f, "%.3f"))
-                    changed = true;
-                ImGui::PopItemWidth();
+                if (ImGui::DragFloat4("##rot", rot, 0.01f)) changed = true;
 
                 ImGui::EndTable();
             }
 
             if (changed)
             {
-                // Appliquer immédiatement
-                t.position.x = pos[0]; t.position.y = pos[1]; t.position.z = pos[2];
-                t.scale.x = scl[0]; t.scale.y = scl[1]; t.scale.z = scl[2];
-                t.rotation.x = rot[0]; t.rotation.y = rot[1]; t.rotation.z = rot[2]; t.rotation.w = rot[3];
-                app.SetTransform(editEntity, t);
+                t.position = { pos[0], pos[1], pos[2] };
+                t.scale = { scl[0], scl[1], scl[2] };
+                t.rotation = { rot[0], rot[1], rot[2], rot[3] };
+                app.SetTransform(e, t);
             }
 
             ImGui::Separator();
 
             if (ImGui::Button("Delete This Entity"))
             {
-                app.DestroyEntity(editEntity);
-                selectedEntities.erase(editEntity);
+                app.DestroyEntity(e);
+                selectedEntities.clear();
             }
 
             ImGui::SameLine();
             if (ImGui::Button("Duplicate"))
             {
-                ::Entity newE = app.CreateRenderableEntity();
+                Entity newE = app.CreateRenderableEntity();
                 app.SetTransform(newE, t);
-                if (!ImGui::GetIO().KeyCtrl) selectedEntities.clear();
+
+                Name newName = name;
+                newName.value += "_Copy";
+                app.AddComponent<Name>(newE, newName);
+
+                Script newScript;
+                newScript.className = newName.value;
+                newScript.instance = nullptr;
+                app.AddComponent<Script>(newE, newScript);
+
+                GenerateEntityFiles(newName.value);
+
+                selectedEntities.clear();
                 selectedEntities.insert(newE);
             }
         }
 
         ImGui::Columns(1);
-        ImGui::End(); // Scene
+        ImGui::End();
 
-        // Update engine
+        // ------------------------------------------------------------
+        // Update engine (inclut ScriptManager)
+        // ------------------------------------------------------------
         app.Update(dt);
 
         // Render ImGui
         ImGui::Render();
         ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-        // Present
         app.GetRenderer().EndFrame();
     }
 
-    // Shutdown ImGui
     ImGui_ImplDX11_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 
     app.Shutdown();
-
     return 0;
 }

@@ -13,10 +13,18 @@ target_sources(Editor
     src/imgui_tables.cpp
     src/imgui_widgets.cpp
 )
+
+add_custom_command(TARGET Editor POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/Game/include"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/Game/src"
+)
+
+
 target_include_directories(Editor
     PUBLIC
         ${CMAKE_SOURCE_DIR}/Editor/include
         ${CMAKE_SOURCE_DIR}/Engine/include
+
 )
 
 target_link_libraries(Editor

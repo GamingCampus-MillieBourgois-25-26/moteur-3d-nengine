@@ -1,8 +1,12 @@
-#include "Engine/ScriptManager.h"
+﻿#include "Engine/ScriptManager.h"
 #include <iostream>
 
 ScriptManager::~ScriptManager()
 {
+    // Détruire toutes les instances créées via CreateInstance()
+    // (si tu veux gérer ça automatiquement)
+    // Rien à faire ici pour les factories internes.
+
     if (m_module)
     {
         FreeLibrary(m_module);
@@ -36,19 +40,45 @@ bool ScriptManager::LoadModule(const std::string& path)
 
 IScript* ScriptManager::Create(const std::string& name)
 {
+    // 1) Essayer d'abord les scripts internes (générés automatiquement)
+    if (factories.contains(name))
+    {
+        IScript* s = factories[name]();
+        if (s)
+        {
+            s->OnCreate();
+            return s;
+        }
+    }
+
+    // 2) Sinon, essayer la DLL
     if (!m_createFn)
     {
-        std::cout << "[ScriptManager] CreateScript not available\n";
+        std::cout << "[ScriptManager] CreateScript not available for: " << name << "\n";
         return nullptr;
     }
 
-    return m_createFn(name.c_str());
+    IScript* script = m_createFn(name.c_str());
+    if (script)
+        script->OnCreate();
+
+    return script;
 }
 
 void ScriptManager::Destroy(IScript* script)
 {
-    if (!script || !m_destroyFn)
+    if (!script)
         return;
 
-    m_destroyFn(script);
+    script->OnDestroy();
+
+    // 1) Si l'instance vient d'une DLL
+    if (m_destroyFn)
+    {
+        m_destroyFn(script);
+        return;
+    }
+
+    // 2) Sinon, c'est un script interne → delete normal
+    delete script;
 }

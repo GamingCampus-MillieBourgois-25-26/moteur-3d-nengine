@@ -47,6 +47,9 @@ void Engine::Application::Init()
     coord.RegisterComponent<Transform>();
     coord.RegisterComponent<Velocity>();
     coord.RegisterComponent<MeshRenderer>();
+    coord.RegisterComponent<Name>();
+    coord.RegisterComponent<Script>();
+
 
     // Enregistrer le MovementSystem
     movementSystem = coord.RegisterSystem<MovementSystem>();
@@ -68,10 +71,10 @@ void Engine::Application::Init()
     coord.SetSystemSignature<RenderSystem>(renderSignature);
 
     // 4. Create an entity
-    ::Entity e = coord.CreateEntity();
+    Entity e = coord.CreateEntity();
 
     // 5. Add Transform
-    ::Transform tr;
+    Transform tr;
     tr.position = { 0, 0, 0 };
     tr.scale = { 0.5f, 0.5f, 0.5f };
     tr.rotation = { 0, 0, 0, 1 }; // quaternion
@@ -91,6 +94,16 @@ void Engine::Application::Init()
     Velocity vel;
     vel.velocity = { 0, 0, 0 };
     coord.AddComponent<Velocity>(e, vel);
+
+    // 8. Add Name
+	Name name;
+	name.name = "Entity";
+	coord.AddComponent<Name>(e, name);
+
+    // 9. Add Script
+    Script script;
+    script.className = "Script";
+	coord.AddComponent<Script>(e, script);
 
     isRunning = true;
 }

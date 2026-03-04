@@ -19,21 +19,3 @@ set_target_properties(GameModule PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/Game
     COMMENT "GameModule runtime directory"
 )
-
-
-# Launcher executable (keeps using Engine)
-add_executable(Game
-    src/main.cpp
-)
-
-target_link_libraries(Game
-    PRIVATE Engine
-
-       ${CMAKE_SOURCE_DIR}/Engine/Assets/FMOD/api/core/lib/x64/fmod_vc.lib
-       ${CMAKE_SOURCE_DIR}/Engine/Assets/FMOD/api/studio/lib/x64/fmodstudio_vc.lib
-)
-
-# Debugger working directory = exe folder
-set_target_properties(Game PROPERTIES
-    VS_DEBUGGER_WORKING_DIRECTORY $<TARGET_FILE_DIR:Game>
-)

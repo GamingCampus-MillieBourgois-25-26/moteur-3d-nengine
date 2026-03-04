@@ -4,6 +4,8 @@
 #include "Engine/ECS/Components/Transform.h"
 #include "Engine/ECS/Components/Velocity.h"
 #include "Engine/ECS/Components/MeshRenderer.h"
+#include "Engine/ECS/Components/Name.h"
+#include "Engine/ECS/Components/Script.h"
 #include "Engine/Renderer.h"
 #include <DirectXMath.h>
 
