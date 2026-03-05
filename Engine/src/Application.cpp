@@ -14,8 +14,8 @@ void Engine::Application::Init()
 
 	window.Create(800, 600, "My Application");
 
-	input = CreateGLFWInput(window.GetGLFWwindow());
 	// Créer l'input avec le backend GLFW
+	input = CreateGLFWInput(window.GetGLFWwindow());
 
 	// Créer le contexte caméra
 	auto camCtx = input->CreateContext();
@@ -30,8 +30,7 @@ void Engine::Application::Init()
 
 	audio.Init();
 	audio.LoadBanks();
-	audio.PlayEvent("event:/MSC_EFN");
-	loader.loadOBJFile();
+	audio.PlayEvent("event:/MSC_OIIA");
 
 	if (!renderer.Initialize(window.GetGLFWwindow(), 800, 600))
 	{
@@ -47,6 +46,8 @@ void Engine::Application::Init()
 	coord.RegisterComponent<Transform>();
 	coord.RegisterComponent<Velocity>();
 	coord.RegisterComponent<MeshRenderer>();
+  coord.RegisterComponent<MaterialData>();
+
 	coord.RegisterComponent<Collider>();
 	coord.RegisterComponent<Trigger>();
 	coord.RegisterComponent<Force>();
@@ -88,6 +89,7 @@ void Engine::Application::Init()
 	jointSignature.set(coord.GetComponentType<Joint>(), true);
 	coord.SetSystemSignature<JointSystem>(jointSignature);
 
+
 	jointSystem->Init(physicsBodySystem);
 
 	// 6. Register CharacterControllerSystem (manages playable characters)
@@ -114,6 +116,8 @@ void Engine::Application::Init()
 	Signature renderSignature;
 	renderSignature.set(coord.GetComponentType<Transform>(), true);
 	renderSignature.set(coord.GetComponentType<MeshRenderer>(), true);
+	renderSignature.set(coord.GetComponentType<MaterialData>(), true);
+
 	coord.SetSystemSignature<RenderSystem>(renderSignature);
 
 	// 9. Register TriggerSystem (for managing trigger events)
@@ -133,14 +137,26 @@ void Engine::Application::Init()
 	Transform tr;
 	tr.position = { 0, 2, 0 };
 	tr.scale = { 0.5, 0.5, 0.5 };
-	tr.rotation = { 0, 0, 0, 1 };
+
+	tr.rotation = { 0, 0, 180, 1 }; // quaternion
 	coord.AddComponent(e, tr);
 
-	MeshRenderer mr;
-	mr.vertexBuffer = renderer.GetMesh().vertexBuffer;
-	mr.indexBuffer = renderer.GetMesh().indexBuffer;
-	mr.indexCount = renderer.GetMesh().indexCount;
+	// Chargement du modele .obj
+	OBJResult obj = LoadOBJ("OBJ/SpinCat.obj");
+
+	// Création des buffers GPU
+	MeshRenderer mr = renderer.CreateMeshRenderer(obj.mesh);
+
+	// Ajout du MeshRender à l'entité pour le RenderSystem
+
 	coord.AddComponent(e, mr);
+	
+	// Charger la texture diffuse automatiquement
+	MaterialData mat;
+
+	mat.diffuse = renderer.CreateTextureFromFile(
+		L"OBJ/" + std::wstring(obj.material.diffuseTexName.begin(), obj.material.diffuseTexName.end())
+	);
 
 	// Collider → ColliderSystem creates the shape, PhysicsBodySystem gets the rigid body
 	Collider col;
@@ -272,6 +288,17 @@ void Engine::Application::Init()
 	groundCol.mass        = 0.0f; // static
 	coord.AddComponent(ground, groundCol);
 
+
+	if (!mat.diffuse) std::cout << "Erreur : texture introuvable." << std::endl;
+
+	// Ajouter le composant Material
+	coord.AddComponent(e, mat);
+	
+	// 10. Add Velocity
+	Velocity vel;
+	vel.velocity = { 0, 0, 0 };
+	coord.AddComponent(e, vel);
+
 	isRunning = true;
 
 	Running();
@@ -312,6 +339,16 @@ void Engine::Application::Running()
 		renderSystem->Render(coord, renderer);
 
 		input->Update();
+
+
+		speed = 2.0f * dt;
+
+
+		renderer.MoveCamera(
+			input->Axis("MoveRight") * speed,
+			input->Axis("MoveUp") * speed,
+			input->Axis("MoveForward") * speed
+		);
 
 		if (input->Action("LockCamera")) {
 			glfwSetInputMode(window.GetGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);

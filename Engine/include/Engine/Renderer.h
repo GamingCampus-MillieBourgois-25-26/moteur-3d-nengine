@@ -1,30 +1,18 @@
 ﻿#pragma once
+#include "Engine/ECS/Components/MeshRenderer.h"
+#include "Engine/OBJ/WICTextureLoader.h"
+#include "Engine/OBJ/NewOBJLoader.h"
 #include <d3d11.h>
 #include <DirectXMath.h>
 #include <string>
 #include <vector>
 #include <iostream>
+#include <filesystem>
 
 struct GLFWwindow;
 
 class Renderer
 {
-public:
-    bool Initialize(GLFWwindow* window, int width, int height);
-    void Render(float dt);
-    void Shutdown();
-
-    // ECS Modif
-    void MoveCamera(float dx, float dy, float dz);
-    void RotateCamera(float yaw, float pitch);
-    void SetCameraCapture(bool capture);
-
-    void BeginFrame();
-    void EndFrame();
-    void DrawMesh(const DirectX::XMMATRIX& world, ID3D11Buffer* vertexBuffer, ID3D11Buffer* indexBuffer, UINT indexCount);
-
-    ID3D11Device* GetDevice() const { return m_device; }
-
 private:
     struct Vertex
     {
@@ -35,17 +23,9 @@ private:
 
     struct ConstantBufferData
     {
-        //DirectX::XMMATRIX mvp;
         DirectX::XMMATRIX world; 
         DirectX::XMMATRIX view; 
         DirectX::XMMATRIX proj; 
-    };
-
-    struct Mesh
-    {
-        ID3D11Buffer* vertexBuffer = nullptr;
-        ID3D11Buffer* indexBuffer = nullptr;
-        UINT indexCount = 0;
     };
 
     struct Camera
@@ -61,7 +41,6 @@ private:
 		float pitch = 0.0f;
     };
 
-private:
     bool CreateDeviceAndSwapChain(GLFWwindow* window, int width, int height);
     bool CreateRenderTargets(int width, int height);
     bool LoadShadersFromFiles(const std::wstring& vsPath, const std::wstring& psPath);
@@ -70,7 +49,6 @@ private:
     void UpdateCamera(float dt);
     void UpdateConstantBuffer();
 
-private:
     ID3D11Device* m_device = nullptr;
     ID3D11DeviceContext* m_context = nullptr;
     IDXGISwapChain* m_swapChain = nullptr;
@@ -87,16 +65,31 @@ private:
     ID3D11RasterizerState* m_rasterizerState = nullptr;
     ID3D11DepthStencilState* m_depthState = nullptr;
 
-    Mesh                    m_mesh;
     Camera                  m_camera;
     ConstantBufferData      m_cbData;
 
     int                     m_width = 0;
     int                     m_height = 0;
 
-    // ECS
 public : 
 
-    const Mesh& GetMesh() const { return m_mesh; }
+    bool Initialize(GLFWwindow* window, int width, int height);
+    void Render(float dt);
+    void Shutdown();
 
+    void MoveCamera(float dx, float dy, float dz);
+    void RotateCamera(float yaw, float pitch);
+    void SetCameraCapture(bool capture);
+
+    void BeginFrame();
+    void EndFrame();
+    void DrawMesh(const DirectX::XMMATRIX& world, ID3D11Buffer* vertexBuffer, ID3D11Buffer* indexBuffer, UINT indexCount);
+
+    ID3D11Device* GetDevice() const { return m_device; }
+
+    MeshRenderer CreateMeshRenderer(const MeshData& mesh);
+    ID3D11ShaderResourceView* CreateTextureFromFile(const std::wstring& path);
+
+    ID3D11SamplerState* m_sampler = nullptr;
+    ID3D11DeviceContext* GetContext() const { return m_context; }
 };

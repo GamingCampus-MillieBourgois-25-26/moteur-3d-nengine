@@ -1,5 +1,5 @@
 ﻿#include "Engine/Renderer.h"
-#include "Engine/OBJ/OBJLoader.h"
+#include "Engine/OBJ/NewOBJLoader.h"
 
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3.h>
@@ -40,23 +40,6 @@ bool Renderer::Initialize(GLFWwindow* window, int width, int height)
         return false;
     }
 
-    //if (!CreateMesh()) {
-    //    std::cout << "ERROR: CreateMesh failed/n";
-    //    return false;
-    //}
-
-    OBJLoader loader;
-    loader.setDevice(m_device);
-    loader.loadOBJFile();
-    loader.vertexBufferCreation();
-    loader.indexBufferCreation();
-
-    m_mesh.vertexBuffer = loader.getVertexBuffer();
-    m_mesh.indexBuffer = loader.getIndexBuffer();
-    m_mesh.indexCount = loader.getIndexCount();
-
-
-    std::cout << "IndexCount = " << m_mesh.indexCount << std::endl;
     // Viewport
     D3D11_VIEWPORT viewport{};
     viewport.Width = static_cast<float>(width);
@@ -66,6 +49,21 @@ bool Renderer::Initialize(GLFWwindow* window, int width, int height)
     viewport.TopLeftX = 0.0f;
     viewport.TopLeftY = 0.0f;
     m_context->RSSetViewports(1, &viewport);
+
+    D3D11_SAMPLER_DESC sampDesc = {};
+    sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+    sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+    sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+    sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+    sampDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+    sampDesc.MinLOD = 0;
+    sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+    HRESULT hr = m_device->CreateSamplerState(&sampDesc, &m_sampler);
+
+    if (FAILED(hr)) {
+        std::cout << "ERREUR: Impossible de créer le sampler" << std::endl;
+    }
 
     return true;
 }
@@ -268,7 +266,7 @@ bool Renderer::CreatePipelineState()
     // Rasterizer
     D3D11_RASTERIZER_DESC rsDesc{};
 
-    rsDesc.FillMode = D3D11_FILL_WIREFRAME;
+    rsDesc.FillMode = D3D11_FILL_SOLID;
     rsDesc.CullMode = D3D11_CULL_NONE;
     rsDesc.FrontCounterClockwise = FALSE;
     rsDesc.DepthClipEnable = TRUE;
@@ -287,46 +285,6 @@ bool Renderer::CreatePipelineState()
 
     return true;
 }
-
-/*bool Renderer::CreateMesh()
-{
-    // Mesh loader minimal : un simple triangle, mais via une structure Mesh
-    std::vector<Vertex> vertices =
-    {
-        {  0.0f,  0.5f, 0.0f,   0,0,-1,   0.5f, 0.0f },
-        {  0.5f, -0.5f, 0.0f,   0,0,-1,   1.0f, 1.0f },
-        { -0.5f, -0.5f, 0.0f,   0,0,-1,   0.0f, 1.0f },
-    };
-
-    std::vector<UINT> indices = { 0, 1, 2 };
-    m_mesh.indexCount = static_cast<UINT>(indices.size());
-
-    // Vertex buffer
-    D3D11_BUFFER_DESC vbd{};
-    vbd.Usage = D3D11_USAGE_DEFAULT;
-    vbd.ByteWidth = static_cast<UINT>(vertices.size() * sizeof(Vertex));
-    vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-
-    D3D11_SUBRESOURCE_DATA vdata{};
-    vdata.pSysMem = vertices.data();
-
-    HRESULT hr = m_device->CreateBuffer(&vbd, &vdata, &m_mesh.vertexBuffer);
-    if (FAILED(hr)) return false;
-
-    // Index buffer
-    D3D11_BUFFER_DESC ibd{};
-    ibd.Usage = D3D11_USAGE_DEFAULT;
-    ibd.ByteWidth = static_cast<UINT>(indices.size() * sizeof(UINT));
-    ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-
-    D3D11_SUBRESOURCE_DATA idata{};
-    idata.pSysMem = indices.data();
-
-    hr = m_device->CreateBuffer(&ibd, &idata, &m_mesh.indexBuffer);
-    if (FAILED(hr)) return false;
-
-    return true;
-}*/
 
 void Renderer::UpdateCamera(float dt)
 {
@@ -355,71 +313,13 @@ void Renderer::UpdateConstantBuffer()
     m_context->UpdateSubresource(m_constantBuffer, 0, nullptr, &m_cbData, 0, 0);
 }
 
-/*
-void Renderer::UpdateConstantBuffer()
-{
-    XMVECTOR eye = XMLoadFloat3(&m_camera.position);
-    XMVECTOR at = XMLoadFloat3(&m_camera.target);
-    XMVECTOR up = XMLoadFloat3(&m_camera.up);
-
-    XMMATRIX view = XMMatrixLookAtLH(eye, at, up);
-    XMMATRIX proj = XMMatrixPerspectiveFovLH(m_camera.fov, m_camera.aspect, m_camera.nearZ, m_camera.farZ);
-    XMMATRIX world = XMMatrixIdentity();
-
-    m_cbData.mvp = XMMatrixTranspose(world * view * proj);
-
-    m_context->UpdateSubresource(m_constantBuffer, 0, nullptr, &m_cbData, 0, 0);
-}*/
-
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-
-/*void Renderer::Render(float dt)
-{
-    //UpdateCamera(dt);
-    UpdateConstantBuffer();
-
-    float clearColor[4] = { 0.1f, 0.1f, 0.2f, 1.0f };
-    m_context->ClearRenderTargetView(m_renderTargetView, clearColor);
-    m_context->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
-    UINT stride = sizeof(Vertex);
-    UINT offset = 0;
-
-    m_context->IASetInputLayout(m_inputLayout);
-    m_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    m_context->IASetVertexBuffers(0, 1, &m_mesh.vertexBuffer, &stride, &offset);
-    m_context->IASetIndexBuffer(m_mesh.indexBuffer, DXGI_FORMAT_R32_UINT, 0);
-
-    m_context->RSSetState(m_rasterizerState);
-    m_context->OMSetDepthStencilState(m_depthState, 0);
-
-    m_context->VSSetShader(m_vertexShader, nullptr, 0);
-    m_context->PSSetShader(m_pixelShader, nullptr, 0);
-    m_context->VSSetConstantBuffers(0, 1, &m_constantBuffer);
-
-    m_context->DrawIndexed(m_mesh.indexCount, 0, 0);
-    m_swapChain->Present(1, 0);
-}*/
-
 void Renderer::BeginFrame() {
-    //std::cout << "Begin Frame\n";
     float clearColor[4] = { 0.1f, 0.1f, 0.2f, 1.0f };
     m_context->ClearRenderTargetView(m_renderTargetView, clearColor);
     m_context->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 
 void Renderer::EndFrame() {
-    //std::cout << "End Frame\n";
     m_swapChain->Present(1, 0);
 }
 
@@ -440,7 +340,7 @@ void Renderer::DrawMesh(const XMMATRIX& world,
     m_cbData.world = XMMatrixTranspose(world); 
     m_cbData.view = XMMatrixTranspose(view); 
     m_cbData.proj = XMMatrixTranspose(proj);
-    //m_cbData.mvp = XMMatrixTranspose(world * view * proj);
+
     m_context->UpdateSubresource(m_constantBuffer, 0, nullptr, &m_cbData, 0, 0);
 
     // Bind pipeline
@@ -463,59 +363,8 @@ void Renderer::DrawMesh(const XMMATRIX& world,
     m_context->DrawIndexed(indexCount, 0, 0);
 }
 
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-
-/*void Renderer::DrawMesh(const XMMATRIX& world,
-    ID3D11Buffer* vertexBuffer,
-    ID3D11Buffer* indexBuffer,
-    UINT indexCount)
-{
-    // 1. Construire view et proj comme dans UpdateConstantBuffer()
-    XMVECTOR eye = XMLoadFloat3(&m_camera.position);
-    XMVECTOR at = XMLoadFloat3(&m_camera.target);
-    XMVECTOR up = XMLoadFloat3(&m_camera.up);
-
-    XMMATRIX view = XMMatrixLookAtLH(eye, at, up);
-    XMMATRIX proj = XMMatrixPerspectiveFovLH(m_camera.fov, m_camera.aspect, m_camera.nearZ, m_camera.farZ);
-
-    // 2. Mettre à jour le constant buffer avec world * view * proj
-    m_cbData.mvp = XMMatrixTranspose(world * view * proj);
-    m_context->UpdateSubresource(m_constantBuffer, 0, nullptr, &m_cbData, 0, 0);
-
-    // 3. Binder les buffers GPU
-    UINT stride = sizeof(Vertex);
-    UINT offset = 0;
-    m_context->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
-    m_context->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
-
-    // 4. Binder shaders, input layout, rasterizer, depth state
-    m_context->IASetInputLayout(m_inputLayout);
-    m_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    m_context->RSSetState(m_rasterizerState);
-    m_context->OMSetDepthStencilState(m_depthState, 0);
-    m_context->VSSetShader(m_vertexShader, nullptr, 0);
-    m_context->PSSetShader(m_pixelShader, nullptr, 0);
-    m_context->VSSetConstantBuffers(0, 1, &m_constantBuffer);
-
-    // 5. Draw call
-    m_context->DrawIndexed(indexCount, 0, 0);
-}*/
-
 void Renderer::Shutdown()
 {
-    if (m_mesh.vertexBuffer) m_mesh.vertexBuffer->Release();
-    if (m_mesh.indexBuffer)  m_mesh.indexBuffer->Release();
-
     if (m_constantBuffer)    m_constantBuffer->Release();
     if (m_inputLayout)       m_inputLayout->Release();
     if (m_vertexShader)      m_vertexShader->Release();
@@ -572,4 +421,65 @@ void Renderer::MoveCamera(float right, float up, float forward)
 
     // Recalcule target
     RotateCamera(0, 0);
+}
+
+MeshRenderer Renderer::CreateMeshRenderer(const MeshData& mesh)
+{
+    MeshRenderer mr;
+
+    // --- Vertex Buffer ---
+    D3D11_BUFFER_DESC vbd{};
+    vbd.Usage = D3D11_USAGE_DEFAULT;
+    vbd.ByteWidth = UINT(mesh.vertices.size() * sizeof(Vertex));
+    vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+
+    D3D11_SUBRESOURCE_DATA vinit{};
+    vinit.pSysMem = mesh.vertices.data();
+
+    m_device->CreateBuffer(&vbd, &vinit, &mr.vertexBuffer);
+
+    // --- Index Buffer ---
+    D3D11_BUFFER_DESC ibd{};
+    ibd.Usage = D3D11_USAGE_DEFAULT;
+    ibd.ByteWidth = UINT(mesh.indices.size() * sizeof(uint32_t));
+    ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+
+    D3D11_SUBRESOURCE_DATA iinit{};
+    iinit.pSysMem = mesh.indices.data();
+
+    m_device->CreateBuffer(&ibd, &iinit, &mr.indexBuffer);
+
+    mr.indexCount = (uint32_t)mesh.indices.size();
+
+    return mr;
+}
+
+// permet de créer la super texture
+ID3D11ShaderResourceView* Renderer::CreateTextureFromFile(const std::wstring& path)
+{
+    ID3D11ShaderResourceView* srv = nullptr;
+
+    std::filesystem::path abs = std::filesystem::absolute(path);
+
+    HRESULT hr = DirectX::CreateWICTextureFromFileEx(
+        m_device,
+        m_context,
+        path.c_str(),
+        0,                          // maxsize
+        D3D11_USAGE_DEFAULT,
+        D3D11_BIND_SHADER_RESOURCE,
+        0,
+        0,
+        DirectX::WIC_LOADER_DEFAULT,
+        nullptr,
+        &srv
+    );
+
+    if (FAILED(hr)) {
+        std::wcout << L"[WIC ERROR] Failed to load texture: " << path
+            << L" (hr = 0x" << std::hex << hr << L")" << std::endl;
+        return nullptr;
+    }
+
+    return srv;
 }

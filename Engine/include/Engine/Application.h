@@ -7,7 +7,6 @@
 
 #include "Window.h"
 #include "AudioSystem.h"
-#include "OBJ/OBJLoader.h"
 #include "Renderer.h"
 
 #include "Input.h"
@@ -33,11 +32,8 @@ namespace Engine {
 
         Renderer renderer;
         AudioSystem audio;
-        OBJLoader loader;
         WindowInstance window;
         std::unique_ptr<Input> input;
-        // ECS 
-
         Coordinator coord;
         std::shared_ptr<RenderSystem> renderSystem;
         std::shared_ptr<MovementSystem> movementSystem;
@@ -58,7 +54,6 @@ namespace Engine {
         void Init();
         void Running();
         void Shutdown();
-
 
         bool getIsRunning() const { return isRunning; }
         void setIsRunning(bool running) { isRunning = running; }
