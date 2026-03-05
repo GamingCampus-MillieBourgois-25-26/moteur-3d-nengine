@@ -7,19 +7,22 @@
 #include "Engine/Renderer.h"
 #include <DirectXMath.h>
 
-/*
-    RenderSystem
-    ------------
-    Système de rendu :
-    - récupère Transform + MeshRenderer
-    - construit la matrice world
-    - appelle le Renderer pour dessiner
-
-    Ce système ne fait aucune logique de jeu.
-*/
-
+/**
+ * @brief Système de rendu des entités.
+ *
+ * Récupère les composants Transform et MeshRenderer,
+ * construit la matrice monde et délègue le dessin
+ * au Renderer.
+ *
+ * Ce système ne contient aucune logique de jeu.
+ */
 class RenderSystem : public System
 {
 public:
+    /**
+     * @brief Effectue le rendu de toutes les entités compatibles.
+     * @param coord Coordinateur ECS
+     * @param renderer Système de rendu
+     */
     void Render(Coordinator& coord, Renderer& renderer);
 };

@@ -13,104 +13,132 @@
 #include "Engine/ECS/ECS_ComponentArray.h"
 #include "Engine/ECS/ECS_SystemManager.h"
 
-/*
-    Coordinator
-    -----------
-    C’est la façade principale de l’ECS.
-
-    Il regroupe :
-    - EntityManager      -> création/destruction d'entités
-    - ComponentManager   -> ajout/retrait/accès aux composants
-    - SystemManager      -> enregistrement des systèmes + signatures
-
-    Le Coordinator fournit une API simple :
-    - CreateEntity()
-    - AddComponent<T>()
-    - RegisterSystem<T>()
-    - SetSystemSignature<T>()
-
-    C’est l’interface que le moteur utilise au quotidien.
-*/
-
+/**
+ * @brief Façade principale de l’ECS.
+ *
+ * Le Coordinator regroupe :
+ * - EntityManager : création et destruction d'entités
+ * - ComponentManager : gestion des composants
+ * - SystemManager : gestion des systèmes et signatures
+ *
+ * Il fournit une API simple utilisée par tout le moteur.
+ */
 class Coordinator
 {
 public:
 
-    // Les trois managers internes
+    /** @brief Gestionnaire des composants. */
     std::unique_ptr<ComponentManager> mComponentManager;
+
+    /** @brief Gestionnaire des entités. */
     std::unique_ptr<EntityManager> mEntityManager;
+
+    /** @brief Gestionnaire des systèmes. */
     std::unique_ptr<SystemManager> mSystemManager;
 
-    // Initialise les managers
+    /**
+     * @brief Initialise les trois managers internes.
+     */
     void Init();
 
-    // Création / destruction d'entités
+    /**
+     * @brief Crée une nouvelle entité.
+     * @return Identifiant de l'entité créée
+     */
     Entity CreateEntity();
+
+    /**
+     * @brief Détruit une entité et nettoie ses composants.
+     * @param entity Entité à détruire
+     */
     void DestroyEntity(Entity entity);
 
-    // Enregistrement d’un type de composant
+    /**
+     * @brief Enregistre un nouveau type de composant.
+     * @tparam T Type du composant
+     */
     template<typename T>
     void RegisterComponent()
     {
         mComponentManager->RegisterComponent<T>();
     }
 
-    // Ajout d’un composant à une entité
+    /**
+     * @brief Ajoute un composant à une entité.
+     * @tparam T Type du composant
+     * @param entity Entité cible
+     * @param component Composant à ajouter
+     */
     template<typename T>
     void AddComponent(Entity entity, T component)
     {
         assert(entity < MAX_ENTITIES && "Invalid entity.");
 
-        // 1. Ajouter le composant dans ComponentManager
         mComponentManager->AddComponent<T>(entity, component);
 
-        // 2. Mettre à jour la signature de l'entité
         auto signature = mEntityManager->GetSignature(entity);
         signature.set(mComponentManager->GetComponentType<T>(), true);
         mEntityManager->SetSignature(entity, signature);
 
-        // 3. Informer les systèmes que la signature a changé
         mSystemManager->EntitySignatureChanged(entity, signature);
     }
 
-    // Retrait d’un composant
+    /**
+     * @brief Retire un composant d'une entité.
+     * @tparam T Type du composant
+     * @param entity Entité cible
+     */
     template<typename T>
     void RemoveComponent(Entity entity)
     {
-        // 1. Retirer le composant
         mComponentManager->RemoveComponent<T>(entity);
 
-        // 2. Mettre à jour la signature 
         auto signature = mEntityManager->GetSignature(entity);
         signature.set(mComponentManager->GetComponentType<T>(), false);
         mEntityManager->SetSignature(entity, signature);
 
-        // 3. Informer les systèmes 
         mSystemManager->EntitySignatureChanged(entity, signature);
     }
 
-    // Accès à un composant
+    /**
+     * @brief Accède au composant d'une entité.
+     * @tparam T Type du composant
+     * @param entity Entité cible
+     * @return Référence au composant
+     */
     template<typename T>
     T& GetComponent(Entity entity)
     {
         return mComponentManager->GetComponent<T>(entity);
     }
 
-    // Récupère l’ID d’un type de composant
+    /**
+     * @brief Récupère l'ID associé au type de composant T.
+     * @tparam T Type du composant
+     * @return ID du composant
+     */
     template<typename T>
     ComponentType GetComponentType()
     {
         return mComponentManager->GetComponentType<T>();
     }
 
-    // Enregistre un système
+    /**
+     * @brief Enregistre un système ECS.
+     * @tparam T Type du système
+     * @return Pointeur partagé vers le système créé
+     */
     template<typename T>
     std::shared_ptr<T> RegisterSystem()
     {
         return mSystemManager->RegisterSystem<T>();
     }
 
-    // Associe une signature à un système
+    /**
+     * @brief Définit la signature d'un système.
+     * @tparam T Type du système
+     * @param signature Signature à associer
+     */
     template<typename T>
     void SetSystemSignature(Signature signature)
     {

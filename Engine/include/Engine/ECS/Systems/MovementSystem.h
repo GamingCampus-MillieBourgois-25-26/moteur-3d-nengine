@@ -5,27 +5,28 @@
 #include "Engine/ECS/Components/Velocity.h"
 #include "MathsLib/Quaternion.h"
 
-/*
-    MovementSystem
-    --------------
-    Système logique qui met à jour :
-    - la position (via Velocity)
-    - la rotation (via des vitesses de rotation)
-
-    Ce système traite uniquement les entités ayant :
-    - Transform
-    - Velocity
-*/
-
+/**
+ * @brief Système de mouvement des entités.
+ *
+ * Met à jour la position et la rotation des entités
+ * possédant les composants Transform et Velocity.
+ */
 class MovementSystem : public System
 {
 public:
-
-    // Vitesses de rotation indépendantes sur chaque axe
+    /** @brief Vitesse de rotation sur l'axe X. */
     float rotationSpeedX = 0.0f;
+
+    /** @brief Vitesse de rotation sur l'axe Y. */
     float rotationSpeedY = 10.0f;
+
+    /** @brief Vitesse de rotation sur l'axe Z. */
     float rotationSpeedZ = 1.0f;
 
-    // Met à jour toutes les entités compatibles
+    /**
+     * @brief Met à jour toutes les entités compatibles.
+     * @param coord Coordinateur ECS
+     * @param dt Temps écoulé depuis la dernière mise à jour
+     */
     void Update(Coordinator& coord, float dt);
 };

@@ -3,85 +3,176 @@
 #include <algorithm>
 #include <string>
 #include <numbers>
-#include"Vector3.h"
-
-/*
-
-w
-x = i
-y = j
-z = k
-
-j*i = -k
-
-
-j*k = i
-
-
-i*k = -j
-
-
-i*k*j = i*i = j*j = k*k
-
-*/
+#include "Vector3.h"
 
 namespace MathsLib
 {
-	template<typename T>
-	class Quaternion {
-	public:
-		T w, x, y, z;
-		//Quaternion<T>() = default;
-		//Quaternion<T>(T w = 1.0f, T x = 0.0f, T y = 0.0f, T z = 0.0f);
+    /**
+     * @brief Quaternion générique.
+     *
+     * Représente une rotation dans l'espace 3D et fournit
+     * les opérations mathématiques associées.
+     *
+     * @tparam T Type des composantes du quaternion
+     */
+    template<typename T>
+    class Quaternion {
+    public:
+        T w, x, y, z;
 
-		Quaternion();
-		Quaternion(T w, T x, T y, T z);
+        /** @brief Construit un quaternion par défaut. */
+        Quaternion();
 
-		Quaternion normalized() const;
-		T magnitude() const;
-		void Normalize();
+        /**
+         * @brief Construit un quaternion à partir de ses composantes.
+         */
+        Quaternion(T w, T x, T y, T z);
 
+        /**
+         * @brief Retourne un quaternion normalisé.
+         * @return Quaternion normalisé
+         */
+        Quaternion normalized() const;
 
-		static Quaternion identity;
+        /**
+         * @brief Calcule la norme du quaternion.
+         * @return Magnitude du quaternion
+         */
+        T magnitude() const;
 
-		bool Equals(const Quaternion&) const;
-		void Set(T w, T x, T y, T z);
-		void SetFromToRotation(const Vector3<T>& from, const Vector3<T>& to);
-		void SetLookRotation(const Vector3<T>& forward, const Vector3<T>& up = Vector3<T>::up);
-		void ToAngleAxis(T& angle, Vector3<T>& axis) const;
+        /** @brief Normalise le quaternion. */
+        void Normalize();
 
-		Quaternion<T> AngleAxis(float degrees, Vector3<T>& axis);
+        /** @brief Quaternion identité. */
+        static Quaternion identity;
 
-		std::string toString() const;
+        /**
+         * @brief Compare deux quaternions.
+         * @param other Quaternion à comparer
+         * @return true si les quaternions sont égaux
+         */
+        bool Equals(const Quaternion& other) const;
 
+        /**
+         * @brief Définit les composantes du quaternion.
+         */
+        void Set(T w, T x, T y, T z);
 
-		static T Angle(const Quaternion<T>& a, const Quaternion<T>& b);
-		static Quaternion<T> AngleAxis(T angle, const Vector3<T>& axis);
-		static T Dot(const Quaternion<T>& a, const Quaternion<T>& b);
-		static Quaternion<T> Euler(T x, T y, T z);
-		static Quaternion<T> FromToRotation(const Vector3<T>& from, const Vector3<T>& to);
-		static Quaternion<T> Inverse(const Quaternion<T>& q);
-		static Quaternion<T> Lerp(const Quaternion<T>& a, const Quaternion<T>& b, T t);
-		static Quaternion<T> LerpUnclamped(const Quaternion<T>& a, const Quaternion<T>& b, T t);
-		static Quaternion<T> LookRotation(const Vector3<T>& forward, const Vector3<T>& upwards = Vector3<T>::up());
-		static Quaternion<T> RotateTowards(const Quaternion<T>& from, const Quaternion<T>& to, T maxDegreesDelta);
-		static Quaternion<T> Slerp(const Quaternion<T>& a, const Quaternion<T>& b, T t);
-		static Quaternion<T> SlerpUnclamped(const Quaternion<T>& a, const Quaternion<T>& b, T t);
+        /**
+         * @brief Définit une rotation entre deux directions.
+         */
+        void SetFromToRotation(const Vector3<T>& from, const Vector3<T>& to);
 
+        /**
+         * @brief Définit une rotation à partir d'une direction et d'un vecteur haut.
+         */
+        void SetLookRotation(const Vector3<T>& forward, const Vector3<T>& up = Vector3<T>::up);
 
+        /**
+         * @brief Convertit le quaternion en angle et axe.
+         */
+        void ToAngleAxis(T& angle, Vector3<T>& axis) const;
 
-		Quaternion operator*(const Quaternion&) const;
-		Quaternion operator*(T) const;
-		Quaternion operator+(const Quaternion&) const;
-		Quaternion operator-(const Quaternion&) const;
+        /**
+         * @brief Crée un quaternion à partir d'un angle et d'un axe.
+         */
+        Quaternion<T> AngleAxis(float degrees, Vector3<T>& axis);
 
-		bool operator==(const Quaternion&) const;
-		const T& operator[](int) const;
+        /**
+         * @brief Convertit le quaternion en chaîne de caractères.
+         */
+        std::string toString() const;
 
+        /**
+         * @brief Calcule l'angle entre deux quaternions.
+         */
+        static T Angle(const Quaternion<T>& a, const Quaternion<T>& b);
 
-	};
+        /**
+         * @brief Crée un quaternion à partir d'un angle et d'un axe.
+         */
+        static Quaternion<T> AngleAxis(T angle, const Vector3<T>& axis);
 
+        /**
+         * @brief Calcule le produit scalaire de deux quaternions.
+         */
+        static T Dot(const Quaternion<T>& a, const Quaternion<T>& b);
 
+        /**
+         * @brief Crée un quaternion à partir d'angles d'Euler.
+         */
+        static Quaternion<T> Euler(T x, T y, T z);
+
+        /**
+         * @brief Crée une rotation entre deux directions.
+         */
+        static Quaternion<T> FromToRotation(const Vector3<T>& from, const Vector3<T>& to);
+
+        /**
+         * @brief Calcule l'inverse d'un quaternion.
+         */
+        static Quaternion<T> Inverse(const Quaternion<T>& q);
+
+        /**
+         * @brief Interpole linéairement entre deux quaternions.
+         */
+        static Quaternion<T> Lerp(const Quaternion<T>& a, const Quaternion<T>& b, T t);
+
+        /**
+         * @brief Interpolation linéaire non bornée entre deux quaternions.
+         */
+        static Quaternion<T> LerpUnclamped(const Quaternion<T>& a, const Quaternion<T>& b, T t);
+
+        /**
+         * @brief Crée un quaternion orienté vers une direction.
+         */
+        static Quaternion<T> LookRotation(const Vector3<T>& forward, const Vector3<T>& upwards = Vector3<T>::up());
+
+        /**
+         * @brief Fait tourner un quaternion vers un autre avec une limite angulaire.
+         */
+        static Quaternion<T> RotateTowards(const Quaternion<T>& from, const Quaternion<T>& to, T maxDegreesDelta);
+
+        /**
+         * @brief Interpolation sphérique entre deux quaternions.
+         */
+        static Quaternion<T> Slerp(const Quaternion<T>& a, const Quaternion<T>& b, T t);
+
+        /**
+         * @brief Interpolation sphérique non bornée entre deux quaternions.
+         */
+        static Quaternion<T> SlerpUnclamped(const Quaternion<T>& a, const Quaternion<T>& b, T t);
+
+        /**
+         * @brief Multiplie deux quaternions.
+         */
+        Quaternion operator*(const Quaternion& other) const;
+
+        /**
+         * @brief Multiplie le quaternion par un scalaire.
+         */
+        Quaternion operator*(T value) const;
+
+        /**
+         * @brief Additionne deux quaternions.
+         */
+        Quaternion operator+(const Quaternion& other) const;
+
+        /**
+         * @brief Soustrait deux quaternions.
+         */
+        Quaternion operator-(const Quaternion& other) const;
+
+        /**
+         * @brief Compare deux quaternions.
+         */
+        bool operator==(const Quaternion& other) const;
+
+        /**
+         * @brief Accède à une composante du quaternion.
+         */
+        const T& operator[](int index) const;
+    };
 }
 
 #include "Quaternion.inl"

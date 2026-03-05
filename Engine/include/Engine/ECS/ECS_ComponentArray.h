@@ -5,32 +5,37 @@
 #include "Engine/ECS/ECS_Types.h"
 #include "Engine/ECS/ECS_IComponentArray.h"
 
-/*
-    ComponentArray<T>
-    -----------------
-    Stocke tous les composants d’un type T.
-
-    Structure :
-    - mComponentArray : tableau contigu (rapide, cache-friendly)
-    - mEntityToIndex  : map entité -> index dans le tableau
-    - mIndexToEntity  : map index -> entité (pour swap & delete)
-    - mSize           : nombre de composants stockés
-
-    Objectif :
-    - accès O(1)
-    - suppression O(1) (swap avec le dernier)
-*/
-
+/**
+ * @brief Tableau contigu stockant tous les composants d’un type T.
+ *
+ * Structure optimisée pour l’ECS :
+ * - accès O(1)
+ * - suppression O(1) via swap avec le dernier élément
+ * - données contiguës (cache-friendly)
+ *
+ * @tparam T Type du composant stocké
+ */
 template<typename T>
 class ComponentArray : public IComponentArray
 {
 public:
+    /** @brief Tableau contigu contenant les composants. */
     std::array<T, MAX_ENTITIES> mComponentArray;
+
+    /** @brief Map entité -> index dans le tableau. */
     std::unordered_map<Entity, size_t> mEntityToIndex;
+
+    /** @brief Map index -> entité (utile pour le swap & delete). */
     std::unordered_map<size_t, Entity> mIndexToEntity;
+
+    /** @brief Nombre de composants actuellement stockés. */
     size_t mSize = 0;
 
-    // Ajoute un composant pour une entité
+    /**
+     * @brief Ajoute un composant pour une entité.
+     * @param entity Entité cible
+     * @param component Composant à insérer
+     */
     void InsertData(Entity entity, T component)
     {
         assert(mSize < MAX_ENTITIES && "Too many components of this type.");
@@ -45,7 +50,10 @@ public:
         ++mSize;
     }
 
-    // Supprime un composant (swap & delete)
+    /**
+     * @brief Supprime un composant en O(1) via swap avec le dernier élément.
+     * @param entity Entité dont le composant doit être supprimé
+     */
     void RemoveData(Entity entity)
     {
         assert(mEntityToIndex.find(entity) != mEntityToIndex.end());
@@ -53,30 +61,34 @@ public:
         size_t indexOfRemovedEntity = mEntityToIndex[entity];
         size_t indexOfLastElement = mSize - 1;
 
-        // Déplace le dernier élément à la place de celui supprimé
         mComponentArray[indexOfRemovedEntity] = mComponentArray[indexOfLastElement];
 
         Entity entityOfLastElement = mIndexToEntity[indexOfLastElement];
 
-        // Met à jour les maps
         mEntityToIndex[entityOfLastElement] = indexOfRemovedEntity;
         mIndexToEntity[indexOfRemovedEntity] = entityOfLastElement;
 
-        // Supprime les anciennes entrées
         mEntityToIndex.erase(entity);
         mIndexToEntity.erase(indexOfLastElement);
 
         --mSize;
     }
 
-    // Accès direct au composant d'une entité
+    /**
+     * @brief Accède au composant d’une entité.
+     * @param entity Entité cible
+     * @return Référence au composant
+     */
     T& GetData(Entity entity)
     {
         assert(mEntityToIndex.find(entity) != mEntityToIndex.end());
         return mComponentArray[mEntityToIndex[entity]];
     }
 
-    // Appelé quand une entité est détruite
+    /**
+     * @brief Supprime automatiquement le composant si l’entité est détruite.
+     * @param entity Entité détruite
+     */
     void EntityDestroyed(Entity entity) override
     {
         if (mEntityToIndex.find(entity) != mEntityToIndex.end())

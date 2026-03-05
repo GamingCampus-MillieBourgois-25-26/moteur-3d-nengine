@@ -9,27 +9,84 @@
 
 struct GLFWwindow;
 
+/**
+ * @brief Système de rendu basé sur DirectX 11.
+ *
+ * Gère l'initialisation du pipeline graphique, la caméra,
+ * le rendu des meshes et l'intégration avec l'ECS.
+ */
 class Renderer
 {
 public:
+    /**
+     * @brief Initialise le système de rendu.
+     * @param window Fenêtre GLFW associée
+     * @param width Largeur de la fenêtre
+     * @param height Hauteur de la fenêtre
+     * @return true si l'initialisation a réussi
+     */
     bool Initialize(GLFWwindow* window, int width, int height);
+
+    /**
+     * @brief Effectue le rendu d'une frame.
+     * @param dt Temps écoulé depuis la dernière frame
+     */
     void Render(float dt);
+
+    /**
+     * @brief Libère les ressources du système de rendu.
+     */
     void Shutdown();
 
-    // ECS Modif
+    /**
+     * @brief Déplace la caméra dans l'espace.
+     * @param dx Déplacement sur l'axe X
+     * @param dy Déplacement sur l'axe Y
+     * @param dz Déplacement sur l'axe Z
+     */
     void MoveCamera(float dx, float dy, float dz);
+
+    /**
+     * @brief Fait pivoter la caméra.
+     * @param yaw Rotation horizontale
+     * @param pitch Rotation verticale
+     */
     void RotateCamera(float yaw, float pitch);
+
+    /**
+     * @brief Active ou désactive la capture de la caméra.
+     * @param capture État de la capture
+     */
     void SetCameraCapture(bool capture);
 
-
-
+    /** @brief Prépare le début du rendu d'une frame. */
     void BeginFrame();
-    void EndFrame();
-    void DrawMesh(const DirectX::XMMATRIX& world, ID3D11Buffer* vertexBuffer, ID3D11Buffer* indexBuffer, UINT indexCount);
 
+    /** @brief Finalise le rendu d'une frame. */
+    void EndFrame();
+
+    /**
+     * @brief Dessine un mesh à l'écran.
+     * @param world Matrice de transformation monde
+     * @param vertexBuffer Buffer de sommets
+     * @param indexBuffer Buffer d'indices
+     * @param indexCount Nombre d'indices
+     */
+    void DrawMesh(const DirectX::XMMATRIX& world,
+        ID3D11Buffer* vertexBuffer,
+        ID3D11Buffer* indexBuffer,
+        UINT indexCount);
+
+    /**
+     * @brief Récupère le périphérique DirectX.
+     * @return Pointeur vers le device DirectX
+     */
     ID3D11Device* GetDevice() const { return m_device; }
 
 private:
+    /**
+     * @brief Structure représentant un sommet.
+     */
     struct Vertex
     {
         float x, y, z;
@@ -37,20 +94,19 @@ private:
         float u, v;
     };
 
+    /**
+     * @brief Données du constant buffer.
+     */
     struct ConstantBufferData
     {
-        DirectX::XMMATRIX world; 
-        DirectX::XMMATRIX view; 
-        DirectX::XMMATRIX proj; 
+        DirectX::XMMATRIX world;
+        DirectX::XMMATRIX view;
+        DirectX::XMMATRIX proj;
     };
 
-    //struct Mesh
-    //{
-    //    ID3D11Buffer* vertexBuffer = nullptr;
-    //    ID3D11Buffer* indexBuffer = nullptr;
-    //    UINT indexCount = 0;
-    //};
-
+    /**
+     * @brief Structure représentant la caméra.
+     */
     struct Camera
     {
         DirectX::XMFLOAT3 position{ 0.0f, 0.0f, -3.0f };
@@ -60,8 +116,8 @@ private:
         float aspect = 1.0f;
         float nearZ = 0.1f;
         float farZ = 100.0f;
-		float yaw = 0.0f;
-		float pitch = 0.0f;
+        float yaw = 0.0f;
+        float pitch = 0.0f;
     };
 
 private:
@@ -69,7 +125,7 @@ private:
     bool CreateRenderTargets(int width, int height);
     bool LoadShadersFromFiles(const std::wstring& vsPath, const std::wstring& psPath);
     bool CreatePipelineState();
-    bool CreateMesh(); // mesh loader minimal (CPU → GPU)
+    bool CreateMesh();
     void UpdateCamera(float dt);
     void UpdateConstantBuffer();
 
@@ -90,18 +146,17 @@ private:
     ID3D11RasterizerState* m_rasterizerState = nullptr;
     ID3D11DepthStencilState* m_depthState = nullptr;
 
-    //Mesh                    m_mesh;
-    Camera                  m_camera;
-    ConstantBufferData      m_cbData;
+    Camera             m_camera;
+    ConstantBufferData m_cbData;
 
-    int                     m_width = 0;
-    int                     m_height = 0;
+    int m_width = 0;
+    int m_height = 0;
 
-    // ECS
-public : 
-
-    //const Mesh& GetMesh() const { return m_mesh; }
-    // NewOBJ Modif
+public:
+    /**
+     * @brief Crée un composant MeshRenderer à partir de données de mesh.
+     * @param mesh Données du mesh
+     * @return Composant MeshRenderer créé
+     */
     MeshRenderer CreateMeshRenderer(const MeshData& mesh);
-
 };

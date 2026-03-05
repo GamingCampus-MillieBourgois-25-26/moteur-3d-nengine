@@ -1,64 +1,61 @@
-#pragma once
+ï»¿#pragma once
 #include <queue>
 #include <array>
 #include <cstdint>
 #include <cassert>
 #include "Engine/ECS/ECS_Types.h"
 
-/*
-
-Entity            -> simple ID
-Signature         -> bitset de composants
-
-EntityManager     -> gère IDs + signatures
-ComponentArray<T> -> stocke les composants d’un type
-ComponentManager  -> gère tous les ComponentArray
-System            -> classe de base
-SystemManager     -> gère les systèmes
-Coordinator       -> façade globale
-
-*/
-
-// Entity (ID)
-
-/*
-    ENTITY MANAGER — Rôle :
-    -----------------------
-    - Distribuer des IDs d'entités (0 -> MAX_ENTITIES)
-    - Recycler les IDs détruits
-    - Stocker la signature de chaque entité
-    - Garantir que les entités sont valides
-
-    Une entité = un simple entier (ID)
-    Une signature = un bitset indiquant quels composants elle possède
-*/
-
-class EntityManager // role : distribuer des IDs, Recycler les IDs detruits, Stocker la signature de chaque entite
+/**
+ * @brief Gestionnaire des entitÃ©s ECS.
+ *
+ * RÃ´le :
+ * - Distribuer des IDs d'entitÃ©s (0 â†’ MAX_ENTITIES)
+ * - Recycler les IDs dÃ©truits
+ * - Stocker la signature de chaque entitÃ©
+ * - Garantir la validitÃ© des entitÃ©s
+ *
+ * Une entitÃ© = un simple entier (ID)
+ * Une signature = un bitset indiquant quels composants elle possÃ¨de
+ */
+class EntityManager
 {
 private:
-
-    // IDs disponibles (libres). On pioche dedans pour créer des entités.
+    /** @brief IDs disponibles pour la crÃ©ation d'entitÃ©s. */
     std::queue<Entity> mAvailableEntities;
 
-    // Signature de chaque entité (Transform, MeshRenderer, etc.)
+    /** @brief Signature de chaque entitÃ© (Transform, MeshRenderer, etc.). */
     std::array<Signature, MAX_ENTITIES> mSignatures{};
 
-    // Nombre d'entités actuellement vivantes
+    /** @brief Nombre d'entitÃ©s actuellement vivantes. */
     std::uint32_t mLivingEntityCount = 0;
 
 public:
-
+    /** @brief Construit un gestionnaire d'entitÃ©s et initialise la liste d'IDs libres. */
     EntityManager();
 
-    // Crée une entité en prenant un ID libre dans la queue
-    Entity CreateEntity(); // prend un ID dans la queue
-    
-    // Détruit une entité : reset sa signature et remet son ID dans la queue
-    void DestroyEntity(Entity entity); // remet l'ID dans la queue
+    /**
+     * @brief CrÃ©e une nouvelle entitÃ© en prenant un ID libre.
+     * @return ID de l'entitÃ© crÃ©Ã©e
+     */
+    Entity CreateEntity();
 
-    // Associe une signature à une entité
+    /**
+     * @brief DÃ©truit une entitÃ© : rÃ©initialise sa signature et recycle son ID.
+     * @param entity EntitÃ© Ã  dÃ©truire
+     */
+    void DestroyEntity(Entity entity);
+
+    /**
+     * @brief DÃ©finit la signature d'une entitÃ©.
+     * @param entity EntitÃ© cible
+     * @param signature Signature Ã  associer
+     */
     void SetSignature(Entity entity, Signature signature);
 
-    // Récupère la signature d'une entité
+    /**
+     * @brief RÃ©cupÃ¨re la signature d'une entitÃ©.
+     * @param entity EntitÃ© cible
+     * @return Signature de l'entitÃ©
+     */
     Signature GetSignature(Entity entity) const;
 };
