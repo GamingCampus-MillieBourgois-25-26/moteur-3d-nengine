@@ -1,4 +1,4 @@
-#include "Engine/Application.h"
+Ôªø#include "Engine/Application.h"
 
 // include ImGui Obligatoire
 #include "ImGui/imgui.h"
@@ -8,18 +8,18 @@
 #include "Engine/ECS/ECS_Component.h"
 #include "Engine/ECS/Systems/RenderSystem.h"
 
-// include pour fonction nÈcessaire
+// include pour fonction n√©cessaire
 #include <chrono>
 #include <set>
 #include <vector>
 #include <algorithm>
 
-// gÈnÈration de fichier CPP + Headers
+// g√©n√©ration de fichier CPP + Headers
 #include <fstream>
 #include <filesystem>
 
 // ------------------------------------------------------------
-// GÈnÈration automatique des fichiers de script
+// G√©n√©ration automatique des fichiers de script
 // ------------------------------------------------------------
 static void GenerateEntityFiles(const std::string& name)
 {
@@ -120,7 +120,7 @@ int main()
         ImGui::Columns(2, "scene_cols", true);
 
         // ------------------------------------------------------------
-        // Colonne gauche : crÈation + liste
+        // Colonne gauche : cr√©ation + liste
         // ------------------------------------------------------------
         static char entityNameBuffer[64] = "NewEntity";
         ImGui::InputText("Entity Name", entityNameBuffer, sizeof(entityNameBuffer));
@@ -129,23 +129,20 @@ int main()
         {
             std::string className = entityNameBuffer;
 
-            // 1) CrÈer l'entitÈ
+            // ‚≠ê OPTION 1: Cr√©er l'entit√© (elle a d√©j√† Name, Transform, MeshRenderer, Script)
             Entity e = app.CreateRenderableEntity();
 
-            // 2) Ajouter Name
-            Name nameComp;
+            // Mettre √† jour le Name existant au lieu de le r√©ajouter
+            Name& nameComp = app.GetComponent<Name>(e);
             nameComp.value = className;
-            app.AddComponent<Name>(e, nameComp);
 
-            // 3) Ajouter Script
-            Script scriptComp;
+            // Mettre √† jour le Script existant au lieu de le r√©ajouter
+            Script& scriptComp = app.GetComponent<Script>(e);
             scriptComp.className = className;
-            scriptComp.instance = nullptr;
-            app.AddComponent<Script>(e, scriptComp);
 
             GenerateEntityFiles(className);
 
-            // 6) SÈlection
+            // S√©lection
             selectedEntities.clear();
             selectedEntities.insert(e);
         }
@@ -155,7 +152,7 @@ int main()
 
         ImGui::Separator();
 
-        // Liste des entitÈs
+        // Liste des entit√©s
         for (Entity e : entities)
         {
             Name name = app.GetComponent<Name>(e);
@@ -193,7 +190,7 @@ int main()
 
         if (selectedEntities.empty())
         {
-            ImGui::TextWrapped("Aucune entitÈ sÈlectionnÈe.");
+            ImGui::TextWrapped("Aucune entit√© s√©lectionn√©e.");
         }
         else
         {
@@ -263,14 +260,11 @@ int main()
                 Entity newE = app.CreateRenderableEntity();
                 app.SetTransform(newE, t);
 
-                Name newName = name;
-                newName.value += "_Copy";
-                app.AddComponent<Name>(newE, newName);
+                Name& newName = app.GetComponent<Name>(newE);
+                newName.value = name.value + "_Copy";
 
-                Script newScript;
+                Script& newScript = app.GetComponent<Script>(newE);
                 newScript.className = newName.value;
-                newScript.instance = nullptr;
-                app.AddComponent<Script>(newE, newScript);
 
                 GenerateEntityFiles(newName.value);
 

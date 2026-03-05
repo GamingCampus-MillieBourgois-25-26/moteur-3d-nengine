@@ -1,4 +1,4 @@
-#include "Engine/Scene/Scene.h"
+﻿#include "Engine/Scene/Scene.h"
 
 Scene::Scene(const std::string& name, Renderer* renderer, ScriptManager* scriptManager)
     : m_name(name)
@@ -26,17 +26,26 @@ Entity Scene::CreateRenderableEntity()
     Entity e = m_coordinator.CreateEntity();
     m_entities.push_back(e);
 
-    Transform t{};
-    t.position = { 0,0,0 };
-    t.scale = { 1,1,1 };
-    t.rotation = { 0,0,0,1 };
-    m_coordinator.AddComponent<Transform>(e, t);
+    // Transform
+    tr.position = { 0, 0, 0 };
+    tr.scale = { 1, 1, 1 };
+    tr.rotation = { 0, 0, 0, 1 };
+    m_coordinator.AddComponent<Transform>(e, tr);
 
-    MeshRenderer mr{};
+    // MeshRenderer
     mr.vertexBuffer = m_renderer->GetMesh().vertexBuffer;
     mr.indexBuffer = m_renderer->GetMesh().indexBuffer;
     mr.indexCount = m_renderer->GetMesh().indexCount;
     m_coordinator.AddComponent<MeshRenderer>(e, mr);
+
+    // ⭐ AJOUTER Name
+    name.value = "Entity";
+    m_coordinator.AddComponent<Name>(e, name);
+
+    // ⭐ AJOUTER Script
+    script.className = "Script";
+    script.instance = nullptr;
+    m_coordinator.AddComponent<Script>(e, script);
 
     return e;
 }

@@ -62,7 +62,7 @@ namespace Engine {
         }
 
         template<typename T>
-        T GetComponent(Entity e)
+        T& GetComponent(Entity e)
         {
             Scene* scene = m_sceneManager.GetActiveScene();
             // copie par valeur pour rester simple
@@ -81,20 +81,15 @@ namespace Engine {
         AudioSystem audio;
         ScriptManager scriptManager;
         Renderer renderer;
-        Transform tr;
+       /* Transform tr;
         MeshRenderer mr;
         Velocity vel;
         Name name;
-        Script script;
+        Script script;*/
 
         OBJLoader loader;
         WindowInstance window;
         std::unique_ptr<Input> input;
-
-
-        Coordinator coord;
-        std::shared_ptr<RenderSystem> renderSystem;
-        std::shared_ptr<MovementSystem> movementSystem;
 
         using clock = std::chrono::high_resolution_clock;
 

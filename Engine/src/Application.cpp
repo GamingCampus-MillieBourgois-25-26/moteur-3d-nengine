@@ -13,9 +13,11 @@ void Engine::Application::Init()
     std::cout << "Initializing application...\n";
 
     window.Create(800, 600, "My Application");
-
     input = CreateGLFWInput(window.GetGLFWwindow());
-    // ... setup audio, loader, etc ...
+    audio.Init();
+    audio.LoadBanks();
+    audio.PlayEvent("event:/MSC_EFN");
+    loader.loadOBJFile();
 
     if (!renderer.Initialize(window.GetGLFWwindow(), 800, 600))
     {
@@ -23,48 +25,27 @@ void Engine::Application::Init()
         return;
     }
 
-    // ⭐ CRÉER ET INITIALISER LA SCÈNE
-    Scene* mainScene = m_sceneManager.CreateScene("MainScene", &renderer, &scriptManager);
+    // Créer la scène
+    m_sceneManager.CreateScene("MainScene", &renderer, &scriptManager);
     m_sceneManager.SetActiveScene("MainScene");
 
-    // ⭐ CRÉER UNE ENTITÉ INITIALE
-    Entity e = CreateRenderableEntity();
-
-    // Ajouter les composants
-    tr.position = { 0, 0, 0 };
-    tr.scale = { 0.5f, 0.5f, 0.5f };
-    tr.rotation = { 0, 0, 0, 1 };
-    AddComponent<::Transform>(e, tr);
-
-    mr.vertexBuffer = renderer.GetMesh().vertexBuffer;
-    mr.indexBuffer = renderer.GetMesh().indexBuffer;
-    mr.indexCount = renderer.GetMesh().indexCount;
-    AddComponent<MeshRenderer>(e, mr);
-
-    vel.velocity = { 0, 0, 0 };
-    AddComponent<Velocity>(e, vel);
-
-    name.value = "Entity";
-    AddComponent<Name>(e, name);
-
-    script.className = "Script";
-    AddComponent<Script>(e, script);
-
-    m_sceneEntities.push_back(e);
+    // Créer une entité de test
+    CreateRenderableEntity();
 
     isRunning = true;
 }
 
 void Engine::Application::Update(float dt)
 {
-    // une itération de la boucle principale (mise à jour du moteur + rendu de la scène)
-    audio.Update();
-    window.Update();
-    movementSystem->Update(coord, dt);
-    renderSystem->Render(coord, renderer); // RenderSystem commence par BeginFrame() et dessine la scène (ne présente pas)
+    Scene* scene = m_sceneManager.GetActiveScene();
+    if (!scene) return;
 
+    // ⭐ ÉTAPE 1 : Mettre à jour l'input EN PREMIER
     input->Update();
+    window.Update();
+    audio.Update();
 
+    // ⭐ ÉTAPE 2 : Traiter les inputs (caméra)
     speed = 2.0f * dt;
 
     renderer.MoveCamera(
@@ -81,6 +62,13 @@ void Engine::Application::Update(float dt)
         );
     }
     else glfwSetInputMode(window.GetGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+
+    // ⭐ ÉTAPE 3 : Mettre à jour la scène
+    scene->Update(dt);
+
+    // ⭐ ÉTAPE 4 : Rendu avec la caméra mise à jour
+    scene->Render();
+
 }
 
 void Engine::Application::Shutdown()
@@ -95,47 +83,45 @@ void Engine::Application::Shutdown()
 
 ::Entity Engine::Application::CreateRenderableEntity()
 {
-    ::Entity e = coord.CreateEntity();
+    Scene* scene = m_sceneManager.GetActiveScene();
+    if (!scene) return UINT32_MAX;  // Sécurité
 
-    coord.AddComponent<::Transform>(e, tr);
+    ::Entity e = scene->CreateRenderableEntity();  // ⭐ Utiliser la scène !
 
-    mr.vertexBuffer = renderer.GetMesh().vertexBuffer;
-    mr.indexBuffer = renderer.GetMesh().indexBuffer;
-    mr.indexCount = renderer.GetMesh().indexCount;
-    coord.AddComponent<MeshRenderer>(e, mr);
-
-    // Optionnel : add zero velocity
-    vel.velocity = { 0.0f, 0.0f, 0.0f };
-    coord.AddComponent<Velocity>(e, vel);
-
+    // Les composants sont ajoutés via AddComponent() qui utilise la scène
     m_sceneEntities.push_back(e);
     return e;
 }
 
 ::Transform Engine::Application::GetTransform(::Entity entity)
 {
-    // Retourne une copie du Transform
-    return coord.GetComponent<::Transform>(entity);
+    Scene* scene = m_sceneManager.GetActiveScene();
+    if (!scene) return ::Transform();
+    return scene->GetTransform(entity);
 }
 
 void Engine::Application::SetTransform(::Entity entity, const ::Transform& t)
 {
-    coord.GetComponent<::Transform>(entity) = t;
+    Scene* scene = m_sceneManager.GetActiveScene();
+    if (!scene) return;
+    scene->SetTransform(entity, t);
 }
 
 // Supprime une entité: la détruit via le coordinator et la retire de la liste utilisée par l'UI
 void Engine::Application::DestroyEntity(::Entity entity)
 {
-    // 1) Détruire dans l'ECS (components, systèmes, recycler l'ID)
-    coord.DestroyEntity(entity);
+    Scene* scene = m_sceneManager.GetActiveScene();
+    if (!scene) return;
 
-    // 2) Retirer de la liste d'entités de la scène (conserver l'ordre des autres)
+    scene->DestroyEntity(entity);
+
+    // Retirer de la liste d'entités de la scène (conserver l'ordre des autres)
     auto it = std::find(m_sceneEntities.begin(), m_sceneEntities.end(), entity);
     if (it != m_sceneEntities.end())
         m_sceneEntities.erase(it);
 }
 
-const std::vector<Entity>& Engine::Application::GetEntities() const 
+const std::vector<Entity>& Engine::Application::GetEntities() const
 {
     return m_sceneEntities;
 }

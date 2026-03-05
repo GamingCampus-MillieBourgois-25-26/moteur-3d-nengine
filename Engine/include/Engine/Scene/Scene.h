@@ -46,4 +46,10 @@ private:
     std::vector<Entity> m_entities;
 
     std::shared_ptr<RenderSystem> m_renderSystem;
+
+    Transform tr{};
+    MeshRenderer mr{};
+    Velocity vel{};
+    Name name{};
+    Script script{};
 };
