@@ -30,7 +30,7 @@ void Engine::Application::Init()
   
 	audio.Init();
 	audio.LoadBanks();
-	audio.PlayEvent("event:/MSC_EFN");
+	audio.PlayEvent("event:/MSC_OIIA");
 	//loader.loadOBJFile();
 
     if (!renderer.Initialize(window.GetGLFWwindow(), 800, 600))
