@@ -8,11 +8,11 @@
 /*
     MovementSystem
     --------------
-    Système logique qui met à jour :
+    SystÃ¨me logique qui met Ã  jour :
     - la position (via Velocity)
     - la rotation (via des vitesses de rotation)
 
-    Ce système traite uniquement les entités ayant :
+    Ce systÃ¨me traite uniquement les entitÃ©s ayant :
     - Transform
     - Velocity
 */
@@ -21,11 +21,12 @@ class MovementSystem : public System
 {
 public:
 
-    // Vitesses de rotation indépendantes sur chaque axe
+    // Vitesses de rotation indÃ©pendantes sur chaque axe
     float rotationSpeedX = 0.0f;
-    float rotationSpeedY = 10.0f;
-    float rotationSpeedZ = 1.0f;
+    float rotationSpeedY = 0.0f;
+    float rotationSpeedZ = 0.0f;
 
-    // Met à jour toutes les entités compatibles
+
+    // Met Ã  jour toutes les entitÃ©s compatibles
     void Update(Coordinator& coord, float dt);
 };

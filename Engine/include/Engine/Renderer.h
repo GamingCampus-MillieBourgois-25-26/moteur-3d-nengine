@@ -13,6 +13,24 @@ struct GLFWwindow;
 
 class Renderer
 {
+
+public:
+    bool Initialize(GLFWwindow* window, int width, int height);
+    void Render(float dt);
+    void Shutdown();
+
+    // ECS Modif
+    void MoveCamera(float dx, float dy, float dz);
+    void RotateCamera(float yaw, float pitch);
+    void SetCameraCapture(bool capture);
+
+    void BeginFrame();
+    void EndFrame();
+    void DrawMesh(const DirectX::XMMATRIX& world, ID3D11Buffer* vertexBuffer, ID3D11Buffer* indexBuffer, UINT indexCount);
+
+    ID3D11Device* GetDevice() const { return m_device; }
+    ID3D11DeviceContext* GetContext() const { return m_context; } // ajouté pour ImGui DX11
+
 private:
     struct Vertex
     {
@@ -23,9 +41,11 @@ private:
 
     struct ConstantBufferData
     {
+
         DirectX::XMMATRIX world; 
         DirectX::XMMATRIX view; 
         DirectX::XMMATRIX proj; 
+
     };
 
     struct Camera
@@ -37,8 +57,8 @@ private:
         float aspect = 1.0f;
         float nearZ = 0.1f;
         float farZ = 100.0f;
-		float yaw = 0.0f;
-		float pitch = 0.0f;
+        float yaw = 0.0f;
+        float pitch = 0.0f;
     };
 
     bool CreateDeviceAndSwapChain(GLFWwindow* window, int width, int height);
@@ -71,7 +91,10 @@ private:
     int                     m_width = 0;
     int                     m_height = 0;
 
-public : 
+
+    // ECS
+public:
+
 
     bool Initialize(GLFWwindow* window, int width, int height);
     void Render(float dt);

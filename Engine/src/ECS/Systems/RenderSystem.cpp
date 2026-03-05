@@ -1,12 +1,12 @@
-#include "Engine/ECS/Systems/RenderSystem.h"
+ï»¿#include "Engine/ECS/Systems/RenderSystem.h"
 #include <DirectXMath.h>
 
-void RenderSystem::Render(Coordinator& coord, Renderer& renderer)
+void RenderSystem::Render(Coordinator & coord, Renderer & renderer)
 {
     // Nettoyage du frame buffer
     renderer.BeginFrame();
 
-    // mEntities contient toutes les entités ayant Transform + MeshRenderer
+    // mEntities contient toutes les entitï¿½s ayant Transform + MeshRenderer
     for (auto entity : mEntities)
     {
         // Recuperer Transform 
@@ -40,6 +40,5 @@ void RenderSystem::Render(Coordinator& coord, Renderer& renderer)
         renderer.DrawMesh(world, mr.vertexBuffer, mr.indexBuffer, mr.indexCount);
     }
 
-    // Présentation à l'écran
-    renderer.EndFrame();
+    // Ne pas appeler EndFrame ici : l'exÃ©cutable (qui gÃ¨re ImGui) fera la prÃ©sentation aprÃ¨s avoir rendu l'UI.
 }
