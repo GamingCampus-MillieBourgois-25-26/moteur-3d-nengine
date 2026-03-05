@@ -29,6 +29,7 @@ namespace Engine {
     private:
         bool isRunning = false;
 
+        ScriptManager scriptManager;
         Renderer renderer;
         AudioSystem audio;
         OBJLoader loader;

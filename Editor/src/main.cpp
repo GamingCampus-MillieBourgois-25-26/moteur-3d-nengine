@@ -151,7 +151,6 @@ int main()
 
             // 5) Enregistrer le script dans ScriptManager
             // (Le script sera instancié automatiquement dans Application::Update)
-            app.GetScriptManager().RegisterScript<className>(className); // <-- tu vas remplacer ça par ScriptRegistry
 
             // 6) Sélection
             selectedEntities.clear();

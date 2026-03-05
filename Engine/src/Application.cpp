@@ -97,7 +97,7 @@ void Engine::Application::Init()
 
     // 8. Add Name
 	Name name;
-	name.name = "Entity";
+	name.value = "Entity";
 	coord.AddComponent<Name>(e, name);
 
     // 9. Add Script
