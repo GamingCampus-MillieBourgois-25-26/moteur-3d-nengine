@@ -51,6 +51,7 @@ void Engine::Application::Init()
 	coord.RegisterComponent<Trigger>();
 	coord.RegisterComponent<Force>();
 	coord.RegisterComponent<Joint>();
+	coord.RegisterComponent<CharacterController>();
 
 	// 2. Register PhysicsBodySystem (owns the Bullet world + simulation)
 	physicsBodySystem = coord.RegisterSystem<PhysicsBodySystem>();
@@ -89,7 +90,17 @@ void Engine::Application::Init()
 
 	jointSystem->Init(physicsBodySystem);
 
-	// 6. Register MovementSystem
+	// 6. Register CharacterControllerSystem (manages playable characters)
+	characterControllerSystem = coord.RegisterSystem<CharacterControllerSystem>();
+
+	Signature ccSignature;
+	ccSignature.set(coord.GetComponentType<Transform>(), true);
+	ccSignature.set(coord.GetComponentType<CharacterController>(), true);
+	coord.SetSystemSignature<CharacterControllerSystem>(ccSignature);
+
+	characterControllerSystem->Init(physicsBodySystem);
+
+	// 7. Register MovementSystem
 	movementSystem = coord.RegisterSystem<MovementSystem>();
 
 	Signature movementSignature;
@@ -97,7 +108,7 @@ void Engine::Application::Init()
 	movementSignature.set(coord.GetComponentType<Velocity>(), true);
 	coord.SetSystemSignature<MovementSystem>(movementSignature);
 
-	// 7. Register RenderSystem
+	// 8. Register RenderSystem
 	renderSystem = coord.RegisterSystem<RenderSystem>();
 
 	Signature renderSignature;
@@ -105,7 +116,7 @@ void Engine::Application::Init()
 	renderSignature.set(coord.GetComponentType<MeshRenderer>(), true);
 	coord.SetSystemSignature<RenderSystem>(renderSignature);
 
-	// 8. Register TriggerSystem (for managing trigger events)
+	// 9. Register TriggerSystem (for managing trigger events)
 	triggerSystem = coord.RegisterSystem<TriggerSystem>();
 
 	Signature triggerSignature;
@@ -116,7 +127,7 @@ void Engine::Application::Init()
 
 	triggerSystem->Init(physicsBodySystem);
 
-	// 9. Create a dynamic entity
+	// 10. Create a dynamic entity
 	Entity e = coord.CreateEntity();
 
 	Transform tr;
@@ -150,7 +161,7 @@ void Engine::Application::Init()
 	force.active = true;
 	coord.AddComponent(e, force);
 
-	// 10. Create a trigger entity
+	// 11. Create a trigger entity
 	Entity triggerEntity = coord.CreateEntity();
 
 	Transform triggerTr;
@@ -192,7 +203,7 @@ void Engine::Application::Init()
 	};
 	coord.AddComponent(zone, trig);
 
-	// 11. Example: create two entities linked by a Point2Point joint
+	// 12. Example: create two entities linked by a Point2Point joint
 	Entity entityA = coord.CreateEntity();
 	{
 		Transform t;
@@ -231,6 +242,25 @@ void Engine::Application::Init()
 		coord.AddComponent(entityB, joint);
 	}
 
+	// 13. Example: create a character controller entity
+	Entity player = coord.CreateEntity();
+	{
+		Transform t;
+		t.position = { 3, 2, 0 };
+		t.scale = { 0.4f, 1.0f, 0.4f };
+		t.rotation = { 0, 0, 0, 1 };
+		coord.AddComponent(player, t);
+
+		CharacterController cc;
+		cc.capsuleRadius = 0.4f;
+		cc.capsuleHeight = 1.0f;
+		cc.walkSpeed     = 5.0f;
+		cc.jumpSpeed     = 6.0f;
+		cc.stepHeight    = 0.35f;
+		cc.gravity       = -9.81f;
+		coord.AddComponent(player, cc);
+	}
+
 	isRunning = true;
 
 	Running();
@@ -261,7 +291,10 @@ void Engine::Application::Running()
 		// 3. ForceSystem: apply pending forces/impulses before stepping the simulation
 		forceSystem->Update(coord);
 
-		// 4. PhysicsBodySystem: step simulation + sync transforms
+		// 4. CharacterControllerSystem: create controllers + apply walk/jump
+		characterControllerSystem->Update(coord, dt);
+
+		// 5. PhysicsBodySystem: step simulation + sync transforms
 		physicsBodySystem->Update(coord, dt);
 		triggerSystem->Update(coord);
 		movementSystem->Update(coord, dt);
@@ -292,6 +325,7 @@ void Engine::Application::Shutdown()
 {
 	std::cout << "Shutting down application...\n";
 
+    characterControllerSystem->Shutdown();
     jointSystem->Shutdown();
     physicsBodySystem->Shutdown();
 

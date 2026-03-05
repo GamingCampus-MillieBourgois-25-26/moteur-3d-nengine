@@ -21,6 +21,7 @@ target_sources(Engine
         src/ECS/Systems/TriggerSystem.cpp
         src/ECS/Systems/ForceSystem.cpp
         src/ECS/Systems/JointSystem.cpp
+        src/ECS/Systems/CharacterControllerSystem.cpp
         src/ScriptManager.cpp
 )
 

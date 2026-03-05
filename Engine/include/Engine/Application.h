@@ -18,6 +18,7 @@
 #include "ECS/Systems/TriggerSystem.h"
 #include "ECS/Systems/ForceSystem.h"
 #include "ECS/Systems/JointSystem.h"
+#include "ECS/Systems/CharacterControllerSystem.h"
 #include <chrono>
 #include <filesystem>
 #include <string>
@@ -45,6 +46,7 @@ namespace Engine {
 		std::shared_ptr<TriggerSystem> triggerSystem;
 		std::shared_ptr<ForceSystem> forceSystem;
 		std::shared_ptr<JointSystem> jointSystem;
+		std::shared_ptr<CharacterControllerSystem> characterControllerSystem;
 
         using clock = std::chrono::high_resolution_clock;
 
