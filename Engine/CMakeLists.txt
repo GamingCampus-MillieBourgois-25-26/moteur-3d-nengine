@@ -17,6 +17,7 @@ target_sources(Engine
         src/ECS/Systems/MovementSystem.cpp
         src/ECS/Systems/RenderSystem.cpp
         src/ECS/Systems/PhysicsBodySystem.cpp
+        src/ECS/Systems/ColliderSystem.cpp
         src/ScriptManager.cpp
 )
 

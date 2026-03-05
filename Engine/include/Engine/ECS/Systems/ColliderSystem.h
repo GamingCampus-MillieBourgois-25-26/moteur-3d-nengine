@@ -15,12 +15,12 @@
 /*
     ColliderSystem
     --------------
-    Systeme responsable de creer les collision shapes Bullet
+    Systeme responsable de créer les collision shapes Bullet
     a partir du composant Collider.
 
     Responsabilites :
-    - Detecter les entites ayant Transform + Collider non initialise
-    - Creer la btCollisionShape correspondante (box, sphere, capsule)
+    - Détecter les entités ayant Transform + Collider non initialisés
+    - Créer la btCollisionShape correspondante (box, sphere, capsule)
     - Deleguer la creation du btRigidBody au PhysicsBodySystem
 
     Le PhysicsBodySystem reste proprietaire du monde Bullet,
