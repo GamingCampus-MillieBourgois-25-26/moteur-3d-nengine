@@ -79,6 +79,7 @@ public:
     void MoveCamera(float dx, float dy, float dz);
     void RotateCamera(float yaw, float pitch);
     void SetCameraCapture(bool capture);
+    void OnResize(int newWidth, int newHeight);
 
     void BeginFrame();
     void EndFrame();
