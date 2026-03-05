@@ -90,13 +90,12 @@ void Engine::Application::Init()
 	
 	// Charger la texture diffuse automatiquement
 	MaterialData mat;
-	if (!mat.diffuse) {
-		std::cout << "ERREUR: texture diffuse NULL" << std::endl;
-	}
 
 	mat.diffuse = renderer.CreateTextureFromFile(
 		L"OBJ/" + std::wstring(obj.material.diffuseTexName.begin(), obj.material.diffuseTexName.end())
 	);
+
+	if (!mat.diffuse) std::cout << "Erreur : texture introuvable." << std::endl;
 
 	// Ajouter le composant Material
 	coord.AddComponent(e, mat);

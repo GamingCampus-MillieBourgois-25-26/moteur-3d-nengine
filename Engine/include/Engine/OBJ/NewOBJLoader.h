@@ -1,6 +1,7 @@
 #pragma once
 #include "Engine/OBJ/tiny_obj_loader.h"
 #include "Engine/OBJ/WICTextureLoader.h"
+#include "Engine/ECS/Components/MaterialData.h"
 #include "DirectXMath.h"
 
 #include <unordered_map>
@@ -15,10 +16,6 @@ struct Vertex {
 struct MeshData {
     std::vector<Vertex> vertices; // Vertex buffer "logique"
     std::vector<uint32_t> indices; // Index buffer
-};
-
-struct MaterialData {
-    ID3D11ShaderResourceView* diffuse = nullptr;
 };
 
 struct MaterialCPU {

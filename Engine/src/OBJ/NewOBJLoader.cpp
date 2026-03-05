@@ -41,8 +41,6 @@ OBJResult LoadOBJ(const std::string& path) {
         throw std::runtime_error("TinyObjLoader error: " + err);
     }
 
-    std::cout << "OBJ loaded = " << std::boolalpha << reader.Valid() << std::endl;
-
     // Affichage des warnings éventuels (non bloquants) 
     if (!reader.Warning().empty()) { std::cout << "TinyObjLoader warning: " << reader.Warning() << std::endl; }
 
@@ -72,12 +70,7 @@ OBJResult LoadOBJ(const std::string& path) {
         size_t pos = tex.find_last_of("/\\");
         if (pos != std::string::npos)
             tex = tex.substr(pos + 1);
-
-        std::cout << "DiffuseTexName brut = [" << mats[0].diffuse_texname << "]" << std::endl;
     }
-    std::cout << "Nb matériaux = " << mats.size() << std::endl;
-
-    std::cout << "DiffuseTexName nettoyé = [" << material.diffuseTexName << "]" << std::endl;
 
     // Mesh final
     MeshData mesh;

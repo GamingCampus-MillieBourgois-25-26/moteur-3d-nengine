@@ -68,6 +68,21 @@ bool Renderer::Initialize(GLFWwindow* window, int width, int height)
     viewport.TopLeftY = 0.0f;
     m_context->RSSetViewports(1, &viewport);
 
+    D3D11_SAMPLER_DESC sampDesc = {};
+    sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+    sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+    sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+    sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+    sampDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+    sampDesc.MinLOD = 0;
+    sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+    HRESULT hr = m_device->CreateSamplerState(&sampDesc, &m_sampler);
+
+    if (FAILED(hr)) {
+        std::cout << "ERREUR: Impossible de créer le sampler" << std::endl;
+    }
+
     return true;
 }
 
@@ -607,7 +622,7 @@ MeshRenderer Renderer::CreateMeshRenderer(const MeshData& mesh)
 }
 
 // permet de créer la super texture
-
+/*
 ID3D11ShaderResourceView* Renderer::CreateTextureFromFile(const std::wstring& path)
 {
     ID3D11ShaderResourceView* srv = nullptr;
@@ -622,6 +637,35 @@ ID3D11ShaderResourceView* Renderer::CreateTextureFromFile(const std::wstring& pa
 
     if (FAILED(hr)) {
         std::wcout << L"Failed to load texture: " << path << std::endl;
+        return nullptr;
+    }
+
+    return srv;
+}*/
+
+ID3D11ShaderResourceView* Renderer::CreateTextureFromFile(const std::wstring& path)
+{
+    ID3D11ShaderResourceView* srv = nullptr;
+
+    std::filesystem::path abs = std::filesystem::absolute(path);
+
+    HRESULT hr = DirectX::CreateWICTextureFromFileEx(
+        m_device,
+        m_context,
+        path.c_str(),
+        0,                          // maxsize
+        D3D11_USAGE_DEFAULT,
+        D3D11_BIND_SHADER_RESOURCE,
+        0,
+        0,
+        DirectX::WIC_LOADER_DEFAULT,
+        nullptr,
+        &srv
+    );
+
+    if (FAILED(hr)) {
+        std::wcout << L"[WIC ERROR] Failed to load texture: " << path
+            << L" (hr = 0x" << std::hex << hr << L")" << std::endl;
         return nullptr;
     }
 

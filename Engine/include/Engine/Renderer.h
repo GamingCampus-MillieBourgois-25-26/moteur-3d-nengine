@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <filesystem>
 
 struct GLFWwindow;
 
@@ -105,4 +106,7 @@ public :
     // NewOBJ Modif
     MeshRenderer CreateMeshRenderer(const MeshData& mesh);
     ID3D11ShaderResourceView* CreateTextureFromFile(const std::wstring& path);
+
+    ID3D11SamplerState* m_sampler = nullptr;
+    ID3D11DeviceContext* GetContext() const { return m_context; }
 };
