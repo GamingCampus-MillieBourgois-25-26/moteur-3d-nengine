@@ -1,0 +1,25 @@
+var struct_f_m_o_d___a_d_v_a_n_c_e_d_s_e_t_t_i_n_g_s =
+[
+    [ "ASIOChannelList", "struct_f_m_o_d___a_d_v_a_n_c_e_d_s_e_t_t_i_n_g_s.html#aebc4867d0c6fb6a95bd67702e6cb5c03", null ],
+    [ "ASIONumChannels", "struct_f_m_o_d___a_d_v_a_n_c_e_d_s_e_t_t_i_n_g_s.html#a90fe2a214a0bdd6569ee48c0b7740cb5", null ],
+    [ "ASIOSpeakerList", "struct_f_m_o_d___a_d_v_a_n_c_e_d_s_e_t_t_i_n_g_s.html#a096b0eae3b5a2d1a8cf4ad2640f437dc", null ],
+    [ "cbSize", "struct_f_m_o_d___a_d_v_a_n_c_e_d_s_e_t_t_i_n_g_s.html#a262522129ac6c602b391138ba69659b9", null ],
+    [ "defaultDecodeBufferSize", "struct_f_m_o_d___a_d_v_a_n_c_e_d_s_e_t_t_i_n_g_s.html#a8b2d2802cd34875f10d319c8f363e399", null ],
+    [ "distanceFilterCenterFreq", "struct_f_m_o_d___a_d_v_a_n_c_e_d_s_e_t_t_i_n_g_s.html#a4d85e65475911f533329c90d026a602f", null ],
+    [ "DSPBufferPoolSize", "struct_f_m_o_d___a_d_v_a_n_c_e_d_s_e_t_t_i_n_g_s.html#abee72e231aaa37f6de731d51b10d1fbc", null ],
+    [ "geometryMaxFadeTime", "struct_f_m_o_d___a_d_v_a_n_c_e_d_s_e_t_t_i_n_g_s.html#a973568fb1ec638193a0b0198d4165558", null ],
+    [ "maxADPCMCodecs", "struct_f_m_o_d___a_d_v_a_n_c_e_d_s_e_t_t_i_n_g_s.html#acfa5560db4bc9fd518a1c5f1f02bf5c9", null ],
+    [ "maxAT9Codecs", "struct_f_m_o_d___a_d_v_a_n_c_e_d_s_e_t_t_i_n_g_s.html#a19bcd67cf21220fcba3c2c62e1d07ac7", null ],
+    [ "maxConvolutionThreads", "struct_f_m_o_d___a_d_v_a_n_c_e_d_s_e_t_t_i_n_g_s.html#a2b8f0c96cbc2f39e19be08958746d2e3", null ],
+    [ "maxFADPCMCodecs", "struct_f_m_o_d___a_d_v_a_n_c_e_d_s_e_t_t_i_n_g_s.html#a961aefcf1b30daff638ef0cef22e7fa5", null ],
+    [ "maxMPEGCodecs", "struct_f_m_o_d___a_d_v_a_n_c_e_d_s_e_t_t_i_n_g_s.html#a961b0224b4e3cfe7e0cc3a3ec5d2ca8c", null ],
+    [ "maxOpusCodecs", "struct_f_m_o_d___a_d_v_a_n_c_e_d_s_e_t_t_i_n_g_s.html#a0694a29d603353c6da5f1d81e8648218", null ],
+    [ "maxSpatialObjects", "struct_f_m_o_d___a_d_v_a_n_c_e_d_s_e_t_t_i_n_g_s.html#a2cd7ff92eea1663bc648e21adb51a5e9", null ],
+    [ "maxVorbisCodecs", "struct_f_m_o_d___a_d_v_a_n_c_e_d_s_e_t_t_i_n_g_s.html#a22c9c6e32dd68468537741e6cfc4888f", null ],
+    [ "maxXMACodecs", "struct_f_m_o_d___a_d_v_a_n_c_e_d_s_e_t_t_i_n_g_s.html#aa0f823d02c14ef5fff96d882aa5fc1af", null ],
+    [ "profilePort", "struct_f_m_o_d___a_d_v_a_n_c_e_d_s_e_t_t_i_n_g_s.html#ab1c3835fd0803e865682b0ed2a475c5c", null ],
+    [ "randomSeed", "struct_f_m_o_d___a_d_v_a_n_c_e_d_s_e_t_t_i_n_g_s.html#a183a5d91e117a0b7fd984cc82cc2c6ed", null ],
+    [ "resamplerMethod", "struct_f_m_o_d___a_d_v_a_n_c_e_d_s_e_t_t_i_n_g_s.html#aa38ed5b1d8624386170ca539779250b8", null ],
+    [ "reverb3Dinstance", "struct_f_m_o_d___a_d_v_a_n_c_e_d_s_e_t_t_i_n_g_s.html#a3a5ab4ea4aabad2a2d37259b4f913553", null ],
+    [ "vol0virtualvol", "struct_f_m_o_d___a_d_v_a_n_c_e_d_s_e_t_t_i_n_g_s.html#a34978996f8dfe0ca0d79a30414936eb6", null ]
+];

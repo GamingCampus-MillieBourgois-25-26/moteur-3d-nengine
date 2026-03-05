@@ -1,0 +1,28 @@
+var class_maths_lib_1_1_matrice4 =
+[
+    [ "Matrice4", "class_maths_lib_1_1_matrice4.html#adc9376d36f37045a409d5d0be337f323", null ],
+    [ "determinant", "class_maths_lib_1_1_matrice4.html#abca5b896d8a4a9626160e69628792ee1", null ],
+    [ "GetColumn", "class_maths_lib_1_1_matrice4.html#ae09e2212c040833a47bcccb250fc54bb", null ],
+    [ "GetPosition", "class_maths_lib_1_1_matrice4.html#a5681fa0d40f3770576139d24606802e4", null ],
+    [ "GetRow", "class_maths_lib_1_1_matrice4.html#a92bcc7a94dcc5dc96f9247bb5b3746b5", null ],
+    [ "inverse", "class_maths_lib_1_1_matrice4.html#ad8e09e8bdf7e70391fb53a5bfa5fe0d9", null ],
+    [ "isIdentity", "class_maths_lib_1_1_matrice4.html#a030de3f88c67999749b9de4f40273160", null ],
+    [ "MultiplyPoint", "class_maths_lib_1_1_matrice4.html#a7d86cd86b449fb7640039c891e520a1d", null ],
+    [ "MultiplyPoint3x4", "class_maths_lib_1_1_matrice4.html#a4d2939993610d47bdd076f0832f45d78", null ],
+    [ "MultiplyPointVector", "class_maths_lib_1_1_matrice4.html#a4967a1b647f1b8baa53d522f5c310651", null ],
+    [ "operator*", "class_maths_lib_1_1_matrice4.html#aa6c522a15f96368551dff68db9ce701d", null ],
+    [ "operator[]", "class_maths_lib_1_1_matrice4.html#ae4c0df4215415d3e26874aa7922b4846", null ],
+    [ "operator[]", "class_maths_lib_1_1_matrice4.html#a836eaf1de924e193466885d3357d6ae6", null ],
+    [ "ortho", "class_maths_lib_1_1_matrice4.html#a03c3137a40372e32ef283b7cbc521292", null ],
+    [ "perspective", "class_maths_lib_1_1_matrice4.html#a96bddf8fbc9a940577eedeec0ff4d42f", null ],
+    [ "rotate", "class_maths_lib_1_1_matrice4.html#a7c1315cbb9cd06c8db934a9389821baa", null ],
+    [ "rotation", "class_maths_lib_1_1_matrice4.html#ad92529d45a02217ef13c84faa6d7bb76", null ],
+    [ "scale", "class_maths_lib_1_1_matrice4.html#a5935f242840b27510b81327ee8108d80", null ],
+    [ "SetColumn", "class_maths_lib_1_1_matrice4.html#ab949305926c2b0ee64b45a0488bfbc7c", null ],
+    [ "SetRow", "class_maths_lib_1_1_matrice4.html#ad4ba7f3c63aec2597838be70fc96cb29", null ],
+    [ "ToString", "class_maths_lib_1_1_matrice4.html#a9ecc4fb1ba869a3f6f478948683f607b", null ],
+    [ "translate", "class_maths_lib_1_1_matrice4.html#a7e340aaf98f5cf12b9b4738e9ad60b60", null ],
+    [ "transpose", "class_maths_lib_1_1_matrice4.html#af92309b4d72775204aa761d01ace2883", null ],
+    [ "trs", "class_maths_lib_1_1_matrice4.html#a215b87e51b102703a2132bdfa5899f09", null ],
+    [ "m4", "class_maths_lib_1_1_matrice4.html#a97224e16ba938612f59732910834dfa5", null ]
+];
