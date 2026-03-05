@@ -8,6 +8,7 @@ Scene::Scene(const std::string& name, Renderer* renderer, ScriptManager* scriptM
     // Components
     m_coordinator.RegisterComponent<Transform>();
     m_coordinator.RegisterComponent<MeshRenderer>();
+    m_coordinator.RegisterComponent<MaterialData>();
     m_coordinator.RegisterComponent<Name>();
     m_coordinator.RegisterComponent<Script>();
     m_coordinator.RegisterComponent<Velocity>();
@@ -17,6 +18,7 @@ Scene::Scene(const std::string& name, Renderer* renderer, ScriptManager* scriptM
     Signature renderSig;
     renderSig.set(m_coordinator.GetComponentType<Transform>());
     renderSig.set(m_coordinator.GetComponentType<MeshRenderer>());
+    renderSig.set(m_coordinator.GetComponentType<MaterialData>());
     m_coordinator.SetSystemSignature<RenderSystem>(renderSig);
 
     // MovementSystem
