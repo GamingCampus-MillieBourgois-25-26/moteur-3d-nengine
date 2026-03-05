@@ -50,6 +50,7 @@ void Engine::Application::Init()
 	coord.RegisterComponent<Collider>();
 	coord.RegisterComponent<Trigger>();
 	coord.RegisterComponent<Force>();
+	coord.RegisterComponent<Joint>();
 
 	// 2. Register PhysicsBodySystem (owns the Bullet world + simulation)
 	physicsBodySystem = coord.RegisterSystem<PhysicsBodySystem>();
@@ -79,7 +80,16 @@ void Engine::Application::Init()
 
 	forceSystem->Init(physicsBodySystem);
 
-	// 5. Register MovementSystem
+	// 5. Register JointSystem (creates constraints between entities)
+	jointSystem = coord.RegisterSystem<JointSystem>();
+
+	Signature jointSignature;
+	jointSignature.set(coord.GetComponentType<Joint>(), true);
+	coord.SetSystemSignature<JointSystem>(jointSignature);
+
+	jointSystem->Init(physicsBodySystem);
+
+	// 6. Register MovementSystem
 	movementSystem = coord.RegisterSystem<MovementSystem>();
 
 	Signature movementSignature;
@@ -87,7 +97,7 @@ void Engine::Application::Init()
 	movementSignature.set(coord.GetComponentType<Velocity>(), true);
 	coord.SetSystemSignature<MovementSystem>(movementSignature);
 
-	// 6. Register RenderSystem
+	// 7. Register RenderSystem
 	renderSystem = coord.RegisterSystem<RenderSystem>();
 
 	Signature renderSignature;
@@ -95,7 +105,7 @@ void Engine::Application::Init()
 	renderSignature.set(coord.GetComponentType<MeshRenderer>(), true);
 	coord.SetSystemSignature<RenderSystem>(renderSignature);
 
-	// 7. Register TriggerSystem (for managing trigger events)
+	// 8. Register TriggerSystem (for managing trigger events)
 	triggerSystem = coord.RegisterSystem<TriggerSystem>();
 
 	Signature triggerSignature;
@@ -106,7 +116,7 @@ void Engine::Application::Init()
 
 	triggerSystem->Init(physicsBodySystem);
 
-	// 8. Create a dynamic entity
+	// 9. Create a dynamic entity
 	Entity e = coord.CreateEntity();
 
 	Transform tr;
@@ -140,7 +150,7 @@ void Engine::Application::Init()
 	force.active = true;
 	coord.AddComponent(e, force);
 
-	// 9. Create a trigger entity
+	// 10. Create a trigger entity
 	Entity triggerEntity = coord.CreateEntity();
 
 	Transform triggerTr;
@@ -182,6 +192,45 @@ void Engine::Application::Init()
 	};
 	coord.AddComponent(zone, trig);
 
+	// 11. Example: create two entities linked by a Point2Point joint
+	Entity entityA = coord.CreateEntity();
+	{
+		Transform t;
+		t.position = { -2, 5, 0 };
+		t.scale = { 0.3f, 0.3f, 0.3f };
+		t.rotation = { 0, 0, 0, 1 };
+		coord.AddComponent(entityA, t);
+
+		Collider c;
+		c.shapeType   = ColliderShapeType::Box;
+		c.halfExtents = { 0.3f, 0.3f, 0.3f };
+		c.mass        = 0.0f; // static anchor
+		coord.AddComponent(entityA, c);
+	}
+
+	Entity entityB = coord.CreateEntity();
+	{
+		Transform t;
+		t.position = { -2, 3, 0 };
+		t.scale = { 0.3f, 0.3f, 0.3f };
+		t.rotation = { 0, 0, 0, 1 };
+		coord.AddComponent(entityB, t);
+
+		Collider c;
+		c.shapeType   = ColliderShapeType::Box;
+		c.halfExtents = { 0.3f, 0.3f, 0.3f };
+		c.mass        = 1.0f; // dynamic
+		coord.AddComponent(entityB, c);
+
+		// Joint on entityB, targeting entityA
+		Joint joint;
+		joint.type         = JointType::Point2Point;
+		joint.targetEntity = entityA;
+		joint.pivotA       = { 0.0f, -1.0f, 0.0f }; // bottom of entityA
+		joint.pivotB       = { 0.0f,  1.0f, 0.0f }; // top of entityB
+		coord.AddComponent(entityB, joint);
+	}
+
 	isRunning = true;
 
 	Running();
@@ -206,10 +255,13 @@ void Engine::Application::Running()
 		// 1. ColliderSystem: detect new Collider components → create shapes
 		colliderSystem->Update(coord);
 
-		// 2. ForceSystem: apply pending forces/impulses before stepping the simulation
+		// 2. JointSystem: detect new Joint components → create constraints
+		jointSystem->Update(coord);
+
+		// 3. ForceSystem: apply pending forces/impulses before stepping the simulation
 		forceSystem->Update(coord);
 
-		// 3. PhysicsBodySystem: step simulation + sync transforms
+		// 4. PhysicsBodySystem: step simulation + sync transforms
 		physicsBodySystem->Update(coord, dt);
 		triggerSystem->Update(coord);
 		movementSystem->Update(coord, dt);
@@ -240,6 +292,7 @@ void Engine::Application::Shutdown()
 {
 	std::cout << "Shutting down application...\n";
 
+    jointSystem->Shutdown();
     physicsBodySystem->Shutdown();
 
     window.ShouldClose();
