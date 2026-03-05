@@ -57,6 +57,9 @@ void PhysicsBodySystem::AddRigidBody(Entity entity, Coordinator& coord, float ma
 
     auto rigidBody = std::make_unique<btRigidBody>(rbInfo);
 
+    // Stocker l'entity dans le user index pour identification par le TriggerSystem
+    rigidBody->setUserIndex(static_cast<int>(entity));
+
     m_dynamicsWorld->addRigidBody(rigidBody.get());
 
     BodyData data;
@@ -80,6 +83,19 @@ void PhysicsBodySystem::RemoveRigidBody(Entity entity)
 bool PhysicsBodySystem::HasRigidBody(Entity entity) const
 {
     return m_bodies.find(entity) != m_bodies.end();
+}
+
+btRigidBody* PhysicsBodySystem::GetRigidBody(Entity entity) const
+{
+    auto it = m_bodies.find(entity);
+    if (it != m_bodies.end())
+        return it->second.rigidBody.get();
+    return nullptr;
+}
+
+btDynamicsWorld* PhysicsBodySystem::GetDynamicsWorld() const
+{
+    return m_dynamicsWorld.get();
 }
 
 void PhysicsBodySystem::Update(Coordinator& coord, float dt)

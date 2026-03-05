@@ -48,6 +48,7 @@ void Engine::Application::Init()
 	coord.RegisterComponent<Velocity>();
 	coord.RegisterComponent<MeshRenderer>();
 	coord.RegisterComponent<Collider>();
+	coord.RegisterComponent<Trigger>();
 
 	// 2. Register PhysicsBodySystem (owns the Bullet world + simulation)
 	physicsBodySystem = coord.RegisterSystem<PhysicsBodySystem>();
@@ -84,7 +85,18 @@ void Engine::Application::Init()
 	renderSignature.set(coord.GetComponentType<MeshRenderer>(), true);
 	coord.SetSystemSignature<RenderSystem>(renderSignature);
 
-	// 6. Create a dynamic entity
+	// 6. Register TriggerSystem (for managing trigger events)
+	triggerSystem = coord.RegisterSystem<TriggerSystem>();
+
+	Signature triggerSignature;
+	triggerSignature.set(coord.GetComponentType<Transform>(), true);
+	triggerSignature.set(coord.GetComponentType<Collider>(), true);
+	triggerSignature.set(coord.GetComponentType<Trigger>(), true);
+	coord.SetSystemSignature<TriggerSystem>(triggerSignature);
+
+	triggerSystem->Init(physicsBodySystem);
+
+	// 7. Create a dynamic entity
 	Entity e = coord.CreateEntity();
 
 	Transform tr;
@@ -110,20 +122,47 @@ void Engine::Application::Init()
 	col.mass        = 1.0f;
 	coord.AddComponent(e, col);
 
-	// 7. Create a static ground plane
-	Entity ground = coord.CreateEntity();
+	// 8. Create a trigger entity
+	Entity triggerEntity = coord.CreateEntity();
 
-	Transform groundTr;
-	groundTr.position = { 0, -1, 0 };
-	groundTr.scale = { 10, 0.1f, 10 };
-	groundTr.rotation = { 0, 0, 0, 1 };
-	coord.AddComponent(ground, groundTr);
+	Transform triggerTr;
+	triggerTr.position = { 1, 0, 1 };
+	triggerTr.scale = { 1, 1, 1 };
+	triggerTr.rotation = { 0, 0, 0, 1 };
+	coord.AddComponent(triggerEntity, triggerTr);
 
-	Collider groundCol;
-	groundCol.shapeType   = ColliderShapeType::Box;
-	groundCol.halfExtents = { 10.0f, 0.1f, 10.0f };
-	groundCol.mass        = 0.0f; // statique
-	coord.AddComponent(ground, groundCol);
+	Collider triggerCol;
+	triggerCol.shapeType   = ColliderShapeType::Box;
+	triggerCol.halfExtents = { 1.0f, 1.0f, 1.0f };
+	triggerCol.mass        = 0.0f; // static
+	coord.AddComponent(triggerEntity, triggerCol);
+
+	Trigger trigger;
+	coord.AddComponent(triggerEntity, trigger);
+
+	// Create a zone entity
+	Entity zone = coord.CreateEntity();
+
+	Transform zoneTransform;
+	zoneTransform.position = { 0, 1, 0 };
+	zoneTransform.scale = { 2, 2, 2 };
+	zoneTransform.rotation = { 0, 0, 0, 1 };
+	coord.AddComponent(zone, zoneTransform);
+
+	Collider zoneCollider;
+	zoneCollider.shapeType   = ColliderShapeType::Box;
+	zoneCollider.halfExtents = { 2.0f, 2.0f, 2.0f };
+	zoneCollider.mass        = 0.0f;
+	coord.AddComponent(zone, zoneCollider);
+
+	Trigger trig;
+	trig.onEnter = [](Entity self, Entity other) {
+	    std::cout << "Entity " << other << " entered zone " << self << "\n";
+	};
+	trig.onExit = [](Entity self, Entity other) {
+	    std::cout << "Entity " << other << " left zone " << self << "\n";
+	};
+	coord.AddComponent(zone, trig);
 
 	isRunning = true;
 
@@ -151,7 +190,7 @@ void Engine::Application::Running()
 
 		// 2. PhysicsBodySystem: step simulation + sync transforms
 		physicsBodySystem->Update(coord, dt);
-
+		triggerSystem->Update(coord);
 		movementSystem->Update(coord, dt);
 		renderSystem->Render(coord, renderer);
 

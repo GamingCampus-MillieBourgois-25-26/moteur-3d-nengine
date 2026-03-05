@@ -46,6 +46,12 @@ public:
     // Verifie si une entite a deja un rigid body
     bool HasRigidBody(Entity entity) const;
 
+    // Retourne le pointeur vers le btRigidBody d'une entite (nullptr si absent)
+    btRigidBody* GetRigidBody(Entity entity) const;
+
+    // Retourne le pointeur vers le monde Bullet (nullptr si non initialise)
+    btDynamicsWorld* GetDynamicsWorld() const;
+
 private:
     // Composants du monde Bullet
     std::unique_ptr<btDefaultCollisionConfiguration>     m_collisionConfig;
