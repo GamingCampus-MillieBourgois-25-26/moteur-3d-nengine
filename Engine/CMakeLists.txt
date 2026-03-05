@@ -17,6 +17,7 @@ target_sources(Engine
         src/ECS/Systems/MovementSystem.cpp
         src/ECS/Systems/RenderSystem.cpp
         src/ScriptManager.cpp
+        src/Scene.cpp
 )
 
 target_include_directories(Engine
