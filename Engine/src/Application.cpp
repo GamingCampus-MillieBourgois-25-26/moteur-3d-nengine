@@ -142,10 +142,6 @@ void Engine::Application::Init()
 	mr.indexCount = renderer.GetMesh().indexCount;
 	coord.AddComponent(e, mr);
 
-	Velocity vel;
-	vel.velocity = { 0, 0, 0 };
-	coord.AddComponent(e, vel);
-
 	// Collider → ColliderSystem creates the shape, PhysicsBodySystem gets the rigid body
 	Collider col;
 	col.shapeType   = ColliderShapeType::Box;
@@ -260,6 +256,21 @@ void Engine::Application::Init()
 		cc.gravity       = -9.81f;
 		coord.AddComponent(player, cc);
 	}
+
+	// Ground plane (static)
+	Entity ground = coord.CreateEntity();
+
+	Transform groundTr;
+	groundTr.position = { 0, -1, 0 };
+	groundTr.scale = { 1, 1, 1 };
+	groundTr.rotation = { 0, 0, 0, 1 };
+	coord.AddComponent(ground, groundTr);
+
+	Collider groundCol;
+	groundCol.shapeType   = ColliderShapeType::Box;
+	groundCol.halfExtents = { 50.0f, 1.0f, 50.0f };
+	groundCol.mass        = 0.0f; // static
+	coord.AddComponent(ground, groundCol);
 
 	isRunning = true;
 
