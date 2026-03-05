@@ -10,6 +10,7 @@ public:
     Scene* CreateScene(const std::string& name, Renderer* renderer, ScriptManager* scriptManager);
 
     Scene* GetActiveScene();
+    const Scene* GetActiveScene() const;
 
     void SetActiveScene(const std::string& name);
 

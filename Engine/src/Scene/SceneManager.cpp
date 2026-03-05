@@ -13,6 +13,10 @@ Scene* SceneManager::GetActiveScene()
 {
     return m_activeScene;
 }
+const Scene* SceneManager::GetActiveScene() const
+{
+    return m_activeScene;
+}
 
 void SceneManager::SetActiveScene(const std::string& name)
 {

@@ -10,34 +10,38 @@ namespace fs = std::filesystem;
 
 void Engine::Application::Init()
 {
-    std::cout << "Initializing application...\n";
-
     window.Create(800, 600, "My Application");
     input = CreateGLFWInput(window.GetGLFWwindow());
+
+    // Camera bindings
+    auto camCtx = input->CreateContext();
+    camCtx->BindAxis(GLFW_KEY_W, "MoveForward", 1.f);
+    camCtx->BindAxis(GLFW_KEY_S, "MoveForward", -1.f);
+    camCtx->BindAxis(GLFW_KEY_D, "MoveRight", -1.f);
+    camCtx->BindAxis(GLFW_KEY_A, "MoveRight", 1.f);
+    camCtx->BindAxis(GLFW_KEY_E, "MoveUp", 1.f);
+    camCtx->BindAxis(GLFW_KEY_Q, "MoveUp", -1.f);
+    camCtx->BindAction(GLFW_KEY_SPACE, "LockCamera");
+    input->PushContext(camCtx);
+
     audio.Init();
     audio.LoadBanks();
-    audio.PlayEvent("event:/MSC_EFN");
     loader.loadOBJFile();
 
-    if (!renderer.Initialize(window.GetGLFWwindow(), 800, 600))
-    {
-        std::cout << "Failed to initialize renderer\n";
-        return;
-    }
+    renderer.Initialize(window.GetGLFWwindow(), 800, 600);
 
-    // Créer la scène
     m_sceneManager.CreateScene("MainScene", &renderer, &scriptManager);
     m_sceneManager.SetActiveScene("MainScene");
 
-    // Créer une entité de test
     CreateRenderableEntity();
 
     isRunning = true;
 }
 
+
 void Engine::Application::Update(float dt)
 {
-    Scene* scene = m_sceneManager.GetActiveScene();
+    Scene* scene = m_sceneManager.GetActiveScene();   // ✔ CORRECT
     if (!scene) return;
 
     // ⭐ ÉTAPE 1 : Mettre à jour l'input EN PREMIER
@@ -61,15 +65,17 @@ void Engine::Application::Update(float dt)
             input->MouseDY() * mouseSensitivity
         );
     }
-    else glfwSetInputMode(window.GetGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    else {
+        glfwSetInputMode(window.GetGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    }
 
     // ⭐ ÉTAPE 3 : Mettre à jour la scène
     scene->Update(dt);
 
     // ⭐ ÉTAPE 4 : Rendu avec la caméra mise à jour
     scene->Render();
-
 }
+
 
 void Engine::Application::Shutdown()
 {
@@ -102,10 +108,11 @@ void Engine::Application::Shutdown()
 
 void Engine::Application::SetTransform(::Entity entity, const ::Transform& t)
 {
-    Scene* scene = m_sceneManager.GetActiveScene();
+    Scene* scene = m_sceneManager.GetActiveScene();   // ✔ CORRECT
     if (!scene) return;
     scene->SetTransform(entity, t);
 }
+
 
 // Supprime une entité: la détruit via le coordinator et la retire de la liste utilisée par l'UI
 void Engine::Application::DestroyEntity(::Entity entity)
@@ -120,8 +127,7 @@ void Engine::Application::DestroyEntity(::Entity entity)
     if (it != m_sceneEntities.end())
         m_sceneEntities.erase(it);
 }
-
 const std::vector<Entity>& Engine::Application::GetEntities() const
 {
-    return m_sceneEntities;
+    return m_sceneManager.GetActiveScene()->GetEntities();
 }

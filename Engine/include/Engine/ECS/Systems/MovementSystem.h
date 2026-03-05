@@ -23,8 +23,8 @@ public:
 
     // Vitesses de rotation indépendantes sur chaque axe
     float rotationSpeedX = 0.0f;
-    float rotationSpeedY = 1.0f;
-    float rotationSpeedZ = 1.0f;
+    float rotationSpeedY = 0.0f;
+    float rotationSpeedZ = 0.0f;
 
     // Met à jour toutes les entités compatibles
     void Update(Coordinator& coord, float dt);

@@ -2,10 +2,14 @@
 #include <vector>
 #include <memory>
 #include <string>
+
 #include "Engine/ECS/ECS_Coordinator.h"
 #include "Engine/ECS/Systems/RenderSystem.h"
+#include "Engine/ECS/Systems/MovementSystem.h"
+
 #include "Engine/Renderer.h"
 #include "Engine/ScriptManager.h"
+
 #include "Engine/ECS/Components/Transform.h"
 #include "Engine/ECS/Components/MeshRenderer.h"
 #include "Engine/ECS/Components/Name.h"
@@ -19,7 +23,6 @@ public:
     const std::string& GetName() const { return m_name; }
 
     Entity CreateRenderableEntity();
-
     void DestroyEntity(Entity e);
 
     const std::vector<Entity>& GetEntities() const { return m_entities; }
@@ -34,7 +37,6 @@ public:
     void SetTransform(Entity e, const Transform& t);
 
     void Update(float dt);
-
     void Render();
 
 private:
@@ -46,10 +48,5 @@ private:
     std::vector<Entity> m_entities;
 
     std::shared_ptr<RenderSystem> m_renderSystem;
-
-    Transform tr{};
-    MeshRenderer mr{};
-    Velocity vel{};
-    Name name{};
-    Script script{};
+    std::shared_ptr<MovementSystem> m_movementSystem;
 };
