@@ -2,7 +2,7 @@
 #include <iostream>
 #include <bitset>
 
-constexpr std::uint32_t MAX_ENTITIES = 20;
+constexpr std::uint32_t MAX_ENTITIES = 1000;
 constexpr std::uint32_t MAX_COMPONENTS = 32;
 
 using Entity = std::uint32_t; // pas la peine de faire une classe car on a juste besoin de stocker l'ID. // Entity player = 1; Entity enemy = 2;

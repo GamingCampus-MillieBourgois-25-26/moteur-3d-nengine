@@ -21,7 +21,6 @@ namespace Engine {
 
 	void WindowInstance::Update()
 	{
-		//glfwSwapBuffers(m_window);
 		glfwPollEvents();
 	}
 

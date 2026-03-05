@@ -7,7 +7,6 @@
 
 #include "Window.h"
 #include "AudioSystem.h"
-#include "OBJ/OBJLoader.h"
 #include "Renderer.h"
 #include "ScriptManager.h"
 #include "Input.h"
@@ -16,8 +15,16 @@
 
 #include "ECS/Systems/RenderSystem.h"
 #include "ECS/Systems/MovementSystem.h"
+
+#include "ECS/Systems/PhysicsBodySystem.h"
+#include "ECS/Systems/ColliderSystem.h"
+#include "ECS/Systems/TriggerSystem.h"
+#include "ECS/Systems/ForceSystem.h"
+#include "ECS/Systems/JointSystem.h"
+#include "ECS/Systems/CharacterControllerSystem.h"
 #include "ECS/Components/Transform.h"
 #include "ECS/Components/MeshRenderer.h"
+
 
 #include <chrono>
 #include <filesystem>
@@ -46,7 +53,7 @@ namespace Engine {
         bool getIsRunning() const { return isRunning; }
         void setIsRunning(bool v) { isRunning = v; }
 
-        // ---------- Façade pour le main / éditeur ----------
+        // ---------- FaÃ§ade pour le main / Ã©diteur ----------
 
         Entity CreateRenderableEntity();
         void DestroyEntity(Entity e);
@@ -79,6 +86,19 @@ namespace Engine {
         SceneManager m_sceneManager;
 
         AudioSystem audio;
+
+        WindowInstance window;
+        std::unique_ptr<Input> input;
+        Coordinator coord;
+        std::shared_ptr<RenderSystem> renderSystem;
+        std::shared_ptr<MovementSystem> movementSystem;
+        std::shared_ptr<PhysicsBodySystem> physicsBodySystem;
+		std::shared_ptr<ColliderSystem> colliderSystem;
+		std::shared_ptr<TriggerSystem> triggerSystem;
+		std::shared_ptr<ForceSystem> forceSystem;
+		std::shared_ptr<JointSystem> jointSystem;
+		std::shared_ptr<CharacterControllerSystem> characterControllerSystem;
+
         ScriptManager scriptManager;
         Renderer renderer;
        /* Transform tr;
@@ -88,16 +108,25 @@ namespace Engine {
         Script script;*/
 
         OBJLoader loader;
-        WindowInstance window;
-        std::unique_ptr<Input> input;
+
 
         using clock = std::chrono::high_resolution_clock;
 
         float mouseSensitivity = 0.002f;
         float speed = 0.f;
 
-        // list of entities created via the editor/runtime (keeps ordering for UI)
-        std::vector<::Entity> m_sceneEntities;
+
+    public:
+
+        void Init();
+        void Running();
+        void Shutdown();
+
+        bool getIsRunning() const { return isRunning; }
+        void setIsRunning(bool running) { isRunning = running; }
+            // list of entities created via the editor/runtime (keeps ordering for UI)
+
+      std::vector<::Entity> m_sceneEntities;        
     };
 
 } // namespace Engine

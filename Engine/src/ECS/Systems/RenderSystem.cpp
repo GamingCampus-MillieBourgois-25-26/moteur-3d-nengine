@@ -15,6 +15,9 @@ void RenderSystem::Render(Coordinator & coord, Renderer & renderer)
         // Recuperer MeshRenderer
         auto& mr = coord.GetComponent<MeshRenderer>(entity);
 
+        // Récupérer le material
+        auto& mat = coord.GetComponent<MaterialData>(entity);
+
         //Construire la matrice world
         DirectX::XMMATRIX scaleMat = DirectX::XMMatrixScaling(tr.scale.x, tr.scale.y, tr.scale.z);
         DirectX::XMVECTOR rot = DirectX::XMVectorSet(tr.rotation.x, tr.rotation.y, tr.rotation.z, tr.rotation.w);
@@ -23,6 +26,15 @@ void RenderSystem::Render(Coordinator & coord, Renderer & renderer)
 
         // world = scale * rotation * translation
         DirectX::XMMATRIX world = scaleMat * rotMat * transMat;
+
+        if (mat.diffuse) {
+            renderer.GetContext()->PSSetShaderResources(0, 1, &mat.diffuse);
+        }
+        else {
+            std::wcout << L"[RENDER WARNING] Texture diffuse NULL pour l'entité " << entity << std::endl;
+        }
+
+        renderer.GetContext()->PSSetSamplers(0, 1, &renderer.m_sampler);
 
         // Envoi au renderer
         renderer.DrawMesh(world, mr.vertexBuffer, mr.indexBuffer, mr.indexCount);

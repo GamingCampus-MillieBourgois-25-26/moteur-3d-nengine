@@ -20,6 +20,7 @@ void SystemManager::EntityDestroyed(Entity entity)
     - si oui -> on ajoute l'entité au système
     - sinon -> on la retire
 */
+
 void SystemManager::EntitySignatureChanged(Entity entity, Signature entitySignature)
 {
     for (auto const& pair : mSystems)
