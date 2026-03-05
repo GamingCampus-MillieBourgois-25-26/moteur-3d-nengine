@@ -16,6 +16,7 @@
 #include "ECS/Systems/PhysicsBodySystem.h"
 #include "ECS/Systems/ColliderSystem.h"
 #include "ECS/Systems/TriggerSystem.h"
+#include "ECS/Systems/ForceSystem.h"
 #include <chrono>
 #include <filesystem>
 #include <string>
@@ -41,6 +42,7 @@ namespace Engine {
         std::shared_ptr<PhysicsBodySystem> physicsBodySystem;
 		std::shared_ptr<ColliderSystem> colliderSystem;
 		std::shared_ptr<TriggerSystem> triggerSystem;
+		std::shared_ptr<ForceSystem> forceSystem;
 
         using clock = std::chrono::high_resolution_clock;
 

@@ -49,6 +49,7 @@ void Engine::Application::Init()
 	coord.RegisterComponent<MeshRenderer>();
 	coord.RegisterComponent<Collider>();
 	coord.RegisterComponent<Trigger>();
+	coord.RegisterComponent<Force>();
 
 	// 2. Register PhysicsBodySystem (owns the Bullet world + simulation)
 	physicsBodySystem = coord.RegisterSystem<PhysicsBodySystem>();
@@ -69,7 +70,16 @@ void Engine::Application::Init()
 
 	colliderSystem->Init(physicsBodySystem);
 
-	// 4. Register MovementSystem
+	// 4. Register ForceSystem (applies forces/impulses → delegates to PhysicsBodySystem)
+	forceSystem = coord.RegisterSystem<ForceSystem>();
+
+	Signature forceSignature;
+	forceSignature.set(coord.GetComponentType<Force>(), true);
+	coord.SetSystemSignature<ForceSystem>(forceSignature);
+
+	forceSystem->Init(physicsBodySystem);
+
+	// 5. Register MovementSystem
 	movementSystem = coord.RegisterSystem<MovementSystem>();
 
 	Signature movementSignature;
@@ -77,7 +87,7 @@ void Engine::Application::Init()
 	movementSignature.set(coord.GetComponentType<Velocity>(), true);
 	coord.SetSystemSignature<MovementSystem>(movementSignature);
 
-	// 5. Register RenderSystem
+	// 6. Register RenderSystem
 	renderSystem = coord.RegisterSystem<RenderSystem>();
 
 	Signature renderSignature;
@@ -85,7 +95,7 @@ void Engine::Application::Init()
 	renderSignature.set(coord.GetComponentType<MeshRenderer>(), true);
 	coord.SetSystemSignature<RenderSystem>(renderSignature);
 
-	// 6. Register TriggerSystem (for managing trigger events)
+	// 7. Register TriggerSystem (for managing trigger events)
 	triggerSystem = coord.RegisterSystem<TriggerSystem>();
 
 	Signature triggerSignature;
@@ -96,7 +106,7 @@ void Engine::Application::Init()
 
 	triggerSystem->Init(physicsBodySystem);
 
-	// 7. Create a dynamic entity
+	// 8. Create a dynamic entity
 	Entity e = coord.CreateEntity();
 
 	Transform tr;
@@ -122,7 +132,15 @@ void Engine::Application::Init()
 	col.mass        = 1.0f;
 	coord.AddComponent(e, col);
 
-	// 8. Create a trigger entity
+	// Force → ForceSystem applies forces/impulses on the rigid body
+	Force force;
+	force.force  = { 0.0f, 5.0f, 0.0f }; // Example: upward impulse
+	force.torque = { 0.0f, 0.0f, 0.0f };
+	force.mode   = ForceMode::Impulse;
+	force.active = true;
+	coord.AddComponent(e, force);
+
+	// 9. Create a trigger entity
 	Entity triggerEntity = coord.CreateEntity();
 
 	Transform triggerTr;
@@ -188,7 +206,10 @@ void Engine::Application::Running()
 		// 1. ColliderSystem: detect new Collider components → create shapes
 		colliderSystem->Update(coord);
 
-		// 2. PhysicsBodySystem: step simulation + sync transforms
+		// 2. ForceSystem: apply pending forces/impulses before stepping the simulation
+		forceSystem->Update(coord);
+
+		// 3. PhysicsBodySystem: step simulation + sync transforms
 		physicsBodySystem->Update(coord, dt);
 		triggerSystem->Update(coord);
 		movementSystem->Update(coord, dt);
