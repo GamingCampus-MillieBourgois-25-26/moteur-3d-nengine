@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include <memory>
 #include <cstdint>
 #include <bitset>
@@ -16,12 +16,12 @@
 /*
     Coordinator
     -----------
-    C’est la façade principale de l’ECS.
+    Câ€™est la faÃ§ade principale de lâ€™ECS.
 
     Il regroupe :
-    - EntityManager      -> création/destruction d'entités
-    - ComponentManager   -> ajout/retrait/accès aux composants
-    - SystemManager      -> enregistrement des systèmes + signatures
+    - EntityManager      -> crÃ©ation/destruction d'entitÃ©s
+    - ComponentManager   -> ajout/retrait/accÃ¨s aux composants
+    - SystemManager      -> enregistrement des systÃ¨mes + signatures
 
     Le Coordinator fournit une API simple :
     - CreateEntity()
@@ -29,7 +29,7 @@
     - RegisterSystem<T>()
     - SetSystemSignature<T>()
 
-    C’est l’interface que le moteur utilise au quotidien.
+    Câ€™est lâ€™interface que le moteur utilise au quotidien.
 */
 
 class Coordinator
@@ -40,22 +40,22 @@ public:
     std::unique_ptr<ComponentManager> mComponentManager;
     std::unique_ptr<EntityManager> mEntityManager;
     std::unique_ptr<SystemManager> mSystemManager;
-
+    
     // Initialise les managers
     void Init();
 
-    // Création / destruction d'entités
+    // CrÃ©ation / destruction d'entitÃ©s
     Entity CreateEntity();
     void DestroyEntity(Entity entity);
 
-    // Enregistrement d’un type de composant
+    // Enregistrement dâ€™un type de composant
     template<typename T>
     void RegisterComponent()
     {
         mComponentManager->RegisterComponent<T>();
     }
 
-    // Ajout d’un composant à une entité
+    // Ajout dâ€™un composant Ã  une entitÃ©
     template<typename T>
     void AddComponent(Entity entity, T component)
     {
@@ -64,53 +64,53 @@ public:
         // 1. Ajouter le composant dans ComponentManager
         mComponentManager->AddComponent<T>(entity, component);
 
-        // 2. Mettre à jour la signature de l'entité
+        // 2. Mettre Ã  jour la signature de l'entitÃ©
         auto signature = mEntityManager->GetSignature(entity);
         signature.set(mComponentManager->GetComponentType<T>(), true);
         mEntityManager->SetSignature(entity, signature);
 
-        // 3. Informer les systèmes que la signature a changé
+        // 3. Informer les systÃ¨mes que la signature a changÃ©
         mSystemManager->EntitySignatureChanged(entity, signature);
     }
 
-    // Retrait d’un composant
+    // Retrait dâ€™un composant
     template<typename T>
     void RemoveComponent(Entity entity)
     {
         // 1. Retirer le composant
         mComponentManager->RemoveComponent<T>(entity);
 
-        // 2. Mettre à jour la signature 
+        // 2. Mettre Ã  jour la signature 
         auto signature = mEntityManager->GetSignature(entity);
         signature.set(mComponentManager->GetComponentType<T>(), false);
         mEntityManager->SetSignature(entity, signature);
 
-        // 3. Informer les systèmes 
+        // 3. Informer les systÃ¨mes 
         mSystemManager->EntitySignatureChanged(entity, signature);
     }
 
-    // Accès à un composant
+    // AccÃ¨s Ã  un composant
     template<typename T>
     T& GetComponent(Entity entity)
     {
         return mComponentManager->GetComponent<T>(entity);
     }
 
-    // Récupère l’ID d’un type de composant
+    // RÃ©cupÃ¨re lâ€™ID dâ€™un type de composant
     template<typename T>
     ComponentType GetComponentType()
     {
         return mComponentManager->GetComponentType<T>();
     }
 
-    // Enregistre un système
+    // Enregistre un systÃ¨me
     template<typename T>
     std::shared_ptr<T> RegisterSystem()
     {
         return mSystemManager->RegisterSystem<T>();
     }
 
-    // Associe une signature à un système
+    // Associe une signature Ã  un systÃ¨me
     template<typename T>
     void SetSystemSignature(Signature signature)
     {
