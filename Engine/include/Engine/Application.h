@@ -10,8 +10,10 @@
 #include "OBJ/OBJLoader.h"
 #include "Renderer.h"
 #include "ScriptManager.h"
-
 #include "Input.h"
+
+#include "Engine/Scene/SceneManager.h"
+
 #include "ECS/Systems/RenderSystem.h"
 #include "ECS/Systems/MovementSystem.h"
 #include "ECS/Components/Transform.h"
@@ -22,20 +24,73 @@
 #include <string>
 #include <vector>
 
+
+
+
+
 namespace Engine {
 
     class Application
     {
-    private:
-        bool isRunning = false;
+    public:
+        Application() {};
+        ~Application() {};
 
+        void Init();
+        void Update(float dt);
+        void Shutdown();
+
+        Renderer& GetRenderer() { return renderer; }
+        WindowInstance& GetWindow() { return window; }
+
+        bool getIsRunning() const { return isRunning; }
+        void setIsRunning(bool v) { isRunning = v; }
+
+        // ---------- Façade pour le main / éditeur ----------
+
+        Entity CreateRenderableEntity();
+        void DestroyEntity(Entity e);
+
+        const std::vector<Entity>& GetEntities() const;
+
+        template<typename T>
+        void AddComponent(Entity e, const T& c)
+        {
+            Scene* scene = m_sceneManager.GetActiveScene();
+            if (scene)
+                scene->AddComponent<T>(e, c);
+        }
+
+        template<typename T>
+        T GetComponent(Entity e)
+        {
+            Scene* scene = m_sceneManager.GetActiveScene();
+            // copie par valeur pour rester simple
+            return scene->GetComponent<T>(e);
+        }
+
+        Transform GetTransform(Entity e);
+        void SetTransform(Entity e, const Transform& t);
+
+    private:
+        bool isRunning = true;
+
+
+        SceneManager m_sceneManager;
+
+        AudioSystem audio;
         ScriptManager scriptManager;
         Renderer renderer;
-        AudioSystem audio;
+        Transform tr;
+        MeshRenderer mr;
+        Velocity vel;
+        Name name;
+        Script script;
+
         OBJLoader loader;
         WindowInstance window;
         std::unique_ptr<Input> input;
-        // ECS 
+
 
         Coordinator coord;
         std::shared_ptr<RenderSystem> renderSystem;
@@ -48,56 +103,6 @@ namespace Engine {
 
         // list of entities created via the editor/runtime (keeps ordering for UI)
         std::vector<::Entity> m_sceneEntities;
-
-    public:
-
-        // Initialise le moteur (n'entre plus dans la boucle)
-        void Init();
-
-        // Exécute une itération (appelé par l'exécutable qui gère ImGui)
-        void Update(float dt);
-
-        void Shutdown();
-
-
-        bool getIsRunning() const { return isRunning; }
-        void setIsRunning(bool running) { isRunning = running; }
-
-        template<typename T>
-        void AddComponent(Entity e, const T& component)
-        {
-            coord.AddComponent<T>(e, component);
-        }
-
-        template<typename T>
-        T& GetComponent(Entity e)
-        {
-            return coord.GetComponent<T>(e);
-        }
-
-        ScriptManager& GetScriptManager()
-        {
-            return scriptManager;
-        }
-
-
-        // Accesseurs pour l'éditeur / ImGui
-        WindowInstance& GetWindow() { return window; }
-        Renderer& GetRenderer() { return renderer; }
-        Input* GetInput() const { return input.get(); }
-
-        // --- Editor-friendly ECS helpers ---
-        // Crée une entité, lui ajoute Transform + MeshRenderer (utilise le mesh courant du renderer)
-        ::Entity CreateRenderableEntity();
-
-        // Retourne la liste des entités créées (par l'éditeur / runtime)
-        const std::vector<::Entity>& GetEntities() const { return m_sceneEntities; }
-
-        // Get / Set Transform for an entity (copies)
-        ::Transform GetTransform(::Entity entity);
-        void SetTransform(::Entity entity, const ::Transform& t);
-
-        // Supprime une entité créée via l'éditeur/runtime (retire aussi de la liste pour l'UI)
-        void DestroyEntity(::Entity entity);
     };
-}
+
+} // namespace Engine

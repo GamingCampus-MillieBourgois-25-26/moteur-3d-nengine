@@ -66,9 +66,6 @@ static void GenerateEntityFiles(const std::string& name)
     }
 }
 
-// ------------------------------------------------------------
-// MAIN
-// ------------------------------------------------------------
 int main()
 {
     Engine::Application app;
@@ -146,11 +143,7 @@ int main()
             scriptComp.instance = nullptr;
             app.AddComponent<Script>(e, scriptComp);
 
-            // 4) Générer les fichiers
             GenerateEntityFiles(className);
-
-            // 5) Enregistrer le script dans ScriptManager
-            // (Le script sera instancié automatiquement dans Application::Update)
 
             // 6) Sélection
             selectedEntities.clear();

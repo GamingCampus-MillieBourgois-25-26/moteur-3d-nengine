@@ -17,7 +17,9 @@ target_sources(Engine
         src/ECS/Systems/MovementSystem.cpp
         src/ECS/Systems/RenderSystem.cpp
         src/ScriptManager.cpp
-        src/Scene.cpp
+        src/Scene/Scene.cpp
+        src/Scene/SceneManager.cpp
+        
 )
 
 target_include_directories(Engine
@@ -26,10 +28,8 @@ target_include_directories(Engine
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CMAKE_CURRENT_SOURCE_DIR}/Assets/FMOD/api/core/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/Assets/FMOD/api/studio/inc
-    ${CMAKE_CURRENT_SOURCE_DIR}/Assets/Shaders
-    ${CMAKE_CURRENT_SOURCE_DIR}/Assets/Audio
-	${CMAKE_CURRENT_SOURCE_DIR}/Assets/OBJ
-    ${CMAKE_CURRENT_SOURCE_DIR}/Assets/FMOD
+    ${CMAKE_CURRENT_SOURCE_DIR}/Assets/
+
 )
 add_custom_target(copy_assets ALL
     COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/Editor/Audio"
