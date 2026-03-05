@@ -98,28 +98,26 @@ void Engine::Application::Init()
 	vel.velocity = { 0, 0, 0 };
 	coord.AddComponent(e, vel);
 
-
     m_sceneManager.CreateScene("MainScene", &renderer, &scriptManager);
     m_sceneManager.SetActiveScene("MainScene");
 
     CreateRenderableEntity();
 
     isRunning = true;
-	Running();
 }
 
 
 void Engine::Application::Update(float dt)
 {
-    Scene* scene = m_sceneManager.GetActiveScene();   // ✔ CORRECT
+    Scene* scene = m_sceneManager.GetActiveScene();   // CORRECT
     if (!scene) return;
 
-    // ⭐ ÉTAPE 1 : Mettre à jour l'input EN PREMIER
+    // ÉTAPE 1 : Mettre à jour l'input EN PREMIER
     input->Update();
     window.Update();
     audio.Update();
 
-    // ⭐ ÉTAPE 2 : Traiter les inputs (caméra)
+    // ÉTAPE 2 : Traiter les inputs (caméra)
     speed = 2.0f * dt;
 
     renderer.MoveCamera(
@@ -139,9 +137,9 @@ void Engine::Application::Update(float dt)
         glfwSetInputMode(window.GetGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     }
 
-    // ⭐ ÉTAPE 3 : Mettre à jour la scène
+    // ÉTAPE 3 : Mettre à jour la scène
     scene->Update(dt);
-	// ⭐ ÉTAPE 4 : Rendu avec la caméra mise à jour
+	// ÉTAPE 4 : Rendu avec la caméra mise à jour
 	scene->Render();
 }
 

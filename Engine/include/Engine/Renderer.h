@@ -88,6 +88,9 @@ public:
     ID3D11ShaderResourceView* CreateTextureFromFile(const std::wstring& path);
     ID3D11SamplerState* m_sampler = nullptr;
 
+    OBJResult m_objresult;
+
     ID3D11Device* GetDevice() const { return m_device; }
     ID3D11DeviceContext* GetContext() const { return m_context; } // ajouté pour ImGui DX11
+    const OBJResult& GetMesh() const { return  m_objresult; }
 };

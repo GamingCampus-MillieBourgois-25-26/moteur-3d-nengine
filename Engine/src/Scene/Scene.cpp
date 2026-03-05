@@ -43,11 +43,11 @@ Entity Scene::CreateRenderableEntity()
     t.rotation = { 0,0,0,1 };
     m_coordinator.AddComponent<Transform>(e, t);
 
-    // MeshRenderer
-    MeshRenderer mr{};
-    mr.vertexBuffer = m_renderer->GetMesh().vertexBuffer;
-    mr.indexBuffer = m_renderer->GetMesh().indexBuffer;
-    mr.indexCount = m_renderer->GetMesh().indexCount;
+    // Chargement du modele .obj
+    OBJResult obj = LoadOBJ("OBJ/SpinCat.obj");
+
+    // Création des buffers GPU
+    MeshRenderer mr = m_renderer->CreateMeshRenderer(obj.mesh);
     m_coordinator.AddComponent<MeshRenderer>(e, mr);
 
     // Name

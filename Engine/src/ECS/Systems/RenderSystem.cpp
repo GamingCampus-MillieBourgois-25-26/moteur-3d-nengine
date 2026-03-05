@@ -15,7 +15,7 @@ void RenderSystem::Render(Coordinator & coord, Renderer & renderer)
         // Recuperer MeshRenderer
         auto& mr = coord.GetComponent<MeshRenderer>(entity);
 
-        // Récupérer le material
+        // Rï¿½cupï¿½rer le material
         auto& mat = coord.GetComponent<MaterialData>(entity);
 
         //Construire la matrice world
@@ -31,7 +31,7 @@ void RenderSystem::Render(Coordinator & coord, Renderer & renderer)
             renderer.GetContext()->PSSetShaderResources(0, 1, &mat.diffuse);
         }
         else {
-            std::wcout << L"[RENDER WARNING] Texture diffuse NULL pour l'entité " << entity << std::endl;
+            std::wcout << L"[RENDER WARNING] Texture diffuse NULL pour l'entite " << entity << std::endl;
         }
 
         renderer.GetContext()->PSSetSamplers(0, 1, &renderer.m_sampler);

@@ -12,34 +12,52 @@
 #include "Input.h"
 
 #include "Engine/Scene/SceneManager.h"
-#include "Engine/ECS/Coordinator.h"
+#include "Engine/ECS/ECS_Coordinator.h"
 
 #include <chrono>
 #include <filesystem>
 #include <string>
 #include <vector>
 
-
-
-
-
 namespace Engine {
 
     class Application
     {
+    private:
+        bool isRunning = true;
+
+
+        SceneManager m_sceneManager;
+
+        AudioSystem audio;
+        WindowInstance window;
+        Coordinator coord;
+        std::unique_ptr<Input> input;
+        std::shared_ptr<RenderSystem> renderSystem;
+        std::shared_ptr<MovementSystem> movementSystem;
+        ScriptManager scriptManager;
+        Renderer renderer;
+
+
+        using clock = std::chrono::high_resolution_clock;
+
+        float mouseSensitivity = 0.002f;
+        float speed = 0.f;
+
     public:
         Application() {};
         ~Application() {};
 
         void Init();
         void Update(float dt);
+        void Running();
         void Shutdown();
 
         Renderer& GetRenderer() { return renderer; }
         WindowInstance& GetWindow() { return window; }
 
         bool getIsRunning() const { return isRunning; }
-        void setIsRunning(bool v) { isRunning = v; }
+        void setIsRunning(bool running) { isRunning = running; }
 
         // ---------- Façade pour le main / éditeur ----------
 
@@ -66,36 +84,6 @@ namespace Engine {
 
         Transform GetTransform(Entity e);
         void SetTransform(Entity e, const Transform& t);
-
-    private:
-        bool isRunning = true;
-
-
-        SceneManager m_sceneManager;
-
-        AudioSystem audio;
-        WindowInstance window;
-        Coordinator coord;
-        std::unique_ptr<Input> input;
-        std::shared_ptr<RenderSystem> renderSystem;
-        std::shared_ptr<MovementSystem> movementSystem;
-        ScriptManager scriptManager;
-        Renderer renderer;
-
-
-        using clock = std::chrono::high_resolution_clock;
-
-        float mouseSensitivity = 0.002f;
-        float speed = 0.f;
-
-    public:
-
-        void Init();
-        void Running();
-        void Shutdown();
-
-        bool getIsRunning() const { return isRunning; }
-        void setIsRunning(bool running) { isRunning = running; }
 
         // list of entities created via the editor/runtime (keeps ordering for UI)
         std::vector<::Entity> m_sceneEntities;

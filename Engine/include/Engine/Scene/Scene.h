@@ -14,6 +14,7 @@
 #include "Engine/ECS/Components/MeshRenderer.h"
 #include "Engine/ECS/Components/Name.h"
 #include "Engine/ECS/Components/Script.h"
+#include "Engine/OBJ/NewOBJLoader.h"
 
 class Scene
 {
@@ -40,6 +41,7 @@ public:
     void Render();
 
 private:
+    
     std::string m_name;
     Renderer* m_renderer = nullptr;
     ScriptManager* m_scriptManager = nullptr;
