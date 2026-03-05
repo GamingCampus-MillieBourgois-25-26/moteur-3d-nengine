@@ -9,10 +9,8 @@ target_sources(Engine
         src/Window.cpp
         src/Input.cpp 
 	    src/AudioSystem.cpp
-        src/OBJ/OBJLoader.cpp
         src/OBJ/NewOBJLoader.cpp
         src/OBJ/tiny_obj_loader.cc
-        src/OBJ/WICTextureLoaderCustom.cpp
         src/OBJ/WICTextureLoader.cpp
         src/ECS/ECS_Component.cpp
         src/ECS/ECS_Coordinator.cpp

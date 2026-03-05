@@ -14,8 +14,8 @@ void Engine::Application::Init()
 
     window.Create(800, 600, "My Application");
 
-	input = CreateGLFWInput(window.GetGLFWwindow());
 	// Créer l'input avec le backend GLFW
+	input = CreateGLFWInput(window.GetGLFWwindow());
 
 	// Créer le contexte caméra
 	auto camCtx = input->CreateContext();
@@ -31,7 +31,6 @@ void Engine::Application::Init()
 	audio.Init();
 	audio.LoadBanks();
 	audio.PlayEvent("event:/MSC_OIIA");
-	//loader.loadOBJFile();
 
     if (!renderer.Initialize(window.GetGLFWwindow(), 800, 600))
     {
@@ -137,7 +136,7 @@ void Engine::Application::Running()
 			input->Axis("MoveUp") * speed,
 			input->Axis("MoveForward") * speed
 		);
-		//std::cout << input->Action("LockCamera") << std::endl;
+
 		if (input->Action("LockCamera")) {
 			glfwSetInputMode(window.GetGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 			renderer.RotateCamera(
