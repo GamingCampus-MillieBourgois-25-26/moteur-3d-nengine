@@ -45,6 +45,15 @@ void Engine::Application::Init()
 	// Enregistrer le MovementSystem
 	movementSystem = coord.RegisterSystem<MovementSystem>();
 
+    glfwSetWindowUserPointer(window.GetGLFWwindow(), &renderer);
+
+    glfwSetFramebufferSizeCallback(window.GetGLFWwindow(),
+        [](GLFWwindow* win, int w, int h) {
+            auto* r = static_cast<Renderer*>(glfwGetWindowUserPointer(win));
+            if (r) r->OnResize(w, h);
+        });
+    // ECS
+
 	Signature movementSignature;
 	movementSignature.set(coord.GetComponentType<Transform>(), true);
 	movementSignature.set(coord.GetComponentType<Velocity>(), true);

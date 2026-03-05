@@ -150,7 +150,42 @@ bool Renderer::CreateRenderTargets(int width, int height)
 
     return true;
 }
+void Renderer::OnResize(int newWidth, int newHeight)
+{
+    if (!m_swapChain || newWidth == 0 || newHeight == 0) return;
 
+    m_width = newWidth;
+    m_height = newHeight;
+
+    // 1. Unbind render targets
+    m_context->OMSetRenderTargets(0, nullptr, nullptr);
+
+    // 2. Release old render targets
+    if (m_renderTargetView) { m_renderTargetView->Release();  m_renderTargetView = nullptr; }
+    if (m_depthStencilView) { m_depthStencilView->Release();  m_depthStencilView = nullptr; }
+    if (m_depthStencilBuffer) { m_depthStencilBuffer->Release(); m_depthStencilBuffer = nullptr; }
+
+    m_context->Flush();
+
+    // 3. Resize swap chain
+    HRESULT hr = m_swapChain->ResizeBuffers(0, newWidth, newHeight,
+        DXGI_FORMAT_UNKNOWN, 0);
+    if (FAILED(hr)) { std::cout << "ResizeBuffers failed\n"; return; }
+
+    // 4. Recreate render targets
+    CreateRenderTargets(newWidth, newHeight);
+
+    // 5. Update viewport
+    D3D11_VIEWPORT vp{};
+    vp.Width = static_cast<float>(newWidth);
+    vp.Height = static_cast<float>(newHeight);
+    vp.MinDepth = 0.0f;
+    vp.MaxDepth = 1.0f;
+    m_context->RSSetViewports(1, &vp);
+
+    // 6. Update camera aspect ratio
+    m_camera.aspect = static_cast<float>(newWidth) / static_cast<float>(newHeight);
+}
 bool Renderer::LoadShadersFromFiles(const std::wstring& vsPath, const std::wstring& psPath)
 {
     std::wcout << L"Trying to load VS: " << vsPath << std::endl;
@@ -337,8 +372,8 @@ void Renderer::DrawMesh(const XMMATRIX& world,
     XMMATRIX proj = XMMatrixPerspectiveFovLH(m_camera.fov, m_camera.aspect, m_camera.nearZ, m_camera.farZ);
 
     // Mettre à jour le constant buffer
-    m_cbData.world = XMMatrixTranspose(world); 
-    m_cbData.view = XMMatrixTranspose(view); 
+    m_cbData.world = XMMatrixTranspose(world);
+    m_cbData.view = XMMatrixTranspose(view);
     m_cbData.proj = XMMatrixTranspose(proj);
 
     m_context->UpdateSubresource(m_constantBuffer, 0, nullptr, &m_cbData, 0, 0);
