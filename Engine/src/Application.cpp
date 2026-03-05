@@ -14,8 +14,8 @@ void Engine::Application::Init()
 
     window.Create(800, 600, "My Application");
 
-	input = CreateGLFWInput(window.GetGLFWwindow());
 	// Créer l'input avec le backend GLFW
+	input = CreateGLFWInput(window.GetGLFWwindow());
 
 	// Créer le contexte caméra
 	auto camCtx = input->CreateContext();
@@ -30,8 +30,7 @@ void Engine::Application::Init()
   
 	audio.Init();
 	audio.LoadBanks();
-	audio.PlayEvent("event:/MSC_EFN");
-	//loader.loadOBJFile();
+	audio.PlayEvent("event:/MSC_OIIA");
 
     if (!renderer.Initialize(window.GetGLFWwindow(), 800, 600))
     {
@@ -47,6 +46,7 @@ void Engine::Application::Init()
 	coord.RegisterComponent<Transform>();
 	coord.RegisterComponent<Velocity>();
 	coord.RegisterComponent<MeshRenderer>();
+	coord.RegisterComponent<MaterialData>();
 
 	// Enregistrer le MovementSystem
 	movementSystem = coord.RegisterSystem<MovementSystem>();
@@ -64,6 +64,7 @@ void Engine::Application::Init()
 	Signature renderSignature;
 	renderSignature.set(coord.GetComponentType<Transform>(), true);
 	renderSignature.set(coord.GetComponentType<MeshRenderer>(), true);
+	renderSignature.set(coord.GetComponentType<MaterialData>(), true);
 
 	coord.SetSystemSignature<RenderSystem>(renderSignature);
 
@@ -74,35 +75,34 @@ void Engine::Application::Init()
 	Transform tr;
 	tr.position = { 0, 0, 0 };
 	tr.scale = { 0.5, 0.5, 0.5 };
-	tr.rotation = { 0, 0, 0, 1 }; // quaternion
+	tr.rotation = { 0, 0, 180, 1 }; // quaternion
 	coord.AddComponent(e, tr);
 
-	// 6. Add MeshRenderer
-	MeshData meshData = LoadOBJ("OBJ/TestMoteurOBJ.obj");
+	// Chargement du modele .obj
+	OBJResult obj = LoadOBJ("OBJ/SpinCat.obj");
 
-	// 7. Créer les buffers GPU via le Renderer
-	MeshRenderer mr = renderer.CreateMeshRenderer(meshData);
+	// Création des buffers GPU
+	MeshRenderer mr = renderer.CreateMeshRenderer(obj.mesh);
 
-	// 8. Ajouter le MeshRenderer à l'entité
+	// Ajout du MeshRender à l'entité pour le RenderSystem
 	coord.AddComponent(e, mr);
+	
+	// Charger la texture diffuse automatiquement
+	MaterialData mat;
 
+	mat.diffuse = renderer.CreateTextureFromFile(
+		L"OBJ/" + std::wstring(obj.material.diffuseTexName.begin(), obj.material.diffuseTexName.end())
+	);
 
-	// 9. Add Velocity
+	if (!mat.diffuse) std::cout << "Erreur : texture introuvable." << std::endl;
+
+	// Ajouter le composant Material
+	coord.AddComponent(e, mat);
+	
+	// 10. Add Velocity
 	Velocity vel;
 	vel.velocity = { 0, 0, 0 };
 	coord.AddComponent(e, vel);
-
-	/*for (int i = 0; i < 1; i++)
-	{
-		Entity e = coord.CreateEntity();
-
-		Transform tr;
-		tr.position = { float(i + 1), 0, 0 };
-		tr.scale = { 0.2, 0.2, 0.2 };
-		tr.rotation = { 0, 0, 0, 1 };
-		coord.AddComponent(e, tr);
-		coord.AddComponent(e, mr);
-	}*/
 
 	isRunning = true;
 
@@ -136,7 +136,7 @@ void Engine::Application::Running()
 			input->Axis("MoveUp") * speed,
 			input->Axis("MoveForward") * speed
 		);
-		//std::cout << input->Action("LockCamera") << std::endl;
+
 		if (input->Action("LockCamera")) {
 			glfwSetInputMode(window.GetGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 			renderer.RotateCamera(

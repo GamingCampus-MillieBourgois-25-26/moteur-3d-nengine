@@ -25,13 +25,13 @@ struct VertexEq {
     }
 };
 
-MeshData LoadOBJ(const std::string& path) {
+OBJResult LoadOBJ(const std::string& path) {
     // Lecteur tinyobjloader
     tinyobj::ObjReader reader;
     tinyobj::ObjReaderConfig config;
 
     // Où chercher les fichiers .mtl (matériaux)
-    config.mtl_search_path = "./"; 
+    config.mtl_search_path = ""; // test avec chemin du game (pas de chemin car on pop direct dans le dossier voulu) !
 
     // Parse du fichier .obj
     if (!reader.ParseFromFile(path, config)) {
@@ -50,9 +50,29 @@ MeshData LoadOBJ(const std::string& path) {
     // Shapes : chaque shape contient des indices vers ces attributs
     const auto& shapes = reader.GetShapes();
 
-    // Matériaux (non utilisés ici, mais disponibles) 
-    //const auto& materials = reader.GetMaterials();
+    // Matériaux 
+    const auto& mats = reader.GetMaterials();
 
+    // Matériaux CPU
+    MaterialCPU material;
+    if (!mats.empty()) {
+        material.diffuseTexName = mats[0].diffuse_texname;
+        // Nettoyage du chemin : on garde uniquement le nom du fichier
+        std::string& tex = material.diffuseTexName;
+
+        // Supprimer les guillemets éventuels
+        if (!tex.empty() && (tex.front() == '"' || tex.front() == '\''))
+            tex.erase(0, 1);
+        if (!tex.empty() && (tex.back() == '"' || tex.back() == '\''))
+            tex.pop_back();
+
+        // Extraire uniquement le nom du fichier (supprime les dossiers)
+        size_t pos = tex.find_last_of("/\\");
+        if (pos != std::string::npos)
+            tex = tex.substr(pos + 1);
+    }
+
+    // Mesh final
     MeshData mesh;
 
     // Map pour éviter les doublons de vertices 
@@ -116,5 +136,9 @@ MeshData LoadOBJ(const std::string& path) {
         }
     }
 
-    return mesh;
+    // Retour final
+    OBJResult result;
+    result.mesh = mesh;
+    result.material = material;
+    return result;
 }
