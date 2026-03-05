@@ -1,12 +1,12 @@
-#include "Engine/ECS/Systems/RenderSystem.h"
+ï»¿#include "Engine/ECS/Systems/RenderSystem.h"
 #include <DirectXMath.h>
 
-void RenderSystem::Render(Coordinator& coord, Renderer& renderer)
+void RenderSystem::Render(Coordinator & coord, Renderer & renderer)
 {
     // Nettoyage du frame buffer
     renderer.BeginFrame();
 
-    // mEntities contient toutes les entités ayant Transform + MeshRenderer
+    // mEntities contient toutes les entitï¿½s ayant Transform + MeshRenderer
     for (auto entity : mEntities)
     {
         // Recuperer Transform 
@@ -15,7 +15,7 @@ void RenderSystem::Render(Coordinator& coord, Renderer& renderer)
         // Recuperer MeshRenderer
         auto& mr = coord.GetComponent<MeshRenderer>(entity);
 
-        // Récupérer le material
+        // Rï¿½cupï¿½rer le material
         auto& mat = coord.GetComponent<MaterialData>(entity);
 
         //Construire la matrice world
@@ -31,7 +31,7 @@ void RenderSystem::Render(Coordinator& coord, Renderer& renderer)
             renderer.GetContext()->PSSetShaderResources(0, 1, &mat.diffuse);
         }
         else {
-            std::wcout << L"[RENDER WARNING] Texture diffuse NULL pour l'entité " << entity << std::endl;
+            std::wcout << L"[RENDER WARNING] Texture diffuse NULL pour l'entite " << entity << std::endl;
         }
 
         renderer.GetContext()->PSSetSamplers(0, 1, &renderer.m_sampler);
@@ -40,6 +40,5 @@ void RenderSystem::Render(Coordinator& coord, Renderer& renderer)
         renderer.DrawMesh(world, mr.vertexBuffer, mr.indexBuffer, mr.indexCount);
     }
 
-    // Présentation à l'écran
-    renderer.EndFrame();
+    // Ne pas appeler EndFrame ici : l'exÃ©cutable (qui gÃ¨re ImGui) fera la prÃ©sentation aprÃ¨s avoir rendu l'UI.
 }

@@ -29,14 +29,14 @@ set(BUILD_BULLET2_DEMOS OFF CACHE BOOL "" FORCE)
 set(BUILD_CPU_DEMOS OFF CACHE BOOL "" FORCE)
 set(BUILD_OPENGL3_DEMOS OFF CACHE BOOL "" FORCE)
 set(BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
-set(BUILD_EXTRAS OFF CACHE BOOL "" FORCE) 
+set(BUILD_EXTRAS OFF CACHE BOOL "" FORCE)
 set(USE_MSVC_RUNTIME_LIBRARY_DLL ON CACHE BOOL "" FORCE)
+
+# Fix: Bullet3 3.25 uses cmake_minimum_required < 3.5, incompatible with CMake 3.30+
+set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
 
 FetchContent_MakeAvailable(bullet3)
 
 add_subdirectory(Engine)
 add_subdirectory(Game)
 add_subdirectory(Editor)
-
-
-

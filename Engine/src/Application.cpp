@@ -10,11 +10,8 @@ namespace fs = std::filesystem;
 
 void Engine::Application::Init()
 {
-	std::cout << "Initializing application...\n";
+    window.Create(800, 600, "My Application");
 
-	window.Create(800, 600, "My Application");
-
-	// Créer l'input avec le backend GLFW
 	input = CreateGLFWInput(window.GetGLFWwindow());
 
 	// Créer le contexte caméra
@@ -131,32 +128,13 @@ void Engine::Application::Init()
 
 	triggerSystem->Init(physicsBodySystem);
 
-	// 10. Create a dynamic entity
-	Entity e = coord.CreateEntity();
+    glfwSetWindowUserPointer(window.GetGLFWwindow(), &renderer);
 
-	Transform tr;
-	tr.position = { 0, 2, 0 };
-	tr.scale = { 0.5, 0.5, 0.5 };
-
-	tr.rotation = { 0, 0, 180, 1 }; // quaternion
-	coord.AddComponent(e, tr);
-
-	// Chargement du modele .obj
-	OBJResult obj = LoadOBJ("OBJ/SpinCat.obj");
-
-	// Création des buffers GPU
-	MeshRenderer mr = renderer.CreateMeshRenderer(obj.mesh);
-
-	// Ajout du MeshRender à l'entité pour le RenderSystem
-
-	coord.AddComponent(e, mr);
-	
-	// Charger la texture diffuse automatiquement
-	MaterialData mat;
-
-	mat.diffuse = renderer.CreateTextureFromFile(
-		L"OBJ/" + std::wstring(obj.material.diffuseTexName.begin(), obj.material.diffuseTexName.end())
-	);
+    glfwSetFramebufferSizeCallback(window.GetGLFWwindow(),
+        [](GLFWwindow* win, int w, int h) {
+            auto* r = static_cast<Renderer*>(glfwGetWindowUserPointer(win));
+            if (r) r->OnResize(w, h);
+        });
 
 	// Collider → ColliderSystem creates the shape, PhysicsBodySystem gets the rigid body
 	Collider col;
@@ -230,20 +208,49 @@ void Engine::Application::Init()
 	groundCol.mass        = 0.0f; // static
 	coord.AddComponent(ground, groundCol);
 
+	CreateRenderableEntity();
 
-	if (!mat.diffuse) std::cout << "Erreur : texture introuvable." << std::endl;
+	m_sceneManager.CreateScene("MainScene", &renderer, &scriptManager);
+	m_sceneManager.SetActiveScene("MainScene");
 
-	// Ajouter le composant Material
-	coord.AddComponent(e, mat);
-	
-	// 10. Add Velocity
-	Velocity vel;
-	vel.velocity = { 0, 0, 0 };
-	coord.AddComponent(e, vel);
+    isRunning = true;
+}
 
-	isRunning = true;
 
-	Running();
+void Engine::Application::Update(float dt)
+{
+    Scene* scene = m_sceneManager.GetActiveScene();   // CORRECT
+    if (!scene) return;
+
+    // ÉTAPE 1 : Mettre à jour l'input EN PREMIER
+    input->Update();
+    window.Update();
+    audio.Update();
+
+    // ÉTAPE 2 : Traiter les inputs (caméra)
+    speed = 2.0f * dt;
+
+    renderer.MoveCamera(
+        input->Axis("MoveRight") * speed,
+        input->Axis("MoveUp") * speed,
+        input->Axis("MoveForward") * speed
+    );
+
+    if (input->Action("LockCamera")) {
+        glfwSetInputMode(window.GetGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        renderer.RotateCamera(
+            input->MouseDX() * mouseSensitivity,
+            input->MouseDY() * mouseSensitivity
+        );
+    }
+    else {
+        glfwSetInputMode(window.GetGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    }
+
+    // ÉTAPE 3 : Mettre à jour la scène
+    scene->Update(dt);
+	// ÉTAPE 4 : Rendu avec la caméra mise à jour
+	scene->Render();
 }
 
 void Engine::Application::Running()
@@ -300,12 +307,6 @@ void Engine::Application::Running()
 			);
 		}
 		else glfwSetInputMode(window.GetGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-
-		renderer.MoveCamera(
-			input->Axis("MoveRight") * speed,
-			input->Axis("MoveUp") * speed,
-			input->Axis("MoveForward") * speed
-		);
 	}
 
 	Shutdown();
@@ -321,4 +322,51 @@ void Engine::Application::Shutdown()
 
     window.ShouldClose();
     isRunning = false;
+}
+
+// --- Editor-friendly ECS helpers ---
+
+::Entity Engine::Application::CreateRenderableEntity()
+{
+    Scene* scene = m_sceneManager.GetActiveScene();
+    if (!scene) return UINT32_MAX;  // Sécurité
+
+    ::Entity e = scene->CreateRenderableEntity();  // Utiliser la scène !
+
+    // Les composants sont ajoutés via AddComponent() qui utilise la scène
+    m_sceneEntities.push_back(e);
+    return e;
+}
+
+::Transform Engine::Application::GetTransform(::Entity entity)
+{
+    Scene* scene = m_sceneManager.GetActiveScene();
+    if (!scene) return ::Transform();
+    return scene->GetTransform(entity);
+}
+
+void Engine::Application::SetTransform(::Entity entity, const ::Transform& t)
+{
+    Scene* scene = m_sceneManager.GetActiveScene();   // CORRECT
+    if (!scene) return;
+    scene->SetTransform(entity, t);
+}
+
+// Supprime une entité: la détruit via le coordinator et la retire de la liste utilisée par l'UI
+void Engine::Application::DestroyEntity(::Entity entity)
+{
+    Scene* scene = m_sceneManager.GetActiveScene();
+    if (!scene) return;
+
+    scene->DestroyEntity(entity);
+
+    // Retirer de la liste d'entités de la scène (conserver l'ordre des autres)
+    auto it = std::find(m_sceneEntities.begin(), m_sceneEntities.end(), entity);
+    if (it != m_sceneEntities.end())
+        m_sceneEntities.erase(it);
+}
+
+const std::vector<Entity>& Engine::Application::GetEntities() const
+{
+    return m_sceneManager.GetActiveScene()->GetEntities();
 }

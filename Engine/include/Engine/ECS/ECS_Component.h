@@ -4,6 +4,7 @@
 #include <cassert>
 #include <typeindex>
 #include "Engine/ECS/ECS_ComponentArray.h"
+#include "Engine/ScriptAPI.h"
 
 /*
     ComponentManager
@@ -26,6 +27,8 @@ private:
 
     // Prochain ID de composant disponible
     ComponentType mNextComponentType = 0;
+
+    
 
 public:
 
