@@ -36,15 +36,6 @@ void Engine::Application::Init()
 
 	coord.Init();
 
-	// 1. Register components (on enregistre les composants qu'on va donner)
-	coord.RegisterComponent<Transform>();
-	coord.RegisterComponent<Velocity>();
-	coord.RegisterComponent<MeshRenderer>();
-	coord.RegisterComponent<MaterialData>();
-
-	// Enregistrer le MovementSystem
-	movementSystem = coord.RegisterSystem<MovementSystem>();
-
     glfwSetWindowUserPointer(window.GetGLFWwindow(), &renderer);
 
     glfwSetFramebufferSizeCallback(window.GetGLFWwindow(),
@@ -52,65 +43,11 @@ void Engine::Application::Init()
             auto* r = static_cast<Renderer*>(glfwGetWindowUserPointer(win));
             if (r) r->OnResize(w, h);
         });
-    // ECS
-
-	Signature movementSignature;
-	movementSignature.set(coord.GetComponentType<Transform>(), true);
-	movementSignature.set(coord.GetComponentType<Velocity>(), true);
-
-	coord.SetSystemSignature<MovementSystem>(movementSignature);
-
-	// 2. Register RenderSystem
-	renderSystem = coord.RegisterSystem<RenderSystem>();
-
-	// 3. Define signature for RenderSystem
-	Signature renderSignature;
-	renderSignature.set(coord.GetComponentType<Transform>(), true);
-	renderSignature.set(coord.GetComponentType<MeshRenderer>(), true);
-	renderSignature.set(coord.GetComponentType<MaterialData>(), true);
-
-	coord.SetSystemSignature<RenderSystem>(renderSignature);
-
-	// 4. Create an entity
-	Entity e = coord.CreateEntity();
-
-	// 5. Add Transform
-	Transform tr;
-	tr.position = { 0, 0, 0 };
-	tr.scale = { 0.5, 0.5, 0.5 };
-	tr.rotation = { 0, 0, 180, 1 }; // quaternion
-	coord.AddComponent(e, tr);
-
-	// Chargement du modele .obj
-	OBJResult obj = LoadOBJ("OBJ/SpinCat.obj");
-
-	// Création des buffers GPU
-	MeshRenderer mr = renderer.CreateMeshRenderer(obj.mesh);
-
-	// Ajout du MeshRender à l'entité pour le RenderSystem
-	coord.AddComponent(e, mr);
-
-	// Charger la texture diffuse automatiquement
-	MaterialData mat;
-
-	mat.diffuse = renderer.CreateTextureFromFile(
-		L"OBJ/" + std::wstring(obj.material.diffuseTexName.begin(), obj.material.diffuseTexName.end())
-	);
-
-	if (!mat.diffuse) std::cout << "Erreur : texture introuvable." << std::endl;
-
-	// Ajouter le composant Material
-	coord.AddComponent(e, mat);
-
-	// 10. Add Velocity
-	Velocity vel;
-	vel.velocity = { 0, 0, 0 };
-	coord.AddComponent(e, vel);
+	
+    CreateRenderableEntity();
 
     m_sceneManager.CreateScene("MainScene", &renderer, &scriptManager);
     m_sceneManager.SetActiveScene("MainScene");
-
-    CreateRenderableEntity();
 
     isRunning = true;
 }

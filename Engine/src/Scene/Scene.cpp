@@ -68,6 +68,13 @@ Entity Scene::CreateRenderableEntity()
     vel.velocity = { 0,0,0 };
     m_coordinator.AddComponent<Velocity>(e, vel);
 
+    // Material
+    MaterialData mat;
+    mat.diffuse = m_renderer->CreateTextureFromFile(
+        L"OBJ/" + std::wstring(obj.material.diffuseTexName.begin(), obj.material.diffuseTexName.end())
+    );
+    m_coordinator.AddComponent<MaterialData>(e, mat);
+
     return e;
 }
 
