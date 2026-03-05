@@ -38,7 +38,13 @@ void Engine::Application::Init()
         std::cout << "Failed to initialize renderer\n";
         return;
     }
+    glfwSetWindowUserPointer(window.GetGLFWwindow(), &renderer);
 
+    glfwSetFramebufferSizeCallback(window.GetGLFWwindow(),
+        [](GLFWwindow* win, int w, int h) {
+            auto* r = static_cast<Renderer*>(glfwGetWindowUserPointer(win));
+            if (r) r->OnResize(w, h);
+        });
     // ECS
 
     coord.Init();
