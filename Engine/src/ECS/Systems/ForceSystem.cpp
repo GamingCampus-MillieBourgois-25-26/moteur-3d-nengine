@@ -1,5 +1,6 @@
 #include "Engine/ECS/Systems/ForceSystem.h"
 #include <iostream>
+#include <algorithm>
 
 void ForceSystem::Init(std::shared_ptr<PhysicsBodySystem> physicsSystem)
 {
@@ -37,8 +38,17 @@ void ForceSystem::Update(Coordinator& coord)
             // Force continue : appliquee a chaque frame par Bullet
             if (btForce.length2() > 0.0f)
                 rb->applyCentralForce(btForce);
+
+            // Gradually reduce torque as angular velocity approaches the limit
             if (btTorque.length2() > 0.0f)
-                rb->applyTorque(btTorque);
+            {
+                const float maxAngularSpeed = 25.0f;
+                float currentSpeed = rb->getAngularVelocity().length();
+
+                // Factor goes from 1.0 (stopped) to 0.0 (at max speed)
+                float factor = std::clamp(1.0f - (currentSpeed / maxAngularSpeed), 0.0f, 1.0f);
+                rb->applyTorque(btTorque * factor);
+            }
             break;
 
         case ForceMode::Impulse:

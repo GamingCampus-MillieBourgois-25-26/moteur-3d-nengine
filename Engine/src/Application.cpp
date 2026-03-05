@@ -46,7 +46,7 @@ void Engine::Application::Init()
 	coord.RegisterComponent<Transform>();
 	coord.RegisterComponent<Velocity>();
 	coord.RegisterComponent<MeshRenderer>();
-  coord.RegisterComponent<MaterialData>();
+	coord.RegisterComponent<MaterialData>();
 
 	coord.RegisterComponent<Collider>();
 	coord.RegisterComponent<Trigger>();
@@ -167,9 +167,9 @@ void Engine::Application::Init()
 
 	// Force → ForceSystem applies forces/impulses on the rigid body
 	Force force;
-	force.force  = { 0.0f, 5.0f, 0.0f }; // Example: upward impulse
-	force.torque = { 0.0f, 0.0f, 0.0f };
-	force.mode   = ForceMode::Impulse;
+	force.force  = { 0.0f, 0.0f, 0.0f }; // No continuous linear force
+	force.torque = { 0.0f, 2.5f, 0.0f }; // Gentle continuous torque around Y axis
+	force.mode   = ForceMode::Force;      // Continuous force (not impulse)
 	force.active = true;
 	coord.AddComponent(e, force);
 
@@ -214,64 +214,6 @@ void Engine::Application::Init()
 	    std::cout << "Entity " << other << " left zone " << self << "\n";
 	};
 	coord.AddComponent(zone, trig);
-
-	// 12. Example: create two entities linked by a Point2Point joint
-	Entity entityA = coord.CreateEntity();
-	{
-		Transform t;
-		t.position = { -2, 5, 0 };
-		t.scale = { 0.3f, 0.3f, 0.3f };
-		t.rotation = { 0, 0, 0, 1 };
-		coord.AddComponent(entityA, t);
-
-		Collider c;
-		c.shapeType   = ColliderShapeType::Box;
-		c.halfExtents = { 0.3f, 0.3f, 0.3f };
-		c.mass        = 0.0f; // static anchor
-		coord.AddComponent(entityA, c);
-	}
-
-	Entity entityB = coord.CreateEntity();
-	{
-		Transform t;
-		t.position = { -2, 3, 0 };
-		t.scale = { 0.3f, 0.3f, 0.3f };
-		t.rotation = { 0, 0, 0, 1 };
-		coord.AddComponent(entityB, t);
-
-		Collider c;
-		c.shapeType   = ColliderShapeType::Box;
-		c.halfExtents = { 0.3f, 0.3f, 0.3f };
-		c.mass        = 1.0f; // dynamic
-		coord.AddComponent(entityB, c);
-
-		// Joint on entityB, targeting entityA
-		Joint joint;
-		joint.type         = JointType::Point2Point;
-		joint.targetEntity = entityA;
-		joint.pivotA       = { 0.0f, -1.0f, 0.0f }; // bottom of entityA
-		joint.pivotB       = { 0.0f,  1.0f, 0.0f }; // top of entityB
-		coord.AddComponent(entityB, joint);
-	}
-
-	// 13. Example: create a character controller entity
-	Entity player = coord.CreateEntity();
-	{
-		Transform t;
-		t.position = { 3, 2, 0 };
-		t.scale = { 0.4f, 1.0f, 0.4f };
-		t.rotation = { 0, 0, 0, 1 };
-		coord.AddComponent(player, t);
-
-		CharacterController cc;
-		cc.capsuleRadius = 0.4f;
-		cc.capsuleHeight = 1.0f;
-		cc.walkSpeed     = 5.0f;
-		cc.jumpSpeed     = 6.0f;
-		cc.stepHeight    = 0.35f;
-		cc.gravity       = -9.81f;
-		coord.AddComponent(player, cc);
-	}
 
 	// Ground plane (static)
 	Entity ground = coord.CreateEntity();
