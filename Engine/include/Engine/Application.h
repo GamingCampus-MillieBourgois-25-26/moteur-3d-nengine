@@ -10,16 +10,9 @@
 #include "Renderer.h"
 #include "ScriptManager.h"
 #include "Input.h"
-#include "ECS/Systems/RenderSystem.h"
-#include "ECS/Systems/MovementSystem.h"
-#include "ECS/Systems/PhysicsBodySystem.h"
-#include "ECS/Systems/ColliderSystem.h"
-#include "ECS/Systems/TriggerSystem.h"
-#include "ECS/Systems/ForceSystem.h"
-#include "ECS/Systems/JointSystem.h"
-#include "ECS/Systems/CharacterControllerSystem.h"
 #include "Engine/Scene/SceneManager.h"
 #include "Engine/ECS/ECS_Coordinator.h"
+#include "Engine/PhysicsIncluder.h"
 
 #include <chrono>
 #include <filesystem>
@@ -33,7 +26,6 @@ namespace Engine {
     private:
         bool isRunning = true;
 
-
         SceneManager m_sceneManager;
 
         AudioSystem audio;
@@ -42,12 +34,8 @@ namespace Engine {
         std::unique_ptr<Input> input;
         std::shared_ptr<RenderSystem> renderSystem;
         std::shared_ptr<MovementSystem> movementSystem;
-        std::shared_ptr<PhysicsBodySystem> physicsBodySystem;
-		std::shared_ptr<ColliderSystem> colliderSystem;
-		std::shared_ptr<TriggerSystem> triggerSystem;
-		std::shared_ptr<ForceSystem> forceSystem;
-		std::shared_ptr<JointSystem> jointSystem;
-		std::shared_ptr<CharacterControllerSystem> characterControllerSystem;
+        PhysicCustom customP;
+
         ScriptManager scriptManager;
         Renderer renderer;
 

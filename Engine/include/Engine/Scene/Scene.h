@@ -4,9 +4,6 @@
 #include <string>
 
 #include "Engine/ECS/ECS_Coordinator.h"
-#include "Engine/ECS/Systems/RenderSystem.h"
-#include "Engine/ECS/Systems/MovementSystem.h"
-
 #include "Engine/Renderer.h"
 #include "Engine/ScriptManager.h"
 
@@ -15,6 +12,7 @@
 #include "Engine/ECS/Components/Name.h"
 #include "Engine/ECS/Components/Script.h"
 #include "Engine/OBJ/NewOBJLoader.h"
+#include "Engine/PhysicsIncluder.h"
 
 class Scene
 {
@@ -48,6 +46,8 @@ private:
 
     Coordinator m_coordinator;
     std::vector<Entity> m_entities;
+
+    PhysicCustom customPH;
 
     std::shared_ptr<RenderSystem> m_renderSystem;
     std::shared_ptr<MovementSystem> m_movementSystem;
