@@ -43,31 +43,31 @@ Il s’agit d’un moteur pédagogique mais robuste, conçu pour être clair, mo
 
 ## 📁 Structure du projet
 
-Engine/
-├── ECS/
-│    ├── Coordinator
-│    ├── EntityManager
-│    ├── ComponentManager
-│    ├── SystemManager
-│    ├── Components/
-│    └── Systems/
-├── Physics/
-│    ├── PhysicsBodySystem
-│    ├── ColliderSystem
-│    ├── ForceSystem
-│    ├── JointSystem
-│    ├── TriggerSystem
-│    └── CharacterControllerSystem
-├── Renderer/
-│    ├── Renderer.h/.cpp
-│    ├── WICTextureLoader
-│    └── NewOBJLoader
-├── Script/
-│    ├── ScriptAPI.h
-│    └── ScriptManager.h/.cpp
-└── MathsLib/
-├── Vector3
-└── Quaternion
+Engine/  
+├── ECS/  
+│    ├── Coordinator  
+│    ├── EntityManager  
+│    ├── ComponentManager  
+│    ├── SystemManager  
+│    ├── Components/  
+│    └── Systems/  
+├── Physics/  
+│    ├── PhysicsBodySystem  
+│    ├── ColliderSystem  
+│    ├── ForceSystem  
+│    ├── JointSystem  
+│    ├── TriggerSystem  
+│    └── CharacterControllerSystem  
+├── Renderer/  
+│    ├── Renderer.h/.cpp  
+│    ├── WICTextureLoader  
+│    └── NewOBJLoader  
+├── Script/  
+│    ├── ScriptAPI.h  
+│    └── ScriptManager.h/.cpp  
+└── MathsLib/  
+├── Vector3  
+└── Quaternion  
 
 ---
 
