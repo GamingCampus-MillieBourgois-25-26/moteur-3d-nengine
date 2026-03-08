@@ -1,87 +1,64 @@
 #pragma once
+/**
+ * @file ECS_ComponentArray.h
+ * @brief Cache-friendly, O(1) dense component storage.
+ * @ingroup ECS
+ */
+
 #include <array>
 #include <unordered_map>
 #include <cassert>
 #include "Engine/ECS/ECS_Types.h"
 #include "Engine/ECS/ECS_IComponentArray.h"
 
-/*
-    ComponentArray<T>
-    -----------------
-    Stocke tous les composants d’un type T.
-
-    Structure :
-    - mComponentArray : tableau contigu (rapide, cache-friendly)
-    - mEntityToIndex  : map entité -> index dans le tableau
-    - mIndexToEntity  : map index -> entité (pour swap & delete)
-    - mSize           : nombre de composants stockés
-
-    Objectif :
-    - accès O(1)
-    - suppression O(1) (swap avec le dernier)
-*/
-
+/**
+ * @brief Contiguous array storing all components of type T.
+ *
+ * @tparam T  Component type (e.g. Transform, Velocity, MeshRenderer).
+ *
+ * Design goals:
+ *  - **Cache-friendly** â€“ all T values are stored in a single flat array.
+ *  - **O(1) insertion** â€“ new components are appended at the end.
+ *  - **O(1) removal**   â€“ the removed slot is back-filled with the last element.
+ *  - **O(1) lookup**    â€“ entity â†’ array index via an unordered_map.
+ *
+ * Internal bookkeeping maps:
+ *  - mEntityToIndex : Entity â†’ array index.
+ *  - mIndexToEntity : array index â†’ Entity (needed for the swap-remove).
+ */
 template<typename T>
 class ComponentArray : public IComponentArray
 {
 public:
-    std::array<T, MAX_ENTITIES> mComponentArray;
-    std::unordered_map<Entity, size_t> mEntityToIndex;
-    std::unordered_map<size_t, Entity> mIndexToEntity;
-    size_t mSize = 0;
+    std::array<T, MAX_ENTITIES>          mComponentArray; ///< Flat component storage.
+    std::unordered_map<Entity, size_t>   mEntityToIndex;  ///< Entity  â†’ storage index.
+    std::unordered_map<size_t, Entity>   mIndexToEntity;  ///< Index   â†’ entity (for swap-remove).
+    size_t                               mSize = 0;       ///< Number of active components.
 
-    // Ajoute un composant pour une entité
-    void InsertData(Entity entity, T component)
-    {
-        assert(mSize < MAX_ENTITIES && "Too many components of this type.");
-        assert(mEntityToIndex.find(entity) == mEntityToIndex.end());
+    /**
+     * @brief Inserts a component for @p entity.
+     * @param entity     The owning entity (must not already own a T component).
+     * @param component  Component value to store.
+     */
+    void InsertData(Entity entity, T component);
 
-        size_t newIndex = mSize;
+    /**
+     * @brief Removes the component of @p entity using a swap-and-pop.
+     *
+     * The last element is moved into the freed slot to keep the array dense.
+     * @param entity  The entity whose component should be removed.
+     */
+    void RemoveData(Entity entity);
 
-        mEntityToIndex[entity] = newIndex;
-        mIndexToEntity[newIndex] = entity;
-        mComponentArray[newIndex] = component;
+    /**
+     * @brief Returns a reference to the component owned by @p entity.
+     * @param entity  Must own a T component (asserted in debug).
+     */
+    T& GetData(Entity entity);
 
-        ++mSize;
-    }
-
-    // Supprime un composant (swap & delete)
-    void RemoveData(Entity entity)
-    {
-        assert(mEntityToIndex.find(entity) != mEntityToIndex.end());
-
-        size_t indexOfRemovedEntity = mEntityToIndex[entity];
-        size_t indexOfLastElement = mSize - 1;
-
-        // Déplace le dernier élément à la place de celui supprimé
-        mComponentArray[indexOfRemovedEntity] = mComponentArray[indexOfLastElement];
-
-        Entity entityOfLastElement = mIndexToEntity[indexOfLastElement];
-
-        // Met à jour les maps
-        mEntityToIndex[entityOfLastElement] = indexOfRemovedEntity;
-        mIndexToEntity[indexOfRemovedEntity] = entityOfLastElement;
-
-        // Supprime les anciennes entrées
-        mEntityToIndex.erase(entity);
-        mIndexToEntity.erase(indexOfLastElement);
-
-        --mSize;
-    }
-
-    // Accès direct au composant d'une entité
-    T& GetData(Entity entity)
-    {
-        assert(mEntityToIndex.find(entity) != mEntityToIndex.end());
-        return mComponentArray[mEntityToIndex[entity]];
-    }
-
-    // Appelé quand une entité est détruite
-    void EntityDestroyed(Entity entity) override
-    {
-        if (mEntityToIndex.find(entity) != mEntityToIndex.end())
-        {
-            RemoveData(entity);
-        }
-    }
+    /**
+     * @brief IComponentArray override â€“ removes the component if the entity owns one.
+     * @param entity  The destroyed entity.
+     */
+    void EntityDestroyed(Entity entity) override;
 };

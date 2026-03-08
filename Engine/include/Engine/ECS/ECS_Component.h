@@ -1,102 +1,128 @@
 #pragma once
-#include <memory> 
-#include <cstdint> 
+/**
+ * @file ECS_Component.h
+ * @brief ComponentManager â€“ maps C++ types to IDs and owns all ComponentArray<T>.
+ * @ingroup ECS
+ */
+
+#include <memory>
+#include <cstdint>
 #include <cassert>
 #include <typeindex>
 #include "Engine/ECS/ECS_ComponentArray.h"
 #include "Engine/ScriptAPI.h"
 
-/*
-    ComponentManager
-    ----------------
-    - Associe un type C++ (Transform, Velocity...) à un ID de composant
-    - Stocke un ComponentArray<T> pour chaque type
-    - Ajoute / retire / récupère un composant pour une entité
-    - Nettoie les composants quand une entité est détruite
-*/
-
-class ComponentManager 
+/**
+ * @brief Central registry for all component types and their data arrays.
+ *
+ * Responsibilities:
+ *  - Assign a unique ComponentType ID to each C++ component type on registration.
+ *  - Maintain one ComponentArray<T> per registered type.
+ *  - Provide Add / Remove / Get operations forwarded to the appropriate array.
+ *  - Propagate entity-destruction events to every registered array.
+ *
+ * Usage pattern (via Coordinator):
+ * @code
+ *  componentManager.RegisterComponent<Transform>();
+ *  componentManager.AddComponent<Transform>(entity, myTransform);
+ *  Transform& t = componentManager.GetComponent<Transform>(entity);
+ * @endcode
+ */
+class ComponentManager
 {
-
 private:
-    // Associe un type C++ à un ID de composant
+    /// @brief Maps a C++ type_index to its unique ComponentType ID.
     std::unordered_map<std::type_index, ComponentType> mComponentTypes;
 
-    // Stocke un ComponentArray<T> pour chaque type
+    /// @brief Stores a ComponentArray<T> for each registered type, type-erased.
     std::unordered_map<std::type_index, std::unique_ptr<IComponentArray>> mComponentArrays;
 
-    // Prochain ID de composant disponible
+    /// @brief Next available component type ID.
     ComponentType mNextComponentType = 0;
 
-    
-
 public:
-
-    // Supprime les composants d'une entité dans tous les ComponentArray
+    /**
+     * @brief Notifies all component arrays that @p entity has been destroyed.
+     *
+     * Each array removes the entity's component if it owns one.
+     * @param entity  The destroyed entity.
+     */
     void EntityDestroyed(Entity entity);
-    
-    // Enregistre un nouveau type de composant
+
+    /**
+     * @brief Registers a new component type T and allocates its storage array.
+     *
+     * Must be called once per type before any AddComponent<T>() call.
+     * Asserts if T was already registered or MAX_COMPONENTS is exceeded.
+     *
+     * @tparam T  The component type to register.
+     */
     template<typename T>
     void RegisterComponent()
     {
         std::type_index typeName(typeid(T));
-
-        // Vérifie si le composant est déjà enregistré
-        assert(mComponentTypes.find(typeName) == mComponentTypes.end() && "Component type already registered.");
-
-        // Assigne un ID unique
+        assert(mComponentTypes.find(typeName) == mComponentTypes.end() &&
+               "Component type already registered.");
         mComponentTypes[typeName] = mNextComponentType;
-
-        // Crée et stocke un ComponentArray<T>
         mComponentArrays[typeName] = std::make_unique<ComponentArray<T>>();
-
         ++mNextComponentType;
-        assert(mNextComponentType <= MAX_COMPONENTS && "Exceeded maximum number of components.");
+        assert(mNextComponentType <= MAX_COMPONENTS &&
+               "Exceeded maximum number of components.");
     }
 
-    // Ajoute un composant à une entité
+    /**
+     * @brief Adds component @p component to @p entity.
+     * @tparam T      Component type (must be registered).
+     * @param entity  Target entity.
+     * @param component  Value to store.
+     */
     template<typename T>
     void AddComponent(Entity entity, T component)
     {
         std::type_index typeName(typeid(T));
-
-        auto componentArray = static_cast<ComponentArray<T>*>(mComponentArrays[typeName].get());
-        assert(componentArray && "Component not registered.");
-
-        componentArray->InsertData(entity, component);
+        auto* arr = static_cast<ComponentArray<T>*>(mComponentArrays[typeName].get());
+        assert(arr && "Component not registered.");
+        arr->InsertData(entity, component);
     }
 
-    // Supprime un composant d'une entité
+    /**
+     * @brief Removes the T component from @p entity.
+     * @tparam T      Component type (must be registered).
+     * @param entity  Target entity.
+     */
     template<typename T>
-    void RemoveComponent(Entity entity) {
+    void RemoveComponent(Entity entity)
+    {
         std::type_index typeName(typeid(T));
-
-        auto componentArray = static_cast<ComponentArray<T>*>(mComponentArrays[typeName].get());
-        assert(componentArray && "Component not registered.");
-
-        componentArray->RemoveData(entity);
+        auto* arr = static_cast<ComponentArray<T>*>(mComponentArrays[typeName].get());
+        assert(arr && "Component not registered.");
+        arr->RemoveData(entity);
     }
 
-    // Récupère une référence au composant d'une entité
+    /**
+     * @brief Returns a reference to the T component owned by @p entity.
+     * @tparam T      Component type (must be registered).
+     * @param entity  Target entity (must own a T component).
+     */
     template<typename T>
     T& GetComponent(Entity entity)
     {
         std::type_index typeName(typeid(T));
-
-        //auto componentArray = std::static_pointer_cast<ComponentArray<T>>(mComponentArrays[typeName]);
-        auto componentArray = static_cast<ComponentArray<T>*>(mComponentArrays[typeName].get());
-        assert(componentArray && "Component not registered.");
-
-        return componentArray->GetData(entity);
+        auto* arr = static_cast<ComponentArray<T>*>(mComponentArrays[typeName].get());
+        assert(arr && "Component not registered.");
+        return arr->GetData(entity);
     }
 
-    // Retourne l'ID du type de composant T
+    /**
+     * @brief Returns the unique ID assigned to component type T.
+     * @tparam T  Component type (must be registered).
+     */
     template<typename T>
     ComponentType GetComponentType()
     {
         std::type_index typeName(typeid(T));
-        assert(mComponentTypes.find(typeName) != mComponentTypes.end() && "Component not registered.");
-
+        assert(mComponentTypes.find(typeName) != mComponentTypes.end() &&
+               "Component not registered.");
         return mComponentTypes[typeName];
     }
 };

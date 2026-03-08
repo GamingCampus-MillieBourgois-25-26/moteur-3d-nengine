@@ -17,6 +17,14 @@
 //--------------------------------------------------------------------------------------
 
 #pragma once
+/**
+ * @file DDS.h
+ * @brief DDS texture file format structures and constants (DirectXTex).
+ *
+ * @note This is a third-party or platform-specific header.
+ *       Refer to the original library documentation for detailed API information.
+ */
+
 
 #include <cstdint>
 

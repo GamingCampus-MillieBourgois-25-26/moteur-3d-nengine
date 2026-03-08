@@ -22,6 +22,14 @@
 //--------------------------------------------------------------------------------------
 
 #pragma once
+/**
+ * @file WICTextureLoader.h
+ * @brief WIC-based texture loader for common formats (PNG, JPG, BMP) for Direct3D 11 (from DirectXTK).
+ *
+ * @note This is a third-party or platform-specific header.
+ *       Refer to the original library documentation for detailed API information.
+ */
+
 
 #if defined(_XBOX_ONE) && defined(_TITLE)
 #include <d3d11_x.h>

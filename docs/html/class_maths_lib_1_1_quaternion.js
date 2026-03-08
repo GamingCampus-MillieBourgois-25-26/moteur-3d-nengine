@@ -1,0 +1,25 @@
+var class_maths_lib_1_1_quaternion =
+[
+    [ "Quaternion", "class_maths_lib_1_1_quaternion.html#ae0a8b208b7934e2289f0769f16e8cbf5", null ],
+    [ "Quaternion", "class_maths_lib_1_1_quaternion.html#ad29715c95d5dcf77c36d96d75eb86cf0", null ],
+    [ "AngleAxis", "class_maths_lib_1_1_quaternion.html#a9f0c6c2adfd83033f82b878f3999f62c", null ],
+    [ "Equals", "class_maths_lib_1_1_quaternion.html#aa4c0fea520fdec5eb53e85ef02cf3c7e", null ],
+    [ "magnitude", "class_maths_lib_1_1_quaternion.html#af9027e6f373166772692a8eea03a5d39", null ],
+    [ "Normalize", "class_maths_lib_1_1_quaternion.html#a942a483f11797a6b6303ed03f7f0a747", null ],
+    [ "normalized", "class_maths_lib_1_1_quaternion.html#abd7f49e6c280068faf32d171734d3f41", null ],
+    [ "operator*", "class_maths_lib_1_1_quaternion.html#ad684837c3ecbceeccb70c02c6152af06", null ],
+    [ "operator*", "class_maths_lib_1_1_quaternion.html#a638acddf89c029f15b3cc75dd874f856", null ],
+    [ "operator+", "class_maths_lib_1_1_quaternion.html#aca24706580bf7833b4dfc96a53a5b71c", null ],
+    [ "operator-", "class_maths_lib_1_1_quaternion.html#a29daa6ab54d5dd33596ab8100b15efea", null ],
+    [ "operator==", "class_maths_lib_1_1_quaternion.html#a16845c4fceff82d2136f6a1411dbbffc", null ],
+    [ "operator[]", "class_maths_lib_1_1_quaternion.html#ad481f8dd0ac8b1f7490efd6abeaf6bce", null ],
+    [ "Set", "class_maths_lib_1_1_quaternion.html#a9d0b136855bd62314c7ee2e3b5747d0a", null ],
+    [ "SetFromToRotation", "class_maths_lib_1_1_quaternion.html#a5109d18a573f2c5ea753d0323215cd1d", null ],
+    [ "SetLookRotation", "class_maths_lib_1_1_quaternion.html#abedb561bbcc5b39f12cf92d33d558b35", null ],
+    [ "ToAngleAxis", "class_maths_lib_1_1_quaternion.html#a940139e3df07a6f1124a20174d86ea08", null ],
+    [ "toString", "class_maths_lib_1_1_quaternion.html#ac2f5b1eae6da47d64c6016467c0fee03", null ],
+    [ "w", "class_maths_lib_1_1_quaternion.html#aaa850d7c1389433e3eefcc993ee1ce29", null ],
+    [ "x", "class_maths_lib_1_1_quaternion.html#a909f895b6a3288ab7cac0829d44238bd", null ],
+    [ "y", "class_maths_lib_1_1_quaternion.html#a4671905ec36fbcbbb46b61f994d6ac50", null ],
+    [ "z", "class_maths_lib_1_1_quaternion.html#a4fa7bc91812fe5333d14c3f4eac40efc", null ]
+];

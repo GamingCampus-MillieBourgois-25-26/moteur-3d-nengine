@@ -1,72 +1,100 @@
-﻿#pragma once
+#pragma once
+/**
+ * @file PhysicsBodySystem.h
+ * @brief Core physics system – owns the Bullet world and all rigid bodies.
+ * @ingroup Systems
+ */
+
 #include "Engine/ECS/ECS_System.h"
 #include "Engine/ECS/ECS_Coordinator.h"
 #include "Engine/ECS/Components/Transform.h"
-
 #include <btBulletDynamicsCommon.h>
 #include <BulletCollision/CollisionShapes/btBoxShape.h>
 #include <LinearMath/btVector3.h>
 #include <memory>
 #include <unordered_map>
 
-/*
-    PhysicsBodySystem
-    -----------------
-    Systeme physique utilisant Bullet Physics pour simuler les rigid bodies.
-
-    Responsabilites :
-    - Initialiser le monde physique Bullet (btDiscreteDynamicsWorld)
-    - Creer / supprimer des btRigidBody pour chaque entite compatible
-    - Appeler stepSimulation chaque frame
-    - Synchroniser les resultats vers le composant Transform
-
-    Ce systeme traite les entites ayant :
-    - Transform
-*/
-
+/**
+ * @brief Owns the Bullet dynamics world and manages all btRigidBody instances.
+ *
+ * Required components: **Transform**
+ *
+ * Responsibilities:
+ *  - Initialise the full Bullet pipeline (broadphase, dispatcher, solver, world).
+ *  - Create and store btRigidBody objects on behalf of ColliderSystem.
+ *  - Step the simulation every frame (stepSimulation).
+ *  - Write the resulting transform back to each entity's Transform component.
+ *  - Provide access to the raw Bullet objects for other systems (ForceSystem,
+ *    JointSystem, TriggerSystem, CharacterControllerSystem).
+ *
+ * All other physics sub-systems depend on PhysicsBodySystem being
+ * initialised first via Init().
+ */
 class PhysicsBodySystem : public System
 {
 public:
-    // Initialise le monde physique Bullet
+    /// @brief Initialises the Bullet dynamics world (call once at scene startup).
     void Init();
 
-    // Ajoute un rigid body a partir d'une shape deja creee (utilise par ColliderSystem)
+    /**
+     * @brief Creates a rigid body for @p entity with the given @p shape and @p mass.
+     *
+     * Called by ColliderSystem after it has built the btCollisionShape.
+     *
+     * @param entity    Owning entity (must have a Transform component).
+     * @param coord     ECS coordinator for Transform access.
+     * @param mass      Body mass (0 = static / kinematic).
+     * @param shape     Collision shape (ownership transferred to this system).
+     */
     void AddRigidBody(Entity entity, Coordinator& coord, float mass,
                       std::unique_ptr<btCollisionShape> shape);
 
-    // Supprime le rigid body associe a une entite
+    /**
+     * @brief Removes and destroys the rigid body associated with @p entity.
+     * @param entity  Entity whose body should be removed.
+     */
     void RemoveRigidBody(Entity entity);
 
-    // Avance la simulation physique et synchronise les Transforms
+    /**
+     * @brief Steps the physics simulation and synchronises Transform components.
+     * @param coord  ECS coordinator for Transform write-back.
+     * @param dt     Delta-time in seconds.
+     */
     void Update(Coordinator& coord, float dt);
 
-    // Libere toutes les ressources Bullet
+    /// @brief Destroys the Bullet world and all rigid bodies.
     void Shutdown();
 
-    // Verifie si une entite a deja un rigid body
+    /**
+     * @brief Returns true if @p entity already has an associated rigid body.
+     */
     bool HasRigidBody(Entity entity) const;
 
-    // Retourne le pointeur vers le btRigidBody d'une entite (nullptr si absent)
+    /**
+     * @brief Returns the btRigidBody pointer for @p entity, or nullptr if absent.
+     */
     btRigidBody* GetRigidBody(Entity entity) const;
 
-    // Retourne le pointeur vers le monde Bullet (nullptr si non initialise)
+    /**
+     * @brief Returns a raw pointer to the Bullet dynamics world, or nullptr if
+     *        Init() has not been called.
+     */
     btDynamicsWorld* GetDynamicsWorld() const;
 
 private:
-    // Composants du monde Bullet
-    std::unique_ptr<btDefaultCollisionConfiguration>     m_collisionConfig;
-    std::unique_ptr<btCollisionDispatcher>               m_dispatcher;
-    std::unique_ptr<btDbvtBroadphase>                    m_broadphase;
-    std::unique_ptr<btSequentialImpulseConstraintSolver> m_solver;
-    std::unique_ptr<btDiscreteDynamicsWorld>             m_dynamicsWorld;
+    std::unique_ptr<btDefaultCollisionConfiguration>     m_collisionConfig; ///< Bullet collision configuration.
+    std::unique_ptr<btCollisionDispatcher>               m_dispatcher;      ///< Collision dispatcher.
+    std::unique_ptr<btDbvtBroadphase>                    m_broadphase;      ///< Broadphase algorithm.
+    std::unique_ptr<btSequentialImpulseConstraintSolver> m_solver;          ///< Constraint solver.
+    std::unique_ptr<btDiscreteDynamicsWorld>             m_dynamicsWorld;   ///< Main Bullet world.
 
-    // Association Entity -> btRigidBody (+ collision shape + motion state)
+    /// @brief Per-entity rigid-body bookkeeping.
     struct BodyData
     {
-        std::unique_ptr<btRigidBody>          rigidBody;
-        std::unique_ptr<btCollisionShape>     shape;
-        std::unique_ptr<btDefaultMotionState> motionState;
+        std::unique_ptr<btRigidBody>          rigidBody;   ///< Bullet rigid body.
+        std::unique_ptr<btCollisionShape>     shape;       ///< Collision shape (owned here).
+        std::unique_ptr<btDefaultMotionState> motionState; ///< Synchronises transform to Bullet.
     };
 
-    std::unordered_map<Entity, BodyData> m_bodies;
+    std::unordered_map<Entity, BodyData> m_bodies; ///< All active rigid bodies, keyed by entity.
 };

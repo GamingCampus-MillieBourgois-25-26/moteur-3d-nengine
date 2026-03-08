@@ -8,6 +8,14 @@
 //--------------------------------------------------------------------------------------
 
 #pragma once
+/**
+ * @file pch.h
+ * @brief Pre-compiled header for the OBJ loader module.
+ *
+ * @note This is a third-party or platform-specific header.
+ *       Refer to the original library documentation for detailed API information.
+ */
+
 
 #ifdef _MSC_VER
 // Off by default warnings

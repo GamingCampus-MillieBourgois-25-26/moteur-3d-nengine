@@ -15,6 +15,14 @@
 //--------------------------------------------------------------------------------------
 
 #pragma once
+/**
+ * @file DDSTextureLoader.h
+ * @brief Lightweight DDS texture loader for Direct3D 11 (from DirectXTK).
+ *
+ * @note This is a third-party or platform-specific header.
+ *       Refer to the original library documentation for detailed API information.
+ */
+
 
 #if defined(_XBOX_ONE) && defined(_TITLE)
 #include <d3d11_x.h>

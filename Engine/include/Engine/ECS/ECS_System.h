@@ -1,26 +1,31 @@
 #pragma once
+/**
+ * @file ECS_System.h
+ * @brief Base class for all ECS systems.
+ * @ingroup ECS
+ */
+
 #include "Engine/ECS/ECS_Types.h"
-#include <set> 
+#include <set>
 
-/*
-    System
-    ------
-    Classe de base pour tous les systèmes (MovementSystem, RenderSystem, etc.)
-
-    Chaque système contient :
-    - une liste d'entités compatibles (mEntities)
-      -> alimentée automatiquement par le SystemManager
-
-    Les systèmes ne stockent pas de données.
-    Ils ne contiennent que de la logique (Update, Render, etc.)
-*/
-
-// System : contient la logique (traite les entites qui ont des composants pour pouvoir bouger et influer sur le monde
-// logique + liste d'entites compatibles
-
-class System // chaque systeme contient une liste d'entites correspondant a sa signature
+/**
+ * @brief Abstract base class for every game system (MovementSystem, RenderSystem, â€¦).
+ *
+ * A System contains **logic only** â€“ it never owns component data.
+ * The SystemManager automatically populates mEntities with every entity
+ * whose component signature matches the system's registered signature.
+ *
+ * Derived systems typically override Update(), Render(), or a custom
+ * tick method and iterate over mEntities to process matching components.
+ */
+class System
 {
 public:
-    // Ensemble des entités que ce système doit traiter
+    /**
+     * @brief Set of entities whose signature satisfies this system's requirements.
+     *
+     * Maintained automatically by the SystemManager; systems should treat
+     * this as read-only and iterate over it during their update step.
+     */
     std::set<Entity> mEntities;
 };

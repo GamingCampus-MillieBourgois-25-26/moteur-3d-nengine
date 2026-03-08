@@ -1,3 +1,11 @@
+/**
+ * @file tiny_obj_loader.h
+ * @brief Single-header OBJ/MTL file parser (tinyobjloader by Syoyo Fujita). See https://github.com/tinyobjloader/tinyobjloader for full documentation.
+ *
+ * @note This is a third-party or platform-specific header.
+ *       Refer to the original library documentation for detailed API information.
+ */
+
 /*
 The MIT License (MIT)
 

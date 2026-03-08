@@ -1,4 +1,12 @@
 #pragma once
+/**
+ * @file NewOBJLoader.h
+ * @brief Engine-specific OBJ mesh loader that wraps tinyobj and uploads geometry to D3D11.
+ *
+ * @note This is a third-party or platform-specific header.
+ *       Refer to the original library documentation for detailed API information.
+ */
+
 #include "Engine/OBJ/tiny_obj_loader.h"
 #include "Engine/OBJ/WICTextureLoader.h"
 #include "Engine/ECS/Components/MaterialData.h"
@@ -27,5 +35,5 @@ struct OBJResult {
     MaterialCPU material;
 };
 
-// Charge un fichier .obj et reconstruit un mesh optimisé (vertices uniques + indices) 
+// Charge un fichier .obj et reconstruit un mesh optimisÃ© (vertices uniques + indices) 
 OBJResult LoadOBJ(const std::string& path);

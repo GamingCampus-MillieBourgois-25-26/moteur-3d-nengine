@@ -1,64 +1,77 @@
 #pragma once
+/**
+ * @file ECS_Entity.h
+ * @brief Entity lifecycle management â€“ ID allocation and signature storage.
+ * @ingroup ECS
+ *
+ * ECS architecture overview:
+ *  - Entity            â†’ simple integer ID
+ *  - Signature         â†’ bitset of owned component types
+ *  - EntityManager     â†’ distributes/recycles IDs and stores signatures
+ *  - ComponentArray<T> â†’ contiguous storage for one component type
+ *  - ComponentManager  â†’ owns all ComponentArrays
+ *  - System            â†’ base class for game logic
+ *  - SystemManager     â†’ maps systems to their required signatures
+ *  - Coordinator       â†’ unified facade
+ */
+
 #include <queue>
 #include <array>
 #include <cstdint>
 #include <cassert>
 #include "Engine/ECS/ECS_Types.h"
 
-/*
-
-Entity            -> simple ID
-Signature         -> bitset de composants
-
-EntityManager     -> gère IDs + signatures
-ComponentArray<T> -> stocke les composants d’un type
-ComponentManager  -> gère tous les ComponentArray
-System            -> classe de base
-SystemManager     -> gère les systèmes
-Coordinator       -> façade globale
-
-*/
-
-// Entity (ID)
-
-/*
-    ENTITY MANAGER — Rôle :
-    -----------------------
-    - Distribuer des IDs d'entités (0 -> MAX_ENTITIES)
-    - Recycler les IDs détruits
-    - Stocker la signature de chaque entité
-    - Garantir que les entités sont valides
-
-    Une entité = un simple entier (ID)
-    Une signature = un bitset indiquant quels composants elle possède
-*/
-
-class EntityManager // role : distribuer des IDs, Recycler les IDs detruits, Stocker la signature de chaque entite
+/**
+ * @brief Manages entity IDs and their component signatures.
+ *
+ * Responsibilities:
+ *  - Distribute free IDs from an internal queue (0 â†’ MAX_ENTITIES-1).
+ *  - Recycle IDs when entities are destroyed.
+ *  - Store and retrieve the component signature of every living entity.
+ *  - Enforce the MAX_ENTITIES limit via assertions.
+ */
+class EntityManager
 {
 private:
-
-    // IDs disponibles (libres). On pioche dedans pour créer des entités.
+    /// @brief Pool of free (recyclable) entity IDs.
     std::queue<Entity> mAvailableEntities;
 
-    // Signature de chaque entité (Transform, MeshRenderer, etc.)
+    /// @brief Per-entity component signature, indexed by entity ID.
     std::array<Signature, MAX_ENTITIES> mSignatures{};
 
-    // Nombre d'entités actuellement vivantes
+    /// @brief Number of entities currently alive.
     std::uint32_t mLivingEntityCount = 0;
 
 public:
-
+    /**
+     * @brief Initialises the manager by filling the ID pool with [0, MAX_ENTITIES).
+     */
     EntityManager();
 
-    // Crée une entité en prenant un ID libre dans la queue
-    Entity CreateEntity(); // prend un ID dans la queue
-    
-    // Détruit une entité : reset sa signature et remet son ID dans la queue
-    void DestroyEntity(Entity entity); // remet l'ID dans la queue
+    /**
+     * @brief Creates a new entity by taking a free ID from the pool.
+     * @return The new entity's ID.
+     * @note Asserts if MAX_ENTITIES would be exceeded.
+     */
+    Entity CreateEntity();
 
-    // Associe une signature à une entité
+    /**
+     * @brief Destroys an entity: resets its signature and returns its ID to the pool.
+     * @param entity  The entity to destroy.
+     */
+    void DestroyEntity(Entity entity);
+
+    /**
+     * @brief Stores the component signature for @p entity.
+     * @param entity     Target entity.
+     * @param signature  New component bitmask.
+     */
     void SetSignature(Entity entity, Signature signature);
 
-    // Récupère la signature d'une entité
+    /**
+     * @brief Retrieves the component signature of @p entity.
+     * @param entity  Target entity.
+     * @return The entity's current component bitmask.
+     */
     Signature GetSignature(Entity entity) const;
 };

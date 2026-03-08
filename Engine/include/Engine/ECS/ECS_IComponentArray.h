@@ -1,25 +1,32 @@
 #pragma once
+/**
+ * @file ECS_IComponentArray.h
+ * @brief Type-erased base interface for all ComponentArray<T> specialisations.
+ * @ingroup ECS
+ */
+
 #include "Engine/ECS/ECS_Types.h"
 
-/*
-    IComponentArray
-    ----------------
-    Interface commune à tous les ComponentArray<T>.
-
-    Pourquoi ?
-    ----------
-    Le ComponentManager stocke des ComponentArray<T> dans un conteneur
-    polymorphique (unordered_map<type_index, unique_ptr<IComponentArray>>).
-
-    Il doit pouvoir appeler EntityDestroyed() sur n'importe quel ComponentArray,
-    sans connaître le type T.
-*/
-
-class IComponentArray // Le ComponentManager doit pouvoir appeler EntityDestroyed() sans connaître le type T.
+/**
+ * @brief Abstract interface shared by all ComponentArray<T> instances.
+ *
+ * The ComponentManager stores component arrays in a polymorphic container
+ * (unordered_map<type_index, unique_ptr<IComponentArray>>).
+ * This interface allows the manager to call EntityDestroyed() on every
+ * array without knowing the concrete component type T.
+ */
+class IComponentArray
 {
 public:
     virtual ~IComponentArray() = default;
-    // Appelé quand une entité est détruite
-    // Chaque ComponentArray<T> doit supprimer le composant associé
+
+    /**
+     * @brief Removes the component belonging to @p entity, if it exists.
+     *
+     * Called automatically by the Coordinator when an entity is destroyed,
+     * ensuring no stale data remains in any component array.
+     *
+     * @param entity  The entity whose component should be removed.
+     */
     virtual void EntityDestroyed(Entity entity) = 0;
 };

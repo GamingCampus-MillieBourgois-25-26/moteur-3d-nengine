@@ -9,6 +9,14 @@
 //--------------------------------------------------------------------------------------
 
 #pragma once
+/**
+ * @file PlatformHelpers.h
+ * @brief Platform detection and COM/HRESULT helper macros (from DirectXTK).
+ *
+ * @note This is a third-party or platform-specific header.
+ *       Refer to the original library documentation for detailed API information.
+ */
+
 
 #ifdef _MSC_VER
 #pragma warning(disable : 4324)

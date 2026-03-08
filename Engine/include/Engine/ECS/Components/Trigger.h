@@ -1,34 +1,45 @@
 #pragma once
+/**
+ * @file Trigger.h
+ * @brief Component that turns a collider into a non-physical detection zone.
+ * @ingroup Components
+ */
+
 #include "Engine/ECS/ECS_Types.h"
 #include <functional>
 #include <unordered_set>
 
-/*
-    Trigger
-    -------
-    Composant qui marque un collider comme zone de detection (trigger).
-
-    Un trigger ne genere pas de reponse physique (pas de rebond),
-    mais detecte les entrees et sorties d'autres entites.
-
-    Le TriggerSystem lit ce composant pour :
-    - Configurer le btRigidBody comme ghost (CF_NO_CONTACT_RESPONSE)
-    - Detecter les paires de collision via le btDispatcher
-    - Appeler les callbacks OnEnter / OnStay / OnExit
-*/
-
+/**
+ * @brief Marks a collider as a trigger volume.
+ *
+ * A trigger does not generate physics responses (no forces, no impulses).
+ * Instead, the TriggerSystem monitors overlap events and fires user-supplied
+ * callbacks:
+ *  - **onEnter** – called the first frame another entity enters the volume.
+ *  - **onStay**  – called every subsequent frame while the entity remains inside.
+ *  - **onExit**  – called the first frame the entity leaves the volume.
+ *
+ * The TriggerSystem configures the underlying btRigidBody with the
+ * CF_NO_CONTACT_RESPONSE flag and uses the btDispatcher to detect pairs.
+ *
+ * @note The entity must also own a Collider and a Transform for the
+ *       trigger volume to be created.
+ */
 struct Trigger
 {
     Trigger() = default;
 
-    // Callbacks utilisateur (optionnels)
+    /// @brief Fired when @p other enters this trigger for the first time.
     std::function<void(Entity /*self*/, Entity /*other*/)> onEnter = nullptr;
+
+    /// @brief Fired every frame while @p other remains inside this trigger.
     std::function<void(Entity /*self*/, Entity /*other*/)> onStay  = nullptr;
+
+    /// @brief Fired when @p other exits this trigger.
     std::function<void(Entity /*self*/, Entity /*other*/)> onExit  = nullptr;
 
-    // Etat interne : entites actuellement dans la zone (gere par TriggerSystem)
+    /// @brief Internal set of entities currently overlapping (managed by TriggerSystem).
     std::unordered_set<Entity> currentOverlaps;
 
-    // Indique si le rigid body a deja ete configure en ghost
-    bool initialized = false;
+    bool initialized = false; ///< Set by TriggerSystem once the ghost configuration is applied.
 };

@@ -11,6 +11,14 @@
 //--------------------------------------------------------------------------------------
 
 #pragma once
+/**
+ * @file LoaderHelpers.h
+ * @brief Internal helper functions shared by the DDS and WIC texture loaders.
+ *
+ * @note This is a third-party or platform-specific header.
+ *       Refer to the original library documentation for detailed API information.
+ */
+
 
 #include "Engine/OBJ/DDS.h"
 #include "Engine/OBJ/DDSTextureLoader.h"

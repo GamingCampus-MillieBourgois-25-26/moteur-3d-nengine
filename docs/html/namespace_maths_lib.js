@@ -1,0 +1,25 @@
+var namespace_maths_lib =
+[
+    [ "Matrice3", "class_maths_lib_1_1_matrice3.html", "class_maths_lib_1_1_matrice3" ],
+    [ "Matrice4", "class_maths_lib_1_1_matrice4.html", "class_maths_lib_1_1_matrice4" ],
+    [ "Quaternion", "class_maths_lib_1_1_quaternion.html", "class_maths_lib_1_1_quaternion" ],
+    [ "Vector2", "class_maths_lib_1_1_vector2.html", "class_maths_lib_1_1_vector2" ],
+    [ "Vector3", "class_maths_lib_1_1_vector3.html", "class_maths_lib_1_1_vector3" ],
+    [ "Matrice4< T >::identity", "namespace_maths_lib.html#adfae13005bdc0c8a7515e11dff75e4ec", null ],
+    [ "Matrice4< T >::zero", "namespace_maths_lib.html#a6468a1d91b92f609175f9c4c07d36be4", null ],
+    [ "Quaternion< T >::identity", "namespace_maths_lib.html#a14f61c3d95d056a68f59325fe2279176", null ],
+    [ "Vector2< T >::down", "namespace_maths_lib.html#ace71748d0353d114cd734ca35a572aa2", null ],
+    [ "Vector2< T >::left", "namespace_maths_lib.html#a563ad63b90c80cb4b57cf36367aa0430", null ],
+    [ "Vector2< T >::one", "namespace_maths_lib.html#a6cb02f66b780da2d357cf3158d0f1b12", null ],
+    [ "Vector2< T >::right", "namespace_maths_lib.html#af5fb4d07da7a8f5188217e8fc4276f98", null ],
+    [ "Vector2< T >::up", "namespace_maths_lib.html#a566e6ea0291fefc002847a168c76c58d", null ],
+    [ "Vector2< T >::zero", "namespace_maths_lib.html#a61b6a93ba0f0befb1a7a14da127e47df", null ],
+    [ "Vector3< T >::back", "namespace_maths_lib.html#a749bcb97427eeb233b8a30043bc32b10", null ],
+    [ "Vector3< T >::down", "namespace_maths_lib.html#a9121fd79c24146d38e9949edcf36e15e", null ],
+    [ "Vector3< T >::forward", "namespace_maths_lib.html#a42337ccd37954c286cc6efbdc91244f7", null ],
+    [ "Vector3< T >::left", "namespace_maths_lib.html#adfc0024d8b66795e9e968e5f0fa683cf", null ],
+    [ "Vector3< T >::one", "namespace_maths_lib.html#abf679b70fe60afa38c176c2533df240f", null ],
+    [ "Vector3< T >::right", "namespace_maths_lib.html#afc6fff1105ad79a54af7c10ffdaa1249", null ],
+    [ "Vector3< T >::up", "namespace_maths_lib.html#ac554a2dc1b18722b574d86ecfcc22903", null ],
+    [ "Vector3< T >::zero", "namespace_maths_lib.html#a59f0f93b6758dd0f0cf796349ca57548", null ]
+];

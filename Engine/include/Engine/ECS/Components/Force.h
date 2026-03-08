@@ -1,39 +1,37 @@
 #pragma once
+/**
+ * @file Force.h
+ * @brief Component describing forces or impulses applied to a rigid body.
+ * @ingroup Components
+ */
+
 #include "MathsLib/Vector3.h"
 
-/*
-    Force
-    -----
-    Composant decrivant les forces et impulsions a appliquer
-    sur le rigid body d'une entite.
-
-    Modes :
-    - Force     : force continue (Newton), appliquee chaque frame
-    - Impulse   : impulsion instantanee (Newton*seconde), appliquee une seule fois
-
-    Le ForceSystem lit ce composant et appelle les fonctions
-    Bullet correspondantes sur le btRigidBody.
-*/
-
+/**
+ * @brief Selects how a Force component is applied by the ForceSystem.
+ */
 enum class ForceMode
 {
-    Force,      // Force continue (appliquee chaque frame)
-    Impulse     // Impulsion instantanee (appliquee une seule fois puis remise a zero)
+    Force,   ///< Continuous force (Newtons) applied every physics frame.
+    Impulse  ///< Instantaneous impulse (Newton·seconds) applied once, then reset.
 };
 
+/**
+ * @brief Carries force/torque data that will be applied to a Bullet rigid body.
+ *
+ * The ForceSystem reads this component each physics tick, calls the
+ * appropriate btRigidBody functions, and – for Impulse mode – resets
+ * the vectors and clears the @p active flag afterwards.
+ *
+ * @note Only entities that also have a Collider (and therefore a rigid body)
+ *       will produce visible physical effects.
+ */
 struct Force
 {
     Force() = default;
 
-    // Vecteur de force / impulsion lineaire
-    MathsLib::Vector3<float> force = { 0.0f, 0.0f, 0.0f };
-
-    // Vecteur de torque / impulsion angulaire
-    MathsLib::Vector3<float> torque = { 0.0f, 0.0f, 0.0f };
-
-    // Mode d'application
-    ForceMode mode = ForceMode::Force;
-
-    // Indique si le composant a des forces en attente
-    bool active = false;
+    MathsLib::Vector3<float> force  = {0.f, 0.f, 0.f}; ///< Linear force / impulse vector (N or N·s).
+    MathsLib::Vector3<float> torque = {0.f, 0.f, 0.f}; ///< Angular torque / impulse vector.
+    ForceMode mode   = ForceMode::Force;                ///< How the force is applied.
+    bool      active = false;                           ///< True when the component has pending forces.
 };
