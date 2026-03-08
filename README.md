@@ -128,7 +128,7 @@ IScript* CreateScript(const char* name) {
 
 ![Animation](Externe/CatMotor3Ddemo.gif)  
 
-![Picture](Externes/PictureDemoEngine.png)  
+![Picture](Externe/PictureDemoEngine.png)  
 
 ## 👤 Auteur
 Développé par AAAAAAHHH ZEBIIIII.
