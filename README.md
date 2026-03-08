@@ -120,15 +120,10 @@ IScript* CreateScript(const char* name) {
 ```
 ## 📘 Documentation technique
 
-La documentation complète (architecture ECS, pipeline physique, pipeline de rendu, scripting, maths, etc.) est disponible ici :
-
-(mettre le lien du TDD)
+La documentation complète (architecture ECS, pipeline physique, pipeline de rendu, scripting, maths, etc.) est disponible dans le git sous le nom de TDD Moteur.pdf.
 
 ## 📸 Captures d’écran
 (À ajouter : images du moteur en action)
-
-## 📄 Licence
-(À préciser selon ton choix : MIT, Apache, GPL…)
 
 ## 👤 Auteur
 Développé par AAAAAAHHH ZEBIIIII.
