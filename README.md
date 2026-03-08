@@ -120,13 +120,14 @@ IScript* CreateScript(const char* name) {
 ```
 ## 📘 Documentation technique
 
-- La Technical Design Document (architecture ECS, pipeline physique, pipeline de rendu, scripting, maths, etc.) est disponible dans le git sous le nom de TDD Moteur.pdf.
+- La Technical Design Document (architecture ECS, pipeline physique, pipeline de rendu, scripting, maths, etc.) est disponible dans le dossier Externe puis sous le nom de TDD Moteur.pdf.
 
 - La documentation complète du projet est disponible ici 👉 https://gamingcampus-milliebourgois-25-26.github.io/moteur-3d-nengine/ 👈
 
 ## 📸 Captures d’écran
 
 ![Animation](Externe/CatMotor3Ddemo.gif)
+![Picture](Externes/PictureDemoEngine.png)
 
 ## 👤 Auteur
 Développé par AAAAAAHHH ZEBIIIII.
